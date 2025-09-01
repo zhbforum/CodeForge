@@ -7,8 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/onboarding/onboarding_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'widgets/speech_bubble.dart';
-part 'widgets/curved_tail.dart';
 part 'widgets/companion_blink.dart';
 part 'widgets/option_tile.dart';
 part 'steps/welcome_step.dart';
@@ -44,6 +42,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     final ok = RegExp(r"^[\p{L}\p{N}_\- '.]+$", unicode: true).hasMatch(v);
     if (!ok) return "Allowed: letters, digits, space, -, _, ', .";
     return null;
+  }
+
+  String _displayName(String value) {
+    final compact = value.trim().replaceAll(RegExp(r'\s+'), ' ');
+    return compact;
   }
 
   Future<void> _finish() async {
@@ -82,10 +85,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             _nameFocus.requestFocus();
             return;
           }
-          ctrl.setName(_nameCtrl.text.trim());
-          ScaffoldMessenger.of(context)
-            ..removeCurrentSnackBar()
-            ..showSnackBar(const SnackBar(content: Text('Nice to meet you!')));
+
+          final raw = _nameCtrl.text;
+          final nameForGreeting = _displayName(raw);
+
+          ctrl.setName(nameForGreeting);
+
+          final snack = SnackBar(
+            content: Text('Nice to meet you, $nameForGreeting!'),
+            duration: const Duration(milliseconds: 900),
+          );
+
+          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+          final controller = ScaffoldMessenger.of(context).showSnackBar(snack);
+          await controller.closed;
+
           await _finish();
         },
       ),
@@ -125,71 +139,144 @@ class _OnbFrame extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, c) {
         final isWide = c.maxWidth >= 420;
-        final maxBox = math.min(c.maxWidth * 0.9, 460).toDouble();
+        final maxBox =
+            (isWide
+                    ? math.min(c.maxWidth * 0.9, 640)
+                    : math.min(c.maxWidth * 0.9, 460))
+                .toDouble();
 
-        final bubble = _SpeechBubble(
-          text: message,
-          fill: cs.surfaceContainerHighest,
-          border: cs.outlineVariant.withValues(alpha: 0.4),
-          anchor: isWide ? .45 : .25,
-        );
+        final companionSize = isWide
+            ? (c.maxWidth >= 720 ? 160.0 : 136.0)
+            : 124.0;
 
-        final header = isWide
+        final Widget header = isWide
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const _CompanionBlink(asset: 'assets/icons/companion.svg'),
+                  _CompanionBlink(
+                    asset: 'assets/icons/companion.svg',
+                    size: companionSize,
+                    semanticsLabel: 'Onboarding companion',
+                  ),
                   const SizedBox(width: 16),
-                  Expanded(child: bubble),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 380),
+                    child: _MessageCard(
+                      text: message,
+                      fill: cs.surfaceContainerHighest,
+                      border: cs.outlineVariant.withValues(alpha: 0.4),
+                    ),
+                  ),
                 ],
               )
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const _CompanionBlink(asset: 'assets/icons/companion.svg'),
-                  const SizedBox(height: 12),
-                  bubble,
+                  _CompanionBlink(
+                    asset: 'assets/icons/companion.svg',
+                    size: companionSize,
+                    semanticsLabel: 'Onboarding companion',
+                  ),
+                  const SizedBox(height: 10),
+                  _MessageCard(
+                    text: message,
+                    fill: cs.surfaceContainerHighest,
+                    border: cs.outlineVariant.withValues(alpha: 0.4),
+                  ),
                 ],
               );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Spacer(),
-            Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxBox),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    header,
-                    const SizedBox(height: 16),
-                    Flexible(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: body,
+            const SizedBox(height: 12),
+
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxBox),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      header,
+                      const SizedBox(height: 20),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: body,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-            const Spacer(),
+
             if (primaryLabel != null && onPrimary != null)
               AnimatedPadding(
                 duration: const Duration(milliseconds: 150),
                 curve: Curves.easeOut,
                 padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  left: 20,
+                  right: 20,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 12,
                 ),
-                child: FilledButton(
-                  onPressed: onPrimary,
-                  child: Text(primaryLabel!),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 460),
+                    child: FilledButton(
+                      onPressed: onPrimary,
+                      child: Text(primaryLabel!),
+                    ),
+                  ),
                 ),
               ),
           ],
         );
       },
+    );
+  }
+}
+
+class _MessageCard extends StatelessWidget {
+  const _MessageCard({
+    required this.text,
+    required this.fill,
+    required this.border,
+  });
+
+  final String text;
+  final Color fill;
+  final Color border;
+
+  static const _radius = 28.0;
+  static const _padding = EdgeInsets.symmetric(horizontal: 18, vertical: 16);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: BorderRadius.circular(_radius),
+        border: Border.all(color: border),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: _padding,
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(height: 1.2),
+        ),
+      ),
     );
   }
 }
