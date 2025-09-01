@@ -1,10 +1,15 @@
 part of 'package:mobile_app/features/onboarding/onboarding_page.dart';
 
 class _CompanionBlink extends StatefulWidget {
-  const _CompanionBlink({required this.asset});
+  const _CompanionBlink({
+    required this.asset,
+    this.size = 120,
+    this.semanticsLabel = 'Companion',
+  });
 
   final String asset;
-  static const double _kSize = 120;
+  final double size;
+  final String semanticsLabel;
 
   @override
   State<_CompanionBlink> createState() => _CompanionBlinkState();
@@ -12,23 +17,22 @@ class _CompanionBlink extends StatefulWidget {
 
 class _CompanionBlinkState extends State<_CompanionBlink>
     with TickerProviderStateMixin {
-  static const double kFloatAmplitude = -4;
-  static const double kTiltRadians = 0.02;
-  static const Duration kCycle = Duration(seconds: 3);
+  static const double _tiltRadians = 0.02;
+  static const Duration _cycle = Duration(seconds: 3);
 
   late final AnimationController _floatCtrl = AnimationController(
     vsync: this,
-    duration: kCycle,
+    duration: _cycle,
   )..repeat(reverse: true);
 
   late final Animation<double> _floatDy = Tween<double>(
     begin: 0,
-    end: kFloatAmplitude,
+    end: -0.035,
   ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
 
   late final Animation<double> _tilt = Tween<double>(
-    begin: -kTiltRadians,
-    end: kTiltRadians,
+    begin: -_tiltRadians,
+    end: _tiltRadians,
   ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
 
   @override
@@ -39,18 +43,20 @@ class _CompanionBlinkState extends State<_CompanionBlink>
 
   @override
   Widget build(BuildContext context) {
+    final dy = _floatDy.value * widget.size;
+
     return Semantics(
-      label: 'Companion',
+      label: widget.semanticsLabel,
       child: AnimatedBuilder(
         animation: _floatCtrl,
         builder: (context, child) {
           return Transform.translate(
-            offset: Offset(0, _floatDy.value),
+            offset: Offset(0, dy),
             child: Transform.rotate(
               angle: _tilt.value,
               child: SizedBox(
-                width: _CompanionBlink._kSize,
-                height: _CompanionBlink._kSize,
+                width: widget.size,
+                height: widget.size,
                 child: SvgPicture.asset(
                   widget.asset,
                   placeholderBuilder: (_) => const SizedBox.shrink(),
