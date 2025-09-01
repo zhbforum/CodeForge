@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/core/config/app_config.dart';
 import 'package:mobile_app/features/onboarding/onboarding_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+part 'steps/name_step.dart';
+part 'steps/reason_step.dart';
+part 'steps/welcome_step.dart';
 part 'widgets/companion_blink.dart';
 part 'widgets/option_tile.dart';
-part 'steps/welcome_step.dart';
-part 'steps/reason_step.dart';
-part 'steps/name_step.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
