@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/config/app_config.dart';
 import 'package:mobile_app/core/routing/app_router.dart';
-import 'package:mobile_app/features/onboarding/onboarding_controller.dart';
+import 'package:mobile_app/features/onboarding/presentation/viewmodels/onboarding_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
