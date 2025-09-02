@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/routing/app_router.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
-import 'package:mobile_app/features/settings/presentation/settings_controller.dart';
+import 'package:mobile_app/features/settings/presentation/settings_view_model.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +15,7 @@ class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings =
-        ref.watch(settingsControllerProvider).value ?? const AppSettings();
+        ref.watch(settingsViewModelProvider).value ?? const AppSettings();
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(

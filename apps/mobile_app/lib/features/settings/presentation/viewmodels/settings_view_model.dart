@@ -6,14 +6,14 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
   (ref) => SettingsRepository(),
 );
 
-final settingsControllerProvider =
-    StateNotifierProvider<SettingsController, AsyncValue<AppSettings>>((ref) {
+final settingsViewModelProvider =
+    StateNotifierProvider<SettingsViewModel, AsyncValue<AppSettings>>((ref) {
       final repo = ref.watch(settingsRepositoryProvider);
-      return SettingsController(repo)..init();
+      return SettingsViewModel(repo)..init();
     });
 
-class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
-  SettingsController(this._repo) : super(const AsyncLoading());
+class SettingsViewModel extends StateNotifier<AsyncValue<AppSettings>> {
+  SettingsViewModel(this._repo) : super(const AsyncLoading());
   final SettingsRepository _repo;
 
   Future<void> init() async {
