@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/models/track.dart';
-import 'package:mobile_app/features/catalog/learn_page.dart';
-import 'package:mobile_app/features/catalog/track_detail_page.dart';
+import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
+import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
 import 'package:mobile_app/features/onboarding/onboarding_page.dart';
 import 'package:mobile_app/features/practice/practice_page.dart';
 import 'package:mobile_app/features/profile/profile_page.dart';
-import 'package:mobile_app/features/shell/app_shell.dart';
+import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
