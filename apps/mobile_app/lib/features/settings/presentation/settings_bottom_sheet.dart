@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
-import 'package:mobile_app/features/settings/presentation/settings_controller.dart';
+import 'package:mobile_app/features/settings/presentation/viewmodels/settings_controller.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/cyclic_time_picker.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/preview_option_tile.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/radio_group_compat.dart';

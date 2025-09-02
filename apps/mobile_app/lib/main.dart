@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/routing/app_router.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
-import 'package:mobile_app/features/settings/presentation/settings_controller.dart';
+import 'package:mobile_app/features/settings/presentation/viewmodels/settings_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
