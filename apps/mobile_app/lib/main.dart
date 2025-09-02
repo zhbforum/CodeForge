@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/routing/app_router.dart';
-import 'package:mobile_app/core/theme/app_theme.dart';
+import 'package:mobile_app/features/settings/domain/app_settings.dart';
+import 'package:mobile_app/features/settings/presentation/settings_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,12 +14,20 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settings =
+        ref.watch(settingsControllerProvider).value ?? const AppSettings();
     final router = ref.watch(appRouterProvider);
+
     return MaterialApp.router(
-      routerConfig: router,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      themeMode: switch (settings.themeMode) {
+        AppThemeMode.light => ThemeMode.light,
+        AppThemeMode.dark => ThemeMode.dark,
+        AppThemeMode.system => ThemeMode.system,
+      },
+      theme: ThemeData(useMaterial3: true, brightness: Brightness.light),
+      darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
+      routerConfig: router,
     );
   }
 }
