@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/models/track.dart';
-import 'package:mobile_app/features/catalog/controllers/learn_controller.dart';
+import 'package:mobile_app/features/catalog/presentation/viewmodels/learn_controller.dart';
 import 'package:mobile_app/features/catalog/widgets/track_card.dart';
 
 class LearnPage extends ConsumerWidget {
