@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/models/lesson.dart';
 import 'package:mobile_app/core/models/track.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/track_detail_controller.dart';
+import 'package:mobile_app/features/catalog/presentation/viewmodels/track_detail_view_model.dart';
 
 class TrackDetailPage extends ConsumerWidget {
   const TrackDetailPage({
