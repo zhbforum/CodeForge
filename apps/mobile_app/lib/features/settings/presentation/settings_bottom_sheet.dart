@@ -4,7 +4,6 @@ import 'package:mobile_app/features/settings/domain/app_settings.dart';
 import 'package:mobile_app/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/cyclic_time_picker.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/preview_option_tile.dart';
-import 'package:mobile_app/features/settings/presentation/widgets/radio_group_compat.dart';
 
 class SettingsBottomSheet extends StatelessWidget {
   const SettingsBottomSheet({super.key});
@@ -52,7 +51,6 @@ class _SettingsHomeView extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
-
               Card(
                 color: cs.surfaceContainerLow,
                 surfaceTintColor: Colors.transparent,
@@ -92,14 +90,12 @@ class _SettingsHomeView extends ConsumerWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 16),
               Text(
                 'Notifications',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
-
               Card(
                 color: cs.surfaceContainerLow,
                 surfaceTintColor: Colors.transparent,
@@ -209,10 +205,8 @@ class _AppearanceView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final s =
-        ref.watch(settingsViewModelProvider).value ?? const AppSettings();
+    final s = ref.watch(settingsViewModelProvider).value ?? const AppSettings();
 
-    // Динамический размер превью: 28% от ширины, в пределах 92..140
     final w = MediaQuery.of(context).size.width;
     final imageSize = (w * 0.28).clamp(92.0, 140.0);
 
@@ -226,7 +220,6 @@ class _AppearanceView extends ConsumerWidget {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 12),
-
           PreviewOptionTile(
             title: 'Use device settings',
             imageAsset: 'assets/icons/system.jpg',
@@ -236,7 +229,6 @@ class _AppearanceView extends ConsumerWidget {
                 .setTheme(mode: AppThemeMode.system),
             imageSize: imageSize,
           ),
-
           PreviewOptionTile(
             title: 'Light',
             imageAsset: 'assets/icons/light.jpg',
@@ -246,7 +238,6 @@ class _AppearanceView extends ConsumerWidget {
                 .setTheme(mode: AppThemeMode.light),
             imageSize: imageSize,
           ),
-
           PreviewOptionTile(
             title: 'Dark',
             imageAsset: 'assets/icons/dark.jpg',
@@ -262,29 +253,54 @@ class _AppearanceView extends ConsumerWidget {
   }
 }
 
+/// App Icon selection screen.
+/// Uses stub images (placeholders) for now(demonstration purposes only).
 class _AppIconView extends ConsumerWidget {
   const _AppIconView();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final s =
-        ref.watch(settingsViewModelProvider).value ?? const AppSettings();
+    final s = ref.watch(settingsViewModelProvider).value ?? const AppSettings();
+
+    final w = MediaQuery.of(context).size.width;
+    final imageSize = (w * 0.28).clamp(92.0, 140.0);
+
+    void setStyle(AppIconStyle style) {
+      ref.read(settingsViewModelProvider.notifier).setAppIcon(style: style);
+    }
 
     return _SheetScaffold(
       title: 'App icon',
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        child: RadioGroupCompat<AppIconStyle>(
-          groupValue: s.appIconStyle,
-          onChanged: (style) => ref
-              .read(settingsViewModelProvider.notifier)
-              .setAppIcon(style: style),
-          options: const [
-            RadioOption(AppIconStyle.classic, 'Classic'),
-            RadioOption(AppIconStyle.outline, 'Outline'),
-            RadioOption(AppIconStyle.gradient, 'Gradient'),
-          ],
-        ),
+        children: [
+          Text(
+            'Select App Icon',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 12),
+          PreviewOptionTile(
+            title: 'Classic',
+            imageAsset: 'assets/icons/companion.svg',
+            selected: s.appIconStyle == AppIconStyle.classic,
+            onTap: () => setStyle(AppIconStyle.classic),
+            imageSize: imageSize,
+          ),
+          PreviewOptionTile(
+            title: 'Outline',
+            imageAsset: 'assets/icons/companion.svg',
+            selected: s.appIconStyle == AppIconStyle.outline,
+            onTap: () => setStyle(AppIconStyle.outline),
+            imageSize: imageSize,
+          ),
+          PreviewOptionTile(
+            title: 'Gradient',
+            imageAsset: 'assets/icons/companion.svg',
+            selected: s.appIconStyle == AppIconStyle.gradient,
+            onTap: () => setStyle(AppIconStyle.gradient),
+            imageSize: imageSize,
+          ),
+        ],
       ),
     );
   }
@@ -295,8 +311,8 @@ class _SetGoalView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final s =
-        ref.watch(settingsViewModelProvider).value ?? const AppSettings();
+    final s = ref.watch(settingsViewModelProvider).value ?? const AppSettings();
+    final vm = ref.read(settingsViewModelProvider.notifier);
 
     return _SheetScaffold(
       title: 'Set goal',
@@ -310,18 +326,142 @@ class _SetGoalView extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            RadioGroupCompat<DailyGoal>(
-              groupValue: s.dailyGoal,
-              onChanged: (g) => ref
-                  .read(settingsViewModelProvider.notifier)
-                  .setGoal(goal: g),
-              options: const [
-                RadioOption(DailyGoal.casual10, 'Casual — 10 min/day'),
-                RadioOption(DailyGoal.regular30, 'Regular — 30 min/day'),
-                RadioOption(DailyGoal.pro60, 'Pro developer — 60 min/day'),
-              ],
+            _GoalTile(
+              label: 'Casual',
+              minutesText: '10 min',
+              selected: s.dailyGoal == DailyGoal.casual10,
+              onChanged: () => vm.setGoal(goal: DailyGoal.casual10),
+            ),
+            _GoalTile(
+              label: 'Regular',
+              minutesText: '30 min',
+              selected: s.dailyGoal == DailyGoal.regular30,
+              onChanged: () => vm.setGoal(goal: DailyGoal.regular30),
+            ),
+            _GoalTile(
+              label: 'Pro developer',
+              minutesText: '60 min',
+              selected: s.dailyGoal == DailyGoal.pro60,
+              onChanged: () => vm.setGoal(goal: DailyGoal.pro60),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GoalTile extends StatelessWidget {
+  const _GoalTile({
+    required this.label,
+    required this.minutesText,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String minutesText;
+  final bool selected;
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Card(
+      color: cs.surfaceContainerLow,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Semantics(
+        inMutuallyExclusiveGroup: true,
+        checked: selected,
+        button: true,
+        label: '$label, $minutesText',
+        onTap: onChanged,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onChanged,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                _SelectionDot(selected: selected),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Row(
+                    children: [
+                      _GoalBadge(text: label),
+                      const SizedBox(width: 8),
+                      Text(
+                        minutesText,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                ),
+                AnimatedOpacity(
+                  opacity: selected ? 1 : 0,
+                  duration: const Duration(milliseconds: 120),
+                  child: Icon(Icons.check_rounded, color: cs.primary),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectionDot extends StatelessWidget {
+  const _SelectionDot({required this.selected});
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: selected ? cs.primary : cs.outlineVariant,
+          width: 2,
+        ),
+      ),
+      child: Center(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          width: selected ? 10 : 0,
+          height: selected ? 10 : 0,
+          decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
+        ),
+      ),
+    );
+  }
+}
+
+class _GoalBadge extends StatelessWidget {
+  const _GoalBadge({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.secondaryContainer,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: cs.onSecondaryContainer,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -338,9 +478,9 @@ String _themeLabel(AppThemeMode m) => switch (m) {
 };
 
 String _goalLabel(DailyGoal g) => switch (g) {
-  DailyGoal.casual10 => 'Casual — 10 min/day',
-  DailyGoal.regular30 => 'Regular — 30 min/day',
-  DailyGoal.pro60 => 'Pro developer — 60 min/day',
+  DailyGoal.casual10 => '10 min',
+  DailyGoal.regular30 => '30 min',
+  DailyGoal.pro60 => '60 min',
 };
 
 String _appIconLabel(AppIconStyle s) => switch (s) {
