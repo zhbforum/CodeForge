@@ -24,8 +24,8 @@ class OnboardingState {
   final OnbStep step;
 }
 
-class OnboardingController extends StateNotifier<OnboardingState> {
-  OnboardingController()
+class OnboardingViewModel extends StateNotifier<OnboardingState> {
+  OnboardingViewModel()
     : super(
         const OnboardingState(step: OnbStep.welcome, data: OnboardingData()),
       );
@@ -49,7 +49,7 @@ class OnboardingController extends StateNotifier<OnboardingState> {
   }
 }
 
-final onboardingControllerProvider =
-    StateNotifierProvider<OnboardingController, OnboardingState>((ref) {
-      return OnboardingController();
+final onboardingViewModelProvider =
+    StateNotifierProvider<OnboardingViewModel, OnboardingState>((ref) {
+      return OnboardingViewModel();
     });

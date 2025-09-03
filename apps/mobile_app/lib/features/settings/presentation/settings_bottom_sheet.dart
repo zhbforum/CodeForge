@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
-import 'package:mobile_app/features/settings/presentation/settings_controller.dart';
+import 'package:mobile_app/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/cyclic_time_picker.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/preview_option_tile.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/radio_group_compat.dart';
@@ -32,7 +32,7 @@ class _SettingsHomeView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final st = ref.watch(settingsControllerProvider);
+    final st = ref.watch(settingsViewModelProvider);
 
     return st.when(
       loading: () => const _SheetScaffold(
@@ -72,7 +72,7 @@ class _SettingsHomeView extends ConsumerWidget {
                       title: const Text('Sound effects'),
                       value: s.soundEnabled,
                       onChanged: (v) => ref
-                          .read(settingsControllerProvider.notifier)
+                          .read(settingsViewModelProvider.notifier)
                           .setSound(enabled: v),
                     ),
                     const Divider(height: 1),
@@ -112,7 +112,7 @@ class _SettingsHomeView extends ConsumerWidget {
                       title: const Text('Reminders'),
                       value: s.remindersEnabled,
                       onChanged: (v) => ref
-                          .read(settingsControllerProvider.notifier)
+                          .read(settingsViewModelProvider.notifier)
                           .setReminders(enabled: v),
                     ),
                     const Divider(height: 1),
@@ -187,7 +187,7 @@ class _SettingsHomeView extends ConsumerWidget {
                     FilledButton(
                       onPressed: () async {
                         await ref
-                            .read(settingsControllerProvider.notifier)
+                            .read(settingsViewModelProvider.notifier)
                             .setReminderTime(h: h, m: m);
                         if (context.mounted) Navigator.pop(context);
                       },
@@ -210,7 +210,7 @@ class _AppearanceView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s =
-        ref.watch(settingsControllerProvider).value ?? const AppSettings();
+        ref.watch(settingsViewModelProvider).value ?? const AppSettings();
 
     // Динамический размер превью: 28% от ширины, в пределах 92..140
     final w = MediaQuery.of(context).size.width;
@@ -232,7 +232,7 @@ class _AppearanceView extends ConsumerWidget {
             imageAsset: 'assets/icons/system.jpg',
             selected: s.themeMode == AppThemeMode.system,
             onTap: () => ref
-                .read(settingsControllerProvider.notifier)
+                .read(settingsViewModelProvider.notifier)
                 .setTheme(mode: AppThemeMode.system),
             imageSize: imageSize,
           ),
@@ -242,7 +242,7 @@ class _AppearanceView extends ConsumerWidget {
             imageAsset: 'assets/icons/light.jpg',
             selected: s.themeMode == AppThemeMode.light,
             onTap: () => ref
-                .read(settingsControllerProvider.notifier)
+                .read(settingsViewModelProvider.notifier)
                 .setTheme(mode: AppThemeMode.light),
             imageSize: imageSize,
           ),
@@ -252,7 +252,7 @@ class _AppearanceView extends ConsumerWidget {
             imageAsset: 'assets/icons/dark.jpg',
             selected: s.themeMode == AppThemeMode.dark,
             onTap: () => ref
-                .read(settingsControllerProvider.notifier)
+                .read(settingsViewModelProvider.notifier)
                 .setTheme(mode: AppThemeMode.dark),
             imageSize: imageSize,
           ),
@@ -268,7 +268,7 @@ class _AppIconView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s =
-        ref.watch(settingsControllerProvider).value ?? const AppSettings();
+        ref.watch(settingsViewModelProvider).value ?? const AppSettings();
 
     return _SheetScaffold(
       title: 'App icon',
@@ -277,7 +277,7 @@ class _AppIconView extends ConsumerWidget {
         child: RadioGroupCompat<AppIconStyle>(
           groupValue: s.appIconStyle,
           onChanged: (style) => ref
-              .read(settingsControllerProvider.notifier)
+              .read(settingsViewModelProvider.notifier)
               .setAppIcon(style: style),
           options: const [
             RadioOption(AppIconStyle.classic, 'Classic'),
@@ -296,7 +296,7 @@ class _SetGoalView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s =
-        ref.watch(settingsControllerProvider).value ?? const AppSettings();
+        ref.watch(settingsViewModelProvider).value ?? const AppSettings();
 
     return _SheetScaffold(
       title: 'Set goal',
@@ -313,7 +313,7 @@ class _SetGoalView extends ConsumerWidget {
             RadioGroupCompat<DailyGoal>(
               groupValue: s.dailyGoal,
               onChanged: (g) => ref
-                  .read(settingsControllerProvider.notifier)
+                  .read(settingsViewModelProvider.notifier)
                   .setGoal(goal: g),
               options: const [
                 RadioOption(DailyGoal.casual10, 'Casual — 10 min/day'),
