@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class PreviewOptionTile extends StatelessWidget {
   const PreviewOptionTile({
@@ -7,7 +8,6 @@ class PreviewOptionTile extends StatelessWidget {
     required this.selected,
     required this.onTap,
     super.key,
-
     this.subtitle,
     this.imageBorderRadius = 12,
     this.imageSize = 56,
@@ -43,11 +43,7 @@ class PreviewOptionTile extends StatelessWidget {
                   width: imageSize,
                   height: imageSize,
                   color: cs.surface,
-                  child: Image.asset(
-                    imageAsset,
-                    fit: BoxFit.cover,
-                    cacheWidth: (imageSize * 2).round(),
-                  ),
+                  child: _buildPreviewImage(context),
                 ),
               ),
               const SizedBox(width: 12),
@@ -75,6 +71,26 @@ class PreviewOptionTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPreviewImage(BuildContext context) {
+    final isSvg = imageAsset.toLowerCase().endsWith('.svg');
+
+    final dpr = MediaQuery.maybeOf(context)?.devicePixelRatio ?? 2.0;
+    final target = (imageSize * dpr).round();
+
+    if (isSvg) {
+      return SvgPicture.asset(imageAsset, fit: BoxFit.cover);
+    }
+
+    return Image.asset(
+      imageAsset,
+      fit: BoxFit.cover,
+      cacheWidth: target,
+      cacheHeight: target,
+      errorBuilder: (_, __, ___) =>
+          const Center(child: Icon(Icons.broken_image)),
     );
   }
 }
