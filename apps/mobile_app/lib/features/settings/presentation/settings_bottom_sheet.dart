@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
+import 'package:mobile_app/features/settings/presentation/_app_icon_assets.dart';
 import 'package:mobile_app/features/settings/presentation/viewmodels/settings_view_model.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/cyclic_time_picker.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/preview_option_tile.dart';
@@ -254,7 +255,6 @@ class _AppearanceView extends ConsumerWidget {
 }
 
 /// App Icon selection screen.
-/// Uses stub images (placeholders) for now(demonstration purposes only).
 class _AppIconView extends ConsumerWidget {
   const _AppIconView();
 
@@ -279,27 +279,15 @@ class _AppIconView extends ConsumerWidget {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 12),
-          PreviewOptionTile(
-            title: 'Classic',
-            imageAsset: 'assets/icons/companion.svg',
-            selected: s.appIconStyle == AppIconStyle.classic,
-            onTap: () => setStyle(AppIconStyle.classic),
-            imageSize: imageSize,
-          ),
-          PreviewOptionTile(
-            title: 'Outline',
-            imageAsset: 'assets/icons/companion.svg',
-            selected: s.appIconStyle == AppIconStyle.outline,
-            onTap: () => setStyle(AppIconStyle.outline),
-            imageSize: imageSize,
-          ),
-          PreviewOptionTile(
-            title: 'Gradient',
-            imageAsset: 'assets/icons/companion.svg',
-            selected: s.appIconStyle == AppIconStyle.gradient,
-            onTap: () => setStyle(AppIconStyle.gradient),
-            imageSize: imageSize,
-          ),
+
+          for (final style in AppIconStyle.values)
+            PreviewOptionTile(
+              title: style.label,
+              imageAsset: style.previewAsset,
+              selected: s.appIconStyle == style,
+              onTap: () => setStyle(style),
+              imageSize: imageSize,
+            ),
         ],
       ),
     );
@@ -483,11 +471,7 @@ String _goalLabel(DailyGoal g) => switch (g) {
   DailyGoal.pro60 => '60 min',
 };
 
-String _appIconLabel(AppIconStyle s) => switch (s) {
-  AppIconStyle.classic => 'Classic',
-  AppIconStyle.outline => 'Outline',
-  AppIconStyle.gradient => 'Gradient',
-};
+String _appIconLabel(AppIconStyle s) => s.label;
 
 class _SheetScaffold extends StatelessWidget {
   const _SheetScaffold({required this.body, this.title});
