@@ -288,27 +288,6 @@ class _AppIconView extends ConsumerWidget {
               onTap: () => setStyle(style),
               imageSize: imageSize,
             ),
-          PreviewOptionTile(
-            title: 'Classic',
-            imageAsset: 'assets/icons/companion.svg',
-            selected: s.appIconStyle == AppIconStyle.classic,
-            onTap: () => setStyle(AppIconStyle.classic),
-            imageSize: imageSize,
-          ),
-          PreviewOptionTile(
-            title: 'Outline',
-            imageAsset: 'assets/icons/companion.svg',
-            selected: s.appIconStyle == AppIconStyle.outline,
-            onTap: () => setStyle(AppIconStyle.outline),
-            imageSize: imageSize,
-          ),
-          PreviewOptionTile(
-            title: 'Gradient',
-            imageAsset: 'assets/icons/companion.svg',
-            selected: s.appIconStyle == AppIconStyle.gradient,
-            onTap: () => setStyle(AppIconStyle.gradient),
-            imageSize: imageSize,
-          ),
         ],
       ),
     );
