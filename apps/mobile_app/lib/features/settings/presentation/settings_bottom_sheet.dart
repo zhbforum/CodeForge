@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
@@ -29,6 +31,11 @@ class SettingsBottomSheet extends StatelessWidget {
 
 class _SettingsHomeView extends ConsumerWidget {
   const _SettingsHomeView();
+
+  bool get _showAppIconOption =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.android);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,13 +81,15 @@ class _SettingsHomeView extends ConsumerWidget {
                           .read(settingsViewModelProvider.notifier)
                           .setSound(enabled: v),
                     ),
-                    const Divider(height: 1),
-                    ListTile(
-                      title: const Text('App icon'),
-                      subtitle: Text(_appIconLabel(s.appIconStyle)),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _push(context, const _AppIconView()),
-                    ),
+                    if (_showAppIconOption) ...[
+                      const Divider(height: 1),
+                      ListTile(
+                        title: const Text('App icon'),
+                        subtitle: Text(_appIconLabel(s.appIconStyle)),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _push(context, const _AppIconView()),
+                      ),
+                    ],
                     const Divider(height: 1),
                     ListTile(
                       title: const Text('Set goal'),
@@ -260,8 +269,35 @@ class _AppIconView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final s = ref.watch(settingsViewModelProvider).value ?? const AppSettings();
+    if (kIsWeb) {
+      return _SheetScaffold(
+        title: 'App icon',
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Not available on Web',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Changing the app icon is supported only on installed apps (iOS/Android/desktop).',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: () => Navigator.of(context).maybePop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
+    final s = ref.watch(settingsViewModelProvider).value ?? const AppSettings();
     final w = MediaQuery.of(context).size.width;
     final imageSize = (w * 0.28).clamp(92.0, 140.0);
 
@@ -279,7 +315,6 @@ class _AppIconView extends ConsumerWidget {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 12),
-
           for (final style in AppIconStyle.values)
             PreviewOptionTile(
               title: style.label,
