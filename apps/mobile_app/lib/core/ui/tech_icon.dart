@@ -31,7 +31,8 @@ extension on Tech {
 
 class TechIconsRow extends StatelessWidget {
   const TechIconsRow({
-    required this.items, super.key,
+    required this.items,
+    super.key,
     this.size = 18,
     this.spacing = 6,
   });

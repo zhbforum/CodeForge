@@ -130,7 +130,7 @@ class TrackCard extends StatelessWidget {
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: cs.onSurfaceVariant.withValues(alpha: 0.9),
                       letterSpacing: 1.1,
-                      height: 1, 
+                      height: 1,
                       fontSize: dense ? 10.5 : null,
                     ),
                   ),
@@ -150,7 +150,7 @@ class TrackCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: SizedBox(
-                  height: progressH.roundToDouble(), 
+                  height: progressH.roundToDouble(),
                   child: LinearProgressIndicator(
                     value: track.progress.clamp(0, 1),
                     backgroundColor: cs.outlineVariant.withValues(alpha: 0.4),
@@ -166,7 +166,7 @@ class TrackCard extends StatelessWidget {
                   '$progressPct% completed',
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: cs.onSurfaceVariant,
-                    height: 1, 
+                    height: 1,
                     fontSize: dense ? 10.5 : null,
                   ),
                 ),

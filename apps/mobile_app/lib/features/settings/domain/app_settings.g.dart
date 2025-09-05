@@ -10,16 +10,17 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(Map<String, dynamic> json) =>
     _$AppSettingsImpl(
       themeMode:
           $enumDecodeNullable(_$AppThemeModeEnumMap, json['themeMode']) ??
-              AppThemeMode.system,
+          AppThemeMode.system,
       soundEnabled: json['soundEnabled'] as bool? ?? true,
       remindersEnabled: json['remindersEnabled'] as bool? ?? false,
       reminderHour: (json['reminderHour'] as num?)?.toInt() ?? 9,
       reminderMinute: (json['reminderMinute'] as num?)?.toInt() ?? 0,
-      dailyGoal: $enumDecodeNullable(_$DailyGoalEnumMap, json['dailyGoal']) ??
+      dailyGoal:
+          $enumDecodeNullable(_$DailyGoalEnumMap, json['dailyGoal']) ??
           DailyGoal.casual10,
       appIconStyle:
           $enumDecodeNullable(_$AppIconStyleEnumMap, json['appIconStyle']) ??
-              AppIconStyle.classic,
+          AppIconStyle.classic,
     );
 
 Map<String, dynamic> _$$AppSettingsImplToJson(_$AppSettingsImpl instance) =>
