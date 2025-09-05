@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/core/services/app_icon_service.dart';
 import 'package:mobile_app/features/settings/data/settings_repository.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
 
@@ -47,6 +48,24 @@ class SettingsViewModel extends StateNotifier<AsyncValue<AppSettings>> {
   Future<void> setReminders({required bool enabled}) =>
       update((s) => s.copyWith(remindersEnabled: enabled));
 
-  Future<void> setAppIcon({required AppIconStyle style}) =>
-      update((s) => s.copyWith(appIconStyle: style));
+  Future<void> setAppIcon({required AppIconStyle style}) async {
+    final prev = state.value ?? const AppSettings();
+    final next = prev.copyWith(appIconStyle: style);
+
+    state = AsyncData(next);
+
+    try {
+      final alias = switch (style) {
+        AppIconStyle.classic => AppIconAlias.classic,
+        AppIconStyle.outline => AppIconAlias.outline,
+        AppIconStyle.gradient => AppIconAlias.gradient,
+      };
+
+      await AppIconService.switchIcon(alias);
+
+      await _repo.save(next);
+    } catch (e) {
+      state = AsyncData(prev);
+    }
+  }
 }
