@@ -11,8 +11,8 @@ class LearnPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncTracks = ref.watch(tracksProvider);
-    const selectedId =
-        TrackId.fullstack; // TODO(zhforum): in future take it from settings/profile 
+    const selectedId = TrackId
+        .fullstack; // TODO(zhforum): in future take it from settings/profile
 
     return Scaffold(
       appBar: AppBar(title: const Text('Learn')),

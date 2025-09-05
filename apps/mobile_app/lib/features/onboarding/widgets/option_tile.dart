@@ -8,7 +8,7 @@ class _OptionTile extends StatelessWidget {
     this.subtle = false,
   });
 
-  final Widget leading; 
+  final Widget leading;
   final String title;
   final VoidCallback onTap;
   final bool subtle;
