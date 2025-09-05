@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
@@ -32,9 +33,9 @@ class _SettingsHomeView extends ConsumerWidget {
   const _SettingsHomeView();
 
   bool get _showAppIconOption =>
-  !kIsWeb &&
-  (defaultTargetPlatform == TargetPlatform.iOS ||
-   defaultTargetPlatform == TargetPlatform.android);
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.android);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
