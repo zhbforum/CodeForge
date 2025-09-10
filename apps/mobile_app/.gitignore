@@ -43,7 +43,22 @@ app.*.map.json
 
 # We don`t need it rn 
 /macos/
-/windows/
 
 # FVM Version Cache
 .fvm/
+
+# Local certificates and keys
+*.pfx
+*.p12
+*.cer
+certs/
+D:/certs/
+windows/certs/
+
+# Local env/scripts
+.env*
+*.ps1
+tools/*.ps1
+certs/
+*.pfx
+*.cer
