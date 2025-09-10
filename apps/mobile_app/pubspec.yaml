@@ -26,6 +26,7 @@ dev_dependencies:
     sdk: flutter
   freezed: 2.4.7
   json_serializable: ^6.8.0
+  msix: ^3.16.12
   very_good_analysis: ^5.1.0
 
 flutter:
@@ -33,3 +34,12 @@ flutter:
   assets:
     - assets/icons/
     - assets/icons/logo/
+
+msix_config:
+  display_name: CodeForge
+  publisher_display_name: CodeForge Dev
+  identity_name: com.codeforge.app
+  publisher: CN=CodeForgeDev
+  msix_version: 1.0.0.0
+  architecture: x64
+  logo_path: windows/runner/resources/app_icon.ico               
