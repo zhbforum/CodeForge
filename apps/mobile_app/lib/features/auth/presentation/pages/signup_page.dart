@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart';
 import 'package:mobile_app/features/auth/presentation/widgets/register_fields.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key, this.returnTo = '/profile'});
@@ -17,6 +18,35 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  late final ProviderSubscription<AsyncValue<AuthState>> _subAuth;
+  late final ProviderSubscription<AsyncValue<void>> _subVm;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _subAuth = ref.listenManual<AsyncValue<AuthState>>(
+      authStateStreamProvider,
+      (prev, next) {
+        final s = next.valueOrNull;
+        if (s?.event == AuthChangeEvent.signedIn && mounted) {
+          context.go(widget.returnTo);
+        }
+      },
+      fireImmediately: false,
+    );
+
+    _subVm = ref.listenManual<AsyncValue<void>>(
+      authViewModelProvider,
+      (prev, next) {
+        if (next is AsyncError && mounted) {
+          final err = next.error;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Auth error: $err')));
+        }
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -38,19 +68,20 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
       if (!mounted) return;
 
-      final session = ref.read(authViewModelProvider.notifier).currentSession;
-      if (session == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Проверьте почту и подтвердите e-mail.')),
-        );
+      final session = vm.currentSession;
+      if (session != null) {
+        context.go(widget.returnTo);
+      } else {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text('Check and confirm your e-mail.'),
+            ),
+          );
       }
-
-      context.go(widget.returnTo);
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка регистрации: $e')),
-      );
+      print('SignUp error: $e');
     }
   }
 
@@ -103,7 +134,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // reg fields
+                // Registration fields
                 Form(
                   key: _formKey,
                   child: RegisterFields(
@@ -116,7 +147,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
                 const SizedBox(height: 20),
 
-                // Sign Up Button 
+                // button Sign Up
                 SizedBox(
                   height: 48,
                   child: FilledButton(

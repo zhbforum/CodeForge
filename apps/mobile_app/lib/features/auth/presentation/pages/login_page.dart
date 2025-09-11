@@ -6,7 +6,6 @@ import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model
 import 'package:mobile_app/features/auth/presentation/widgets/login_fields.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key, this.returnTo = '/profile'});
   final String returnTo;
@@ -19,11 +18,42 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  late final ProviderSubscription<AsyncValue<AuthState>> _subAuth;
+  late final ProviderSubscription<AsyncValue<void>> _subVm;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _subAuth = ref.listenManual<AsyncValue<AuthState>>(
+      authStateStreamProvider,
+      (prev, next) {
+        final s = next.valueOrNull;
+        if (s?.event == AuthChangeEvent.signedIn && mounted) {
+          context.go(widget.returnTo);
+        }
+      },
+      fireImmediately: false,
+    );
+
+    _subVm = ref.listenManual<AsyncValue<void>>(
+      authViewModelProvider,
+      (prev, next) {
+        if (next is AsyncError && mounted) {
+          final err = next.error;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Auth error: $err')));
+        }
+      },
+    );
+  }
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _subAuth.close();
+    _subVm.close();
     super.dispose();
   }
 
@@ -37,30 +67,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       );
       if (!mounted) return;
       context.go(widget.returnTo);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login error: $e')),
-      );
+    } catch (_) {
     }
   }
 
   Future<void> _oauth(OAuthProvider provider) async {
-    const redirect = 'codeforge://auth-callback';
     try {
-      await Supabase.instance.client.auth
-          .signInWithOAuth(provider, redirectTo: redirect);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('OAuth error: $e')),
-      );
+      await ref.read(authViewModelProvider.notifier).signInWithOAuth(provider);
+    } catch (_) {
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(authViewModelProvider).isLoading;
+    final isLoading = ref.watch(authViewModelProvider).isLoading; 
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
@@ -92,7 +112,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // sign Button
+                // Sign in button
                 SizedBox(
                   height: 48,
                   child: FilledButton(

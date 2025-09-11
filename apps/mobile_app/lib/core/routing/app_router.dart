@@ -1,9 +1,12 @@
+// lib/core/routing/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/models/track.dart';
+import 'package:mobile_app/core/services/auth_refresh_provider.dart';
 import 'package:mobile_app/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile_app/features/auth/presentation/pages/signup_page.dart';
+import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
@@ -12,12 +15,14 @@ import 'package:mobile_app/features/onboarding/onboarding_page.dart';
 import 'package:mobile_app/features/practice/practice_page.dart';
 import 'package:mobile_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final refreshListenable = ref.watch(authRefreshProvider);
+
   return GoRouter(
     debugLogDiagnostics: true,
+    refreshListenable: refreshListenable,
+
     routes: [
       GoRoute(path: '/', redirect: (_, __) => SplashPage.routePath),
 
@@ -35,14 +40,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/auth/login',
         builder: (ctx, st) {
           final from = st.uri.queryParameters['from'] ?? '/profile';
-          return LoginPage(returnTo: from); 
+          return LoginPage(returnTo: from);
         },
       ),
       GoRoute(
         path: '/auth/signup',
-        builder: (_, __) => const SignUpPage(), 
+        builder: (ctx, st) {
+          final from = st.uri.queryParameters['from'] ?? '/profile';
+          return SignUpPage(returnTo: from);
+        },
       ),
-      
+
       StatefulShellRoute.indexedStack(
         builder: (context, state, navShell) => AppShell(navShell: navShell),
         branches: [
@@ -108,16 +116,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
 
     redirect: (context, state) {
-      final session = Supabase.instance.client.auth.currentSession;
-      final loggedIn = session != null;
+      final repo = ref.read(authRepositoryProvider);
+      final authed = repo.currentSession != null;
 
-      final onAuth = state.matchedLocation.startsWith('/auth/');
-      if (loggedIn && onAuth) {
+      final loc = state.matchedLocation;
+      final isAuth = loc.startsWith('/auth/');
+
+      if (authed && isAuth) {
         final from = state.uri.queryParameters['from'];
-        return from ?? '/profile';
+        return from == null ? '/profile' : Uri.decodeComponent(from);
       }
+
       return null;
     },
+
 
     errorBuilder: (context, state) {
       return Scaffold(

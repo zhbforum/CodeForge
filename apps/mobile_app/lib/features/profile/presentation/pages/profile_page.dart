@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:mobile_app/features/profile/presentation/viewmodels/profile_view_model.dart';
 import 'package:mobile_app/features/profile/presentation/widgets/avatar_block.dart';
 import 'package:mobile_app/features/profile/presentation/widgets/friends_card.dart';
@@ -16,8 +17,7 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLoggedIn =
-      Supabase.instance.client.auth.currentSession != null;
+  final isLoggedIn = ref.watch(isAuthenticatedProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -59,15 +59,17 @@ class ProfilePage extends ConsumerWidget {
         ),
       ),
       bottomNavigationBar: isLoggedIn
-          ? null
-          : SafeArea(
+        ? null
+        : SafeArea(
           minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: SizedBox(
             width: double.infinity,
             height: 48,
             child: FilledButton(
-              onPressed: () =>
-                  context.push('/auth/login?from=/profile'),
+              onPressed: () {
+                final from = Uri.encodeComponent('/profile');
+                context.push('/auth/login?from=$from');
+              },
               child: const Text('Sign In'),
           ),
         ),

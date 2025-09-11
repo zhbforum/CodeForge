@@ -2,11 +2,15 @@ import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart';
+import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
 import 'package:mobile_app/features/settings/presentation/_app_icon_assets.dart';
 import 'package:mobile_app/features/settings/presentation/viewmodels/settings_view_model.dart';
+import 'package:mobile_app/features/settings/presentation/widgets/account_actions_card.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/cyclic_time_picker.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/preview_option_tile.dart';
+
 
 class SettingsBottomSheet extends StatelessWidget {
   const SettingsBottomSheet({super.key});
@@ -48,6 +52,9 @@ class _SettingsHomeView extends ConsumerWidget {
       error: (e, _) => _SheetScaffold(body: Center(child: Text('Error: $e'))),
       data: (s) {
         final cs = Theme.of(context).colorScheme;
+
+        final authState = ref.watch(authStateStreamProvider).valueOrNull;
+        final hasSession = ref.watch(isAuthenticatedProvider);
 
         return _SheetScaffold(
           title: 'Settings',
@@ -135,6 +142,12 @@ class _SettingsHomeView extends ConsumerWidget {
                   ],
                 ),
               ),
+              if (hasSession) ...[
+                const SizedBox(height: 16),
+                Text('Account', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                const AccountActionsCard(),
+              ],
             ],
           ),
         );
