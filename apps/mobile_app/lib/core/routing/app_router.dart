@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/models/track.dart';
+import 'package:mobile_app/features/auth/presentation/pages/login_page.dart';
+import 'package:mobile_app/features/auth/presentation/pages/signup_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
 import 'package:mobile_app/features/onboarding/onboarding_page.dart';
 import 'package:mobile_app/features/practice/practice_page.dart';
-import 'package:mobile_app/features/profile/profile_page.dart';
+import 'package:mobile_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -27,6 +31,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const OnboardingPage(),
       ),
 
+      GoRoute(
+        path: '/auth/login',
+        builder: (ctx, st) {
+          final from = st.uri.queryParameters['from'] ?? '/profile';
+          return LoginPage(returnTo: from); 
+        },
+      ),
+      GoRoute(
+        path: '/auth/signup',
+        builder: (_, __) => const SignUpPage(), 
+      ),
+      
       StatefulShellRoute.indexedStack(
         builder: (context, state, navShell) => AppShell(navShell: navShell),
         branches: [
@@ -90,6 +106,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
+
+    redirect: (context, state) {
+      final session = Supabase.instance.client.auth.currentSession;
+      final loggedIn = session != null;
+
+      final onAuth = state.matchedLocation.startsWith('/auth/');
+      if (loggedIn && onAuth) {
+        final from = state.uri.queryParameters['from'];
+        return from ?? '/profile';
+      }
+      return null;
+    },
 
     errorBuilder: (context, state) {
       return Scaffold(
