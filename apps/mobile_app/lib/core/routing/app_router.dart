@@ -130,7 +130,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
 
-
     errorBuilder: (context, state) {
       return Scaffold(
         body: Center(

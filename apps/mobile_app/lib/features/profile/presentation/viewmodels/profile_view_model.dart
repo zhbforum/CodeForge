@@ -3,13 +3,14 @@ import 'package:mobile_app/features/profile/data/profile_repository.dart';
 import 'package:mobile_app/features/profile/domain/profile.dart';
 
 // TODO(killursxlf): swap to SupabaseProfileRepository later
-final profileRepositoryProvider =
-    Provider<ProfileRepository>((ref) => MockProfileRepository());
+final profileRepositoryProvider = Provider<ProfileRepository>(
+  (ref) => MockProfileRepository(),
+);
 
 final profileProvider =
     StateNotifierProvider<ProfileController, AsyncValue<Profile>>(
-  (ref) => ProfileController(ref.read(profileRepositoryProvider))..load(),
-);
+      (ref) => ProfileController(ref.read(profileRepositoryProvider))..load(),
+    );
 
 class ProfileController extends StateNotifier<AsyncValue<Profile>> {
   ProfileController(this._repo) : super(const AsyncLoading());

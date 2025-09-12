@@ -24,20 +24,16 @@ class FriendsCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'You have no friends yet. Find them to compete and learn together!',
+              'You have no friends yet. '
+              'Find them to compete and learn together!',
               textAlign: TextAlign.center,
-              style: text.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant,
-              ),
+              style: text.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () {},
               child: const Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Text('Add Friends'),
               ),
             ),

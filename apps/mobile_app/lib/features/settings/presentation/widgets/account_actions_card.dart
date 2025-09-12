@@ -26,15 +26,17 @@ class AccountActionsCard extends ConsumerWidget {
             title: const Text('Sign out'),
             onTap: () async {
               final rootNav = Navigator.of(context, rootNavigator: true);
-              rootNav.maybePop();
+              if (rootNav.canPop()) {
+                await rootNav.maybePop();
+              }
 
               try {
                 await ref.read(authViewModelProvider.notifier).signOut();
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Sign-out error: $e')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Sign-out error: $e')));
                 }
               }
             },
@@ -78,7 +80,9 @@ class AccountActionsCard extends ConsumerWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Deletion is not implemented on client side.'),
+                    content: Text(
+                      'Deletion is not implemented on client side.',
+                    ),
                   ),
                 );
               }

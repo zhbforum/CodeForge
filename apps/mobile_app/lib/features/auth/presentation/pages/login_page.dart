@@ -36,16 +36,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       fireImmediately: false,
     );
 
-    _subVm = ref.listenManual<AsyncValue<void>>(
-      authViewModelProvider,
-      (prev, next) {
-        if (next is AsyncError && mounted) {
-          final err = next.error;
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Auth error: $err')));
-        }
-      },
-    );
+    _subVm = ref.listenManual<AsyncValue<void>>(authViewModelProvider, (
+      prev,
+      next,
+    ) {
+      if (next is AsyncError && mounted) {
+        final err = next.error;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Auth error: $err')));
+      }
+    });
   }
 
   @override
@@ -67,20 +68,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       );
       if (!mounted) return;
       context.go(widget.returnTo);
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 
   Future<void> _oauth(OAuthProvider provider) async {
     try {
       await ref.read(authViewModelProvider.notifier).signInWithOAuth(provider);
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(authViewModelProvider).isLoading; 
+    final isLoading = ref.watch(authViewModelProvider).isLoading;
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
@@ -173,7 +172,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             decorationColor: cs.primary,
                           ),
                           recognizer: TapGestureRecognizer()
-                            ..onTap = () => context.go('/auth/signup?from=${widget.returnTo}'),
+                            ..onTap = () => context.go(
+                              '/auth/signup?from=${widget.returnTo}',
+                            ),
                         ),
                       ],
                     ),

@@ -17,33 +17,25 @@ class AuthRepository {
   Future<AuthResponse> signInWithPassword({
     required String email,
     required String password,
-  }) =>
-      _auth.signInWithPassword(email: email, password: password);
+  }) => _auth.signInWithPassword(email: email, password: password);
 
   Future<AuthResponse> signUpWithPassword({
     required String email,
     required String password,
     String? emailRedirectTo,
-  }) =>
-      _auth.signUp(
-        email: email,
-        password: password,
-        emailRedirectTo: emailRedirectTo,
-      );
+  }) => _auth.signUp(
+    email: email,
+    password: password,
+    emailRedirectTo: emailRedirectTo,
+  );
 
-  Future<void> sendMagicLink({
-    required String email,
-    String? redirectTo,
-  }) =>
+  Future<void> sendMagicLink({required String email, String? redirectTo}) =>
       _auth.signInWithOtp(
         email: email,
         emailRedirectTo: redirectTo ?? _redirect,
       );
 
-  Future<void> signInWithOAuth(
-    OAuthProvider provider, {
-    String? redirectTo,
-  }) =>
+  Future<void> signInWithOAuth(OAuthProvider provider, {String? redirectTo}) =>
       _auth.signInWithOAuth(
         provider,
         redirectTo: redirectTo ?? _redirect,
@@ -63,14 +55,13 @@ class AuthRepository {
     required OAuthProvider provider,
     required String idToken,
     String? accessToken,
-    String? nonce,       
-  }) =>
-      _auth.signInWithIdToken(
-        provider: provider,
-        idToken: idToken,
-        accessToken: accessToken,
-        nonce: nonce,
-      );
+    String? nonce,
+  }) => _auth.signInWithIdToken(
+    provider: provider,
+    idToken: idToken,
+    accessToken: accessToken,
+    nonce: nonce,
+  );
 
   Future<void> signOut() => _auth.signOut();
 }

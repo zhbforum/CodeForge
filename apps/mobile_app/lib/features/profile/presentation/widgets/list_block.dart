@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ListBlock extends StatelessWidget {
-  const ListBlock({super.key, required this.items});
+  const ListBlock({required this.items, super.key});
   final List<ListItem> items;
 
   @override
@@ -26,7 +26,7 @@ class ListBlock extends StatelessWidget {
             ),
             if (!items[i].isLast)
               Divider(height: 1, thickness: 1, color: cs.outlineVariant),
-          ]
+          ],
         ],
       ),
     );
@@ -34,11 +34,7 @@ class ListBlock extends StatelessWidget {
 }
 
 class ListItem {
-  const ListItem({
-    required this.title,
-    this.onTap,
-    this.isLast = false,
-  });
+  const ListItem({required this.title, this.onTap, this.isLast = false});
 
   final String title;
   final VoidCallback? onTap;

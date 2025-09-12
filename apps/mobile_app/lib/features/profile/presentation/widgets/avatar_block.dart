@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AvatarBlock extends StatelessWidget {
-  const AvatarBlock({
-    super.key,
-    required this.onEditAvatar,
-    this.imageUrl,
-  });
+  const AvatarBlock({required this.onEditAvatar, super.key, this.imageUrl});
 
   final String? imageUrl;
   final VoidCallback onEditAvatar;
@@ -25,7 +21,9 @@ class AvatarBlock extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 64,
-            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest,
             backgroundImage: ok ? NetworkImage(imageUrl!) : null,
             child: ok
                 ? null

@@ -3,10 +3,10 @@ import 'package:mobile_app/features/auth/presentation/utils/auth_validators.dart
 
 class RegisterFields extends StatefulWidget {
   const RegisterFields({
-    super.key,
     required this.emailController,
     required this.passwordController,
     required this.confirmController,
+    super.key,
     this.autovalidateMode = AutovalidateMode.disabled,
     this.onSubmitted,
     this.autofill = true,
@@ -56,8 +56,7 @@ class _RegisterFieldsState extends State<RegisterFields> {
         borderSide: BorderSide.none,
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       hintStyle: text.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
     );
 
@@ -71,8 +70,7 @@ class _RegisterFieldsState extends State<RegisterFields> {
             validator: AuthValidators.email,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
-            autofillHints:
-                widget.autofill ? const [AutofillHints.email] : null,
+            autofillHints: widget.autofill ? const [AutofillHints.email] : null,
             decoration: InputDecoration(
               hintText: 'Email',
               prefixIcon: Icon(Icons.mail, color: cs.onSurfaceVariant),
@@ -85,8 +83,9 @@ class _RegisterFieldsState extends State<RegisterFields> {
             validator: AuthValidators.password,
             obscureText: _obscure1,
             textInputAction: TextInputAction.next,
-            autofillHints:
-                widget.autofill ? const [AutofillHints.newPassword] : null,
+            autofillHints: widget.autofill
+                ? const [AutofillHints.newPassword]
+                : null,
             decoration: InputDecoration(
               hintText: 'Password',
               prefixIcon: Icon(Icons.lock, color: cs.onSurfaceVariant),
@@ -108,8 +107,9 @@ class _RegisterFieldsState extends State<RegisterFields> {
             obscureText: _obscure2,
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) => widget.onSubmitted?.call(),
-            autofillHints:
-                widget.autofill ? const [AutofillHints.newPassword] : null,
+            autofillHints: widget.autofill
+                ? const [AutofillHints.newPassword]
+                : null,
             decoration: InputDecoration(
               hintText: 'Confirm Password',
               prefixIcon: Icon(Icons.lock, color: cs.onSurfaceVariant),

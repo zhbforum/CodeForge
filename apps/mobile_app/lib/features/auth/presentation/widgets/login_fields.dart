@@ -3,9 +3,9 @@ import 'package:mobile_app/features/auth/presentation/utils/auth_validators.dart
 
 class LoginFields extends StatefulWidget {
   const LoginFields({
-    super.key,
     required this.emailController,
     required this.passwordController,
+    super.key,
     this.autovalidateMode = AutovalidateMode.disabled,
     this.onSubmitted,
     this.autofill = true,
@@ -37,8 +37,7 @@ class _LoginFieldsState extends State<LoginFields> {
         borderSide: BorderSide.none,
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       hintStyle: text.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
     );
 
@@ -52,8 +51,7 @@ class _LoginFieldsState extends State<LoginFields> {
             validator: AuthValidators.email,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
-            autofillHints:
-                widget.autofill ? const [AutofillHints.email] : null,
+            autofillHints: widget.autofill ? const [AutofillHints.email] : null,
             decoration: InputDecoration(
               hintText: 'Email',
               prefixIcon: Icon(Icons.mail, color: cs.onSurfaceVariant),
@@ -67,8 +65,9 @@ class _LoginFieldsState extends State<LoginFields> {
             obscureText: _obscure,
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) => widget.onSubmitted?.call(),
-            autofillHints:
-                widget.autofill ? const [AutofillHints.password] : null,
+            autofillHints: widget.autofill
+                ? const [AutofillHints.password]
+                : null,
             decoration: InputDecoration(
               hintText: 'Password',
               prefixIcon: Icon(Icons.lock, color: cs.onSurfaceVariant),

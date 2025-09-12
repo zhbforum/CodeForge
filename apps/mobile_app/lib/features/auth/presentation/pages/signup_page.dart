@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,16 +37,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       fireImmediately: false,
     );
 
-    _subVm = ref.listenManual<AsyncValue<void>>(
-      authViewModelProvider,
-      (prev, next) {
-        if (next is AsyncError && mounted) {
-          final err = next.error;
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Auth error: $err')));
-        }
-      },
-    );
+    _subVm = ref.listenManual<AsyncValue<void>>(authViewModelProvider, (
+      prev,
+      next,
+    ) {
+      if (next is AsyncError && mounted) {
+        final err = next.error;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Auth error: $err')));
+      }
+    });
   }
 
   @override
@@ -54,6 +56,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     _password.dispose();
     _confirm.dispose();
     super.dispose();
+    _subAuth.close();
+    _subVm.close();
   }
 
   Future<void> _submit() async {
@@ -75,13 +79,18 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
         ScaffoldMessenger.of(context)
           ..clearSnackBars()
           ..showSnackBar(
-            const SnackBar(
-              content: Text('Check and confirm your e-mail.'),
-            ),
+            const SnackBar(content: Text('Check and confirm your e-mail.')),
           );
       }
     } catch (e) {
-      print('SignUp error: $e');
+      if (kDebugMode) {
+        debugPrint('SignUp error: $e');
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sign up failed: $e')));
+      }
     }
   }
 
@@ -128,9 +137,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 Text(
                   "Let's get you started on your coding journey.",
                   textAlign: TextAlign.center,
-                  style: text.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+                  style: text.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 24),
 
@@ -166,9 +173,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 Text(
                   'By signing up, you agree to our',
                   textAlign: TextAlign.center,
-                  style: text.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+                  style: text.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 6),
                 InkWell(

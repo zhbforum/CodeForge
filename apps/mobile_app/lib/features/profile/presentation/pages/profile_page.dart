@@ -8,16 +8,13 @@ import 'package:mobile_app/features/profile/presentation/widgets/friends_card.da
 import 'package:mobile_app/features/profile/presentation/widgets/list_block.dart';
 import 'package:mobile_app/features/profile/presentation/widgets/section_header.dart';
 import 'package:mobile_app/features/settings/presentation/settings_bottom_sheet.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  final isLoggedIn = ref.watch(isAuthenticatedProvider);
+    final isLoggedIn = ref.watch(isAuthenticatedProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -41,9 +38,9 @@ class ProfilePage extends ConsumerWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 700),
-              child: Column(
+              child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: const [
+                children: [
                   _ProfileHeader(),
                   SizedBox(height: 24),
                   _FriendsSection(),
@@ -59,21 +56,21 @@ class ProfilePage extends ConsumerWidget {
         ),
       ),
       bottomNavigationBar: isLoggedIn
-        ? null
-        : SafeArea(
-          minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: FilledButton(
-              onPressed: () {
-                final from = Uri.encodeComponent('/profile');
-                context.push('/auth/login?from=$from');
-              },
-              child: const Text('Sign In'),
-          ),
-        ),
-      ),
+          ? null
+          : SafeArea(
+              minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: FilledButton(
+                  onPressed: () {
+                    final from = Uri.encodeComponent('/profile');
+                    context.push('/auth/login?from=$from');
+                  },
+                  child: const Text('Sign In'),
+                ),
+              ),
+            ),
     );
   }
 }
@@ -87,10 +84,10 @@ class _ProfileHeader extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
 
     final profile = ref.watch(profileProvider).valueOrNull;
-    final String displayName = profile?.displayName ?? 'Guest';
-    final String? bio = profile?.bio;
-    final String? avatarUrl = profile?.avatarUrl;
-    final String bioText = (bio?.isEmpty ?? true) ? 'Add a bio' : bio!;
+    final displayName = profile?.displayName ?? 'Guest';
+    final bio = profile?.bio;
+    final avatarUrl = profile?.avatarUrl;
+    final bioText = (bio?.isEmpty ?? true) ? 'Add a bio' : bio!;
 
     return Column(
       children: [
@@ -151,7 +148,7 @@ class _FriendsSection extends StatelessWidget {
       children: [
         SectionHeader(title: 'Friends'),
         SizedBox(height: 8),
-        FriendsCard(), 
+        FriendsCard(),
       ],
     );
   }

@@ -2,8 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/features/auth/data/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final authRepositoryProvider =
-    Provider<AuthRepository>((ref) => AuthRepository.supabase());
+final authRepositoryProvider = Provider<AuthRepository>(
+  (ref) => AuthRepository.supabase(),
+);
 
 final authStateStreamProvider = StreamProvider<AuthState>(
   (ref) => ref.read(authRepositoryProvider).onAuthStateChange(),
@@ -11,8 +12,8 @@ final authStateStreamProvider = StreamProvider<AuthState>(
 
 final authViewModelProvider =
     StateNotifierProvider<AuthViewModel, AsyncValue<void>>((ref) {
-  return AuthViewModel(ref.read(authRepositoryProvider));
-});
+      return AuthViewModel(ref.read(authRepositoryProvider));
+    });
 
 class AuthViewModel extends StateNotifier<AsyncValue<void>> {
   AuthViewModel(this._repo) : super(const AsyncData(null));
