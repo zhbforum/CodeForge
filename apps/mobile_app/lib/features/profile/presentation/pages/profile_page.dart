@@ -89,10 +89,15 @@ class _ProfileHeader extends ConsumerWidget {
     final avatarUrl = profile?.avatarUrl;
     final bioText = (bio?.isEmpty ?? true) ? 'Add a bio' : bio!;
 
+    final seed = (profile?.displayName.trim().isNotEmpty ?? false)
+        ? profile!.displayName.trim()
+        : (profile?.id ?? 'guest');
+
     return Column(
       children: [
         AvatarBlock(
           imageUrl: avatarUrl,
+          seed: seed,
           onEditAvatar: () {
             // TODO(killursxlf): picker + upload to Supabase Storage
           },
