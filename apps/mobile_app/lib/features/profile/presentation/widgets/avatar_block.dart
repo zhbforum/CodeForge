@@ -1,45 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/shared/avatar/generated_avatar.dart';
 
 class AvatarBlock extends StatelessWidget {
-  const AvatarBlock({required this.onEditAvatar, super.key, this.imageUrl});
+  const AvatarBlock({
+    required this.onEditAvatar,
+    required this.seed,
+    super.key,
+    this.imageUrl,
+    this.radius = 64,
+    this.showBorder = false,
+  });
 
   final String? imageUrl;
-  final VoidCallback onEditAvatar;
 
-  bool _isValidUrl(String? s) {
-    final u = Uri.tryParse(s ?? '');
-    return u != null && (u.isScheme('http') || u.isScheme('https'));
-  }
+  final String seed;
+
+  final double radius;
+
+  final bool showBorder;
+
+  final VoidCallback onEditAvatar;
 
   @override
   Widget build(BuildContext context) {
-    final ok = _isValidUrl(imageUrl);
+    final size = radius * 2;
+    final scheme = Theme.of(context).colorScheme;
 
     return Center(
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          CircleAvatar(
-            radius: 64,
-            backgroundColor: Theme.of(
-              context,
-            ).colorScheme.surfaceContainerHighest,
-            backgroundImage: ok ? NetworkImage(imageUrl!) : null,
-            child: ok
-                ? null
-                : Icon(
-                    Icons.person,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: showBorder
+                  ? Border.all(color: scheme.outlineVariant)
+                  : null,
+            ),
+            child: GeneratedAvatar(size: size, seed: seed, url: imageUrl),
           ),
+
           Positioned(
             bottom: 0,
             right: 0,
             child: IconButton.filled(
               onPressed: onEditAvatar,
               icon: const Icon(Icons.edit, size: 18),
-              style: IconButton.styleFrom(shape: const CircleBorder()),
+              style: IconButton.styleFrom(
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(10),
+              ),
+              tooltip: 'Edit avatar',
             ),
           ),
         ],

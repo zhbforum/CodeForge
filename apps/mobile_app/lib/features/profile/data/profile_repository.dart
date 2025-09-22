@@ -7,12 +7,7 @@ abstract class ProfileRepository {
 }
 
 class MockProfileRepository implements ProfileRepository {
-  Profile _p = const Profile(
-    id: 'u_1',
-    displayName: 'Guest',
-    avatarUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuDyuskrtSKMolDvy2LlGZGaWWBQfJibOP9eKgDZBWS2_49JkvD3PEEYjFyCIYugd7O9zxVuP2ExLn-ghO-Al6urv-0Ijvcb5A-_QUuFVnE2s6vPyZeGTv8v86K2SMspWYcZYBRNEfCEP6BL7yv05FVZx6Wdf13U1HZbGpCob-QxEUABAXxyAP9sDTIWLKQOSfrqTtF4N_vDBLSpBWvZa9vOC3W5DSlVECa6CAYY2pAHx35EPneq_cTb_a-63te8CT9KfBDSTmgIr68',
-  );
+  Profile _p = const Profile(id: 'u_1', displayName: 'Guest', avatarUrl: '');
 
   @override
   Future<Profile> load() async {
