@@ -1,10 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart';
 import 'package:mobile_app/features/auth/presentation/widgets/login_fields.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key, this.returnTo = '/profile'});
@@ -148,7 +150,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 // OAuth
                 _OAuthRow(
                   onGoogle: () => _oauth(OAuthProvider.google),
-                  onApple: () => _oauth(OAuthProvider.apple),
+                  onGithub: () => _oauth(OAuthProvider.github),
                   onFacebook: () => _oauth(OAuthProvider.facebook),
                 ),
 
@@ -193,12 +195,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 class _OAuthRow extends StatelessWidget {
   const _OAuthRow({
     required this.onGoogle,
-    required this.onApple,
+    required this.onGithub,
     required this.onFacebook,
   });
 
   final VoidCallback onGoogle;
-  final VoidCallback onApple;
+  final VoidCallback onGithub;
   final VoidCallback onFacebook;
 
   @override
@@ -209,24 +211,21 @@ class _OAuthRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _CircleIconButton(
-          icon: Icons.g_mobiledata,
-          background: cs.surfaceContainerHighest,
-          iconColor: cs.onSurface,
+          background: cs.surfaceContainerHighest, 
           onTap: onGoogle,
+          child: const FaIcon(FontAwesomeIcons.google),
         ),
         const SizedBox(width: 16),
         _CircleIconButton(
-          icon: Icons.apple,
-          background: cs.surfaceContainerHighest,
-          iconColor: cs.onSurface,
-          onTap: onApple,
+          background: cs.surfaceContainerHighest, 
+          onTap: onGithub,
+          child: const FaIcon(FontAwesomeIcons.github),
         ),
         const SizedBox(width: 16),
         _CircleIconButton(
-          icon: Icons.facebook,
-          background: cs.surfaceContainerHighest,
-          iconColor: cs.onSurface,
+          background: cs.surfaceContainerHighest, 
           onTap: onFacebook,
+          child: const FaIcon(FontAwesomeIcons.facebook),
         ),
       ],
     );
@@ -235,19 +234,19 @@ class _OAuthRow extends StatelessWidget {
 
 class _CircleIconButton extends StatelessWidget {
   const _CircleIconButton({
-    required this.icon,
+    required this.child,
     required this.background,
-    required this.iconColor,
     required this.onTap,
   });
 
-  final IconData icon;
+  final Widget child;
   final Color background;
-  final Color iconColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Material(
       color: background,
       shape: const CircleBorder(),
@@ -257,7 +256,13 @@ class _CircleIconButton extends StatelessWidget {
         child: SizedBox(
           width: 56,
           height: 56,
-          child: Icon(icon, color: iconColor, size: 28),
+          child: IconTheme(
+            data: IconThemeData(
+              color: cs.onSurface,
+              size: 24,
+            ),
+            child: Center(child: child),
+          ),
         ),
       ),
     );

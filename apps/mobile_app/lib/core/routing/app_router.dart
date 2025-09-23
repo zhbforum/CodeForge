@@ -1,4 +1,3 @@
-// lib/core/routing/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +5,8 @@ import 'package:mobile_app/core/models/track.dart';
 import 'package:mobile_app/core/services/auth_refresh_provider.dart';
 import 'package:mobile_app/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile_app/features/auth/presentation/pages/signup_page.dart';
-import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart';
+import 'package:mobile_app/features/auth/presentation/pages/welcome_page.dart';
+import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
@@ -15,6 +15,8 @@ import 'package:mobile_app/features/onboarding/onboarding_page.dart';
 import 'package:mobile_app/features/practice/practice_page.dart';
 import 'package:mobile_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshListenable = ref.watch(authRefreshProvider);
@@ -48,6 +50,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (ctx, st) {
           final from = st.uri.queryParameters['from'] ?? '/profile';
           return SignUpPage(returnTo: from);
+        },
+      ),
+      GoRoute(
+        path: WelcomePage.routePath,
+        builder: (ctx, st) {
+          final from = st.uri.queryParameters['from'];
+          return WelcomePage(returnTo: from);
         },
       ),
 
@@ -106,8 +115,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/profile',
-                pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: ProfilePage()),
+                pageBuilder: (ctx, state) {
+                  final uid = Supabase.instance.client.auth.currentUser?.id;
+                  return NoTransitionPage(
+                    child: KeyedSubtree(
+                      key: ValueKey(uid),
+                      child: const ProfilePage(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -116,15 +132,43 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
 
     redirect: (context, state) {
-      final repo = ref.read(authRepositoryProvider);
-      final authed = repo.currentSession != null;
+      final auth = ref.read(authSessionProvider); 
 
-      final loc = state.matchedLocation;
-      final isAuth = loc.startsWith('/auth/');
+      if (auth.isLoading) {
+        return state.matchedLocation == SplashPage.routePath
+            ? null
+            : SplashPage.routePath;
+      }
 
-      if (authed && isAuth) {
-        final from = state.uri.queryParameters['from'];
-        return from == null ? '/profile' : Uri.decodeComponent(from);
+      if (auth.hasError) {
+        final loc = state.matchedLocation;
+        final isAuthFlow = loc.startsWith('/auth/');
+        final isWelcome = loc == WelcomePage.routePath;
+
+        if (!isAuthFlow && !isWelcome) {
+          return WelcomePage.routePath;
+        }
+        return null;
+      }
+
+      final session = auth.asData?.value;
+      final isAuthed = session != null;
+
+      final loc        = state.matchedLocation;
+      final isRoot     = loc == '/' || loc == SplashPage.routePath;
+      final isAuthFlow = loc.startsWith('/auth/');
+      final isOnboarding = loc == OnboardingPage.routePath;
+
+      if (!isAuthed) {
+        if (_isProtected(loc)) {
+          final from = Uri.encodeComponent(loc);
+          return '${WelcomePage.routePath}?from=$from';
+        }
+        return null;
+      }
+
+      if (isRoot || isOnboarding || isAuthFlow) {
+        return '/profile';
       }
 
       return null;
@@ -154,3 +198,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     },
   );
 });
+
+bool _isProtected(String loc) {
+  return loc.startsWith('/profile');
+}

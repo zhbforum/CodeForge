@@ -3,8 +3,8 @@ import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final currentSessionProvider = Provider<Session?>((ref) {
-  final s = ref.watch(authStateStreamProvider).valueOrNull;
-  return s?.session ?? Supabase.instance.client.auth.currentSession;
+  final st = ref.watch(authStateStreamProvider).valueOrNull;
+  return st?.session;
 });
 
 final isAuthenticatedProvider = Provider<bool>((ref) {
@@ -13,4 +13,13 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 
 final currentUserProvider = Provider<User?>((ref) {
   return ref.watch(currentSessionProvider)?.user;
+});
+
+final currentUserIdProvider = Provider<String?>((ref) {
+  return ref.watch(currentUserProvider)?.id;
+});
+
+final authSessionProvider = Provider<AsyncValue<Session?>>((ref) {
+  final authState = ref.watch(authStateStreamProvider);
+  return authState.whenData((s) => s.session);
 });
