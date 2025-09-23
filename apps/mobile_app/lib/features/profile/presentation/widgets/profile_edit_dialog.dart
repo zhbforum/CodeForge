@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/features/profile/presentation/viewmodels/profile_view_model.dart';
+import 'package:mobile_app/features/profile/utils/profile_validators.dart';
 
 class ProfileEditDialog extends ConsumerStatefulWidget {
   const ProfileEditDialog({super.key});
@@ -17,6 +19,7 @@ class ProfileEditDialog extends ConsumerStatefulWidget {
 }
 
 class _ProfileEditDialogState extends ConsumerState<ProfileEditDialog> {
+  final _formKey = GlobalKey<FormState>();
   TextEditingController? _nameCtrl;
   TextEditingController? _bioCtrl;
   bool _saving = false;
@@ -24,9 +27,8 @@ class _ProfileEditDialogState extends ConsumerState<ProfileEditDialog> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeControllers();
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _initializeControllers());
   }
 
   void _initializeControllers() {
@@ -40,34 +42,35 @@ class _ProfileEditDialogState extends ConsumerState<ProfileEditDialog> {
 
   Future<void> _save() async {
     if (_nameCtrl == null || _bioCtrl == null) return;
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() => _saving = true);
-
     try {
       final notifier = ref.read(profileProvider.notifier);
-      final name = _nameCtrl!.text.trim();
-      final bio = _bioCtrl!.text.trim();
-      final currentProfile = ref.read(profileProvider).valueOrNull;
 
-      if (name != (currentProfile?.fullName ?? '')) {
-        await notifier.updateFullName(name.isEmpty ? null : name);
+      final normalizedName = ProfileValidators.normalizeName(_nameCtrl!.text);
+      final normalizedBio = ProfileValidators.normalizeBio(_bioCtrl!.text);
+
+      final current = ref.read(profileProvider).valueOrNull;
+
+      if (normalizedName != (current?.fullName ?? '')) {
+        await notifier.updateFullName(
+          normalizedName.isEmpty ? null : normalizedName,
+        );
+      }
+      if (normalizedBio != (current?.bio ?? '')) {
+        await notifier.updateBio(
+          normalizedBio.isEmpty ? null : normalizedBio,
+        );
       }
 
-      if (bio != (currentProfile?.bio ?? '')) {
-        await notifier.updateBio(bio.isEmpty ? null : bio);
-      }
-
-      if (mounted) {
-        Navigator.pop(context);
-      }
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error saving: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error saving: $e'), 
+          backgroundColor: Colors.red),
         );
       }
     }
@@ -96,21 +99,40 @@ class _ProfileEditDialogState extends ConsumerState<ProfileEditDialog> {
 
     return AlertDialog(
       title: const Text('Edit profile'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameCtrl!,
-            decoration: const InputDecoration(labelText: 'Full name'),
-            enabled: !_saving,
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _bioCtrl!,
-            decoration: const InputDecoration(labelText: 'Bio'),
-            enabled: !_saving,
-          ),
-        ],
+      content: Form(
+        key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _nameCtrl,
+              enabled: !_saving,
+              decoration: const InputDecoration(
+                labelText: 'Full name',
+                hintText: 'Your name',
+              ),
+              inputFormatters: <TextInputFormatter>[
+                ProfileValidators.nameFilter,
+                LengthLimitingTextInputFormatter(ProfileValidators.nameMax),
+              ],
+              maxLength: ProfileValidators.nameMax,
+              validator: (v) => ProfileValidators.validateFullName(v ?? ''),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _bioCtrl,
+              enabled: !_saving,
+              decoration: const InputDecoration(
+                labelText: 'Bio',
+                hintText: 'Tell something about yourself',
+              ),
+              maxLines: 3,
+              maxLength: ProfileValidators.bioMax,
+              validator: (v) => ProfileValidators.validateBio(v ?? ''),
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/settings/presentation/settings_bottom_sheet.dart';
+
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key, this.returnTo});
@@ -51,10 +53,14 @@ class WelcomePage extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: Icon(
-                      Icons.person_rounded,
-                      size: 96,
-                      color: cs.onSurfaceVariant,
+                    child: ClipOval(
+                      child: SizedBox(
+                        width: 160,
+                        height: 160,
+                        child: SvgPicture.asset(
+                          'assets/icons/companion.svg',
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),

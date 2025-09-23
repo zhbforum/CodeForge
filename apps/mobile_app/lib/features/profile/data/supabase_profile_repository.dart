@@ -20,7 +20,8 @@ class SupabaseProfileRepository implements ProfileRepository {
     if (row != null) return Profile.fromMap(row);
 
     final email = _db.auth.currentUser!.email ?? '';
-    final suggestedUsername = (email.isNotEmpty ? email.split('@').first : uid.substring(0, 8)).toLowerCase();
+    final suggestedUsername = (email.isNotEmpty ? 
+    email.split('@').first : uid.substring(0, 8)).toLowerCase();
 
     final created = await _db
         .from('profiles')
