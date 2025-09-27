@@ -17,7 +17,6 @@ import 'package:mobile_app/features/profile/presentation/pages/profile_page.dart
 import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshListenable = ref.watch(authRefreshProvider);
 
@@ -132,7 +131,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
 
     redirect: (context, state) {
-      final auth = ref.read(authSessionProvider); 
+      final auth = ref.read(authSessionProvider);
 
       if (auth.isLoading) {
         return state.matchedLocation == SplashPage.routePath
@@ -154,8 +153,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final session = auth.asData?.value;
       final isAuthed = session != null;
 
-      final loc        = state.matchedLocation;
-      final isRoot     = loc == '/' || loc == SplashPage.routePath;
+      final loc = state.matchedLocation;
+      final isRoot = loc == '/' || loc == SplashPage.routePath;
       final isAuthFlow = loc.startsWith('/auth/');
       final isOnboarding = loc == OnboardingPage.routePath;
 

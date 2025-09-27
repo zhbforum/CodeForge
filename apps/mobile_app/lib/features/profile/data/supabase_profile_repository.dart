@@ -20,8 +20,9 @@ class SupabaseProfileRepository implements ProfileRepository {
     if (row != null) return Profile.fromMap(row);
 
     final email = _db.auth.currentUser!.email ?? '';
-    final suggestedUsername = (email.isNotEmpty ? 
-    email.split('@').first : uid.substring(0, 8)).toLowerCase();
+    final suggestedUsername =
+        (email.isNotEmpty ? email.split('@').first : uid.substring(0, 8))
+            .toLowerCase();
 
     final created = await _db
         .from('profiles')
@@ -39,10 +40,13 @@ class SupabaseProfileRepository implements ProfileRepository {
   @override
   Future<void> updateAvatar(String url) async {
     final uid = _uidOrThrow();
-    await _db.from('profiles').update({
-      'avatar_url': url,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', uid);
+    await _db
+        .from('profiles')
+        .update({
+          'avatar_url': url,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', uid);
   }
 
   Future<void> ensureProfile() async {
@@ -60,18 +64,24 @@ class SupabaseProfileRepository implements ProfileRepository {
   @override
   Future<void> updateFullName(String? fullName) async {
     final uid = _uidOrThrow();
-    await _db.from('profiles').update({
-      'full_name': fullName,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', uid);
+    await _db
+        .from('profiles')
+        .update({
+          'full_name': fullName,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', uid);
   }
 
   @override
   Future<void> updateBio(String? bio) async {
     final uid = _uidOrThrow();
-    await _db.from('profiles').update({
-      'bio': bio,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', uid);
+    await _db
+        .from('profiles')
+        .update({
+          'bio': bio,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', uid);
   }
 }

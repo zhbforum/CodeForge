@@ -1,5 +1,4 @@
 class Profile {
-
   const Profile({
     required this.id,
     this.username,
@@ -47,10 +46,10 @@ class Profile {
   }
 
   Map<String, dynamic> toUpdateMap() => {
-        if (username != null) 'username': username,
-        if (fullName != null) 'full_name': fullName,
-        if (bio != null) 'bio': bio,
-        if (avatarUrl != null) 'avatar_url': avatarUrl,
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      };
+    if (username != null) 'username': username,
+    if (fullName != null) 'full_name': fullName,
+    if (bio != null) 'bio': bio,
+    if (avatarUrl != null) 'avatar_url': avatarUrl,
+    'updated_at': DateTime.now().toUtc().toIso8601String(),
+  };
 }

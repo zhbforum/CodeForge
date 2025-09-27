@@ -25,7 +25,8 @@ class FriendsCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'You have no friends yet. Find them to compete and learn together!',
+              'You have no friends yet. '
+              'Find them to compete and learn together!',
               textAlign: TextAlign.center,
               style: text.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),

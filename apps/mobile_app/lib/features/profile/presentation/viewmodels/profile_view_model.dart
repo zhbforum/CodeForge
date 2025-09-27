@@ -7,23 +7,25 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final profileProvider =
     StateNotifierProvider.autoDispose<ProfileController, AsyncValue<Profile>>(
-  name: 'profileProvider',
-  (ref) {
-    final repo = ref.read(profileRepositoryProvider);
-    final ctrl = ProfileController(repo);
+      name: 'profileProvider',
+      (ref) {
+        final repo = ref.read(profileRepositoryProvider);
+        final ctrl = ProfileController(repo);
 
-    final uid = ref.watch(currentUserIdProvider);
+        final uid = ref.watch(currentUserIdProvider);
 
-    if (uid == null) {
-      ctrl.setUnauthenticated();
-    } else {
-      Supabase.instance.client.rpc<void>('ensure_profile').catchError((_) {});
-      ctrl.load();
-    }
+        if (uid == null) {
+          ctrl.setUnauthenticated();
+        } else {
+          Supabase.instance.client
+              .rpc<void>('ensure_profile')
+              .catchError((_) {});
+          ctrl.load();
+        }
 
-    return ctrl;
-  },
-);
+        return ctrl;
+      },
+    );
 
 class ProfileController extends StateNotifier<AsyncValue<Profile>> {
   ProfileController(this._repo) : super(const AsyncLoading());

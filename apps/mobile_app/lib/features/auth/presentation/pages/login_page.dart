@@ -7,7 +7,6 @@ import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model
 import 'package:mobile_app/features/auth/presentation/widgets/login_fields.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key, this.returnTo = '/profile'});
   final String returnTo;
@@ -211,19 +210,19 @@ class _OAuthRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _CircleIconButton(
-          background: cs.surfaceContainerHighest, 
+          background: cs.surfaceContainerHighest,
           onTap: onGoogle,
           child: const FaIcon(FontAwesomeIcons.google),
         ),
         const SizedBox(width: 16),
         _CircleIconButton(
-          background: cs.surfaceContainerHighest, 
+          background: cs.surfaceContainerHighest,
           onTap: onGithub,
           child: const FaIcon(FontAwesomeIcons.github),
         ),
         const SizedBox(width: 16),
         _CircleIconButton(
-          background: cs.surfaceContainerHighest, 
+          background: cs.surfaceContainerHighest,
           onTap: onFacebook,
           child: const FaIcon(FontAwesomeIcons.facebook),
         ),
@@ -257,10 +256,7 @@ class _CircleIconButton extends StatelessWidget {
           width: 56,
           height: 56,
           child: IconTheme(
-            data: IconThemeData(
-              color: cs.onSurface,
-              size: 24,
-            ),
+            data: IconThemeData(color: cs.onSurface, size: 24),
             child: Center(child: child),
           ),
         ),

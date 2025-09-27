@@ -40,9 +40,9 @@ class AccountActionsCard extends ConsumerWidget {
                 });
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Sign-out error: $e')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Sign-out error: $e')));
                 }
               }
             },
