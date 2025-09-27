@@ -6,7 +6,6 @@ import 'package:mobile_app/features/profile/utils/profile_validators.dart';
 
 class ProfileEditDialog extends ConsumerStatefulWidget {
   const ProfileEditDialog({super.key});
-
   static Future<void> show(BuildContext context) {
     return showDialog(
       context: context,
@@ -23,12 +22,12 @@ class _ProfileEditDialogState extends ConsumerState<ProfileEditDialog> {
   TextEditingController? _nameCtrl;
   TextEditingController? _bioCtrl;
   bool _saving = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _initializeControllers());
+      (_) => _initializeControllers(),
+    );
   }
 
   void _initializeControllers() {
@@ -43,34 +42,29 @@ class _ProfileEditDialogState extends ConsumerState<ProfileEditDialog> {
   Future<void> _save() async {
     if (_nameCtrl == null || _bioCtrl == null) return;
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _saving = true);
     try {
       final notifier = ref.read(profileProvider.notifier);
-
       final normalizedName = ProfileValidators.normalizeName(_nameCtrl!.text);
       final normalizedBio = ProfileValidators.normalizeBio(_bioCtrl!.text);
-
       final current = ref.read(profileProvider).valueOrNull;
-
       if (normalizedName != (current?.fullName ?? '')) {
         await notifier.updateFullName(
           normalizedName.isEmpty ? null : normalizedName,
         );
       }
       if (normalizedBio != (current?.bio ?? '')) {
-        await notifier.updateBio(
-          normalizedBio.isEmpty ? null : normalizedBio,
-        );
+        await notifier.updateBio(normalizedBio.isEmpty ? null : normalizedBio);
       }
-
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving: $e'), 
-          backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error saving: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -79,11 +73,9 @@ class _ProfileEditDialogState extends ConsumerState<ProfileEditDialog> {
   @override
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileProvider);
-
     if (profileState.hasValue && _nameCtrl == null) {
       _initializeControllers();
     }
-
     if (_nameCtrl == null || _bioCtrl == null) {
       return const AlertDialog(
         content: Column(
@@ -96,7 +88,6 @@ class _ProfileEditDialogState extends ConsumerState<ProfileEditDialog> {
         ),
       );
     }
-
     return AlertDialog(
       title: const Text('Edit profile'),
       content: Form(

@@ -16,9 +16,7 @@ class ProfileValidators {
     final name = raw.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (name.isEmpty) return 'Name is required';
     if (name.length > nameMax) return 'Max $nameMax characters';
-    if (!RegExp('^${nameAllowed.pattern}+\$',
-            unicode: true)
-        .hasMatch(name)) {
+    if (!RegExp('^${nameAllowed.pattern}+\$', unicode: true).hasMatch(name)) {
       return "Only letters, numbers, spaces, '.', '-' and \"'\"";
     }
     return null;

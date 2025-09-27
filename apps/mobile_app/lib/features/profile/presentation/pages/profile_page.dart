@@ -112,7 +112,8 @@ class _ProfileHeader extends ConsumerWidget {
           imageUrl: avatarUrl,
           seed: seed,
           onEditAvatar: () {
-            // TODO(killursxlf): picker + upload в Supabase Storage + updateAvatar(url)
+            // TODO(killursxlf): picker + upload в
+            // Supabase Storage + updateAvatar(url)
           },
         ),
         const SizedBox(height: 12),
@@ -123,15 +124,21 @@ class _ProfileHeader extends ConsumerWidget {
         ),
         const SizedBox(height: 6),
         InkWell(
+          onTap: () => ProfileEditDialog.show(context),
           borderRadius: BorderRadius.circular(8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 6,
             children: [
               Text(
                 bioText,
+                textAlign: TextAlign.center,
+                softWrap: true,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: text.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(width: 6),
               Icon(Icons.edit_outlined, size: 18, color: cs.onSurfaceVariant),
             ],
           ),
