@@ -13,13 +13,30 @@ final authRefreshProvider = Provider<ChangeNotifier>((ref) {
 });
 
 class _AuthRefreshNotifier extends ChangeNotifier {
-  _AuthRefreshNotifier(Stream<AuthState> authStream) {
-    _sub = authStream.listen((_) {
-      notifyListeners();
-    });
-  }
+  _AuthRefreshNotifier(Stream<AuthState> authStream)
+    : _sub = authStream.listen((_) {}) {
+    final cached = Supabase.instance.client.auth.currentSession;
+    _value = AsyncValue.data(cached);
 
-  late final StreamSubscription<AuthState> _sub;
+    _sub
+      ..onData((AuthState s) {
+        try {
+          final ses = s.session ?? Supabase.instance.client.auth.currentSession;
+          _value = AsyncValue.data(ses);
+        } catch (e, st) {
+          _value = AsyncValue.error(e, st);
+        }
+        notifyListeners();
+      })
+      ..onError((Object e, StackTrace st) {
+        _value = AsyncValue.error(e, st);
+        notifyListeners();
+      });
+  }
+  final StreamSubscription<AuthState> _sub;
+
+  AsyncValue<Session?> _value = const AsyncValue.loading();
+  AsyncValue<Session?> get value => _value;
 
   @override
   void dispose() {

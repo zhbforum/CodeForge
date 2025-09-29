@@ -7,12 +7,13 @@ class FriendsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+
     return Card(
       color: Theme.of(context).brightness == Brightness.dark
           ? cs.surfaceContainerHighest
           : cs.surface,
-      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
         child: Column(
@@ -30,11 +31,18 @@ class FriendsCard extends StatelessWidget {
               style: text.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () {},
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Text('Add Friends'),
+
+            SizedBox(
+              width: double.infinity,
+              height: 40,
+              child: FilledButton.tonalIcon(
+                onPressed: () {},
+                icon: const Icon(Icons.person_add_alt_1_outlined),
+                label: const Text('Add Friends'),
+                style: FilledButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
               ),
             ),
           ],

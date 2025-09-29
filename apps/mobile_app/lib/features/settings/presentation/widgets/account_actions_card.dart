@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart';
 
 class AccountActionsCard extends ConsumerWidget {
@@ -25,13 +26,18 @@ class AccountActionsCard extends ConsumerWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Sign out'),
             onTap: () async {
-              final rootNav = Navigator.of(context, rootNavigator: true);
-              if (rootNav.canPop()) {
-                await rootNav.maybePop();
-              }
+              final router = GoRouter.of(context);
 
               try {
+                final rootNav = Navigator.of(context, rootNavigator: true);
+                while (rootNav.canPop()) {
+                  rootNav.pop();
+                }
                 await ref.read(authViewModelProvider.notifier).signOut();
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  router.go('/welcome');
+                });
               } catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(
