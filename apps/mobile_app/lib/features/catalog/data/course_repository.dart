@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CourseRepository {
   CourseRepository({SupabaseClient? client})
-      : _client = client ?? Supabase.instance.client;
+    : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
 
@@ -22,68 +22,54 @@ class CourseRepository {
         .toList();
   }
 
-  Future<List<Track>> getTracks() async {
-    final rows = await _client
+  Future<Course> getCourse(String id) async {
+    final row = await _client
         .from('courses')
-        .select('id,title,description,slug,is_published,created_at')
-        .eq('is_published', true)
-        .order('created_at', ascending: true);
+        .select('id,title,description,cover_image,is_published,created_at')
+        .eq('id', _normalizeId(id))
+        .single();
 
-    return (rows as List).map((row) {
-      final m = Map<String, dynamic>.from(row as Map);
-      final title = m['title'] as String? ?? 'Untitled';
-      final subtitle = m['description'] as String? ?? '';
-      final slug = m['slug'] as String?;
-
-      return Track(
-        id: _resolveTrackId(slug, title),
-        title: title,
-        subtitle: subtitle,
-        progress: 0.toDouble(),
-      );
-    }).toList();
+    return Course.fromJson(Map<String, dynamic>.from(row as Map));
   }
 
-  Future<List<Lesson>> getLessons(TrackId id) async {
-    final course = await _findCourseRowForTrack(id);
-    if (course == null) return _fallbackLessons();
-
-    final courseId = (course['id'] as num).toInt();
-
+  Future<List<Lesson>> getLessonsByCourseId(String courseId) async {
     final rows = await _client
         .from('lessons')
         .select('id,title,"order",user_progress(is_completed)')
-        .eq('course_id', courseId)
+        .eq('course_id', _normalizeId(courseId))
         .order('order', ascending: true);
 
-    if ((rows as List).isEmpty) return _fallbackLessons();
+    final list = (rows as List)
+        .map((r) => Map<String, dynamic>.from(r as Map))
+        .toList();
 
-    final lessonsRaw =
-        rows.map((r) => Map<String, dynamic>.from(r as Map)).toList()
-          ..sort(
-            (a, b) => ((a['order'] ?? 0) as int)
-                .compareTo((b['order'] ?? 0) as int),
-          );
+    if (list.isEmpty) return _fallbackLessons();
+
+    list.sort(
+      (a, b) => ((a['order'] ?? 0) as int).compareTo((b['order'] ?? 0) as int),
+    );
 
     final completed = <int, bool>{};
-    for (var i = 0; i < lessonsRaw.length; i++) {
-      final upRaw = (lessonsRaw[i]['user_progress'] as List?) ?? const [];
+    for (var i = 0; i < list.length; i++) {
+      final upRaw = (list[i]['user_progress'] as List?) ?? const [];
       final up = upRaw
           .map((e) => Map<String, dynamic>.from(e as Map))
           .toList(growable: false);
-      final isCompleted =
+
+      final isDone =
           up.isNotEmpty && (up.first['is_completed'] as bool? ?? false);
-      completed[i] = isCompleted;
+      completed[i] = isDone;
     }
 
-    bool inProgressUsed = false;
+    var inProgressUsed = false;
     final result = <Lesson>[];
 
-    for (var i = 0; i < lessonsRaw.length; i++) {
-      final m = lessonsRaw[i];
-      final dbId = (m['id'] as num).toInt();
+    for (var i = 0; i < list.length; i++) {
+      final m = list[i];
+
+      final dbId = _asString(m['id']);
       final title = m['title'] as String? ?? 'Lesson ${i + 1}';
-      final order = (m['order'] as num?)?.toInt() ?? i + 1;
+      final order = (m['order'] as num?)?.toInt() ?? (i + 1);
 
       final prevCompleted = i == 0 || (completed[i - 1] ?? false);
       final thisCompleted = completed[i] ?? false;
@@ -91,24 +77,20 @@ class CourseRepository {
       final status = thisCompleted
           ? LessonStatus.completed
           : (!inProgressUsed && prevCompleted)
-              ? (inProgressUsed = true, LessonStatus.inProgress).$2
-              : LessonStatus.locked;
+          ? (inProgressUsed = true, LessonStatus.inProgress).$2
+          : LessonStatus.locked;
 
-      final (x, y) = _autoLayout(i, lessonsRaw.length);
+      final (x, y) = _autoLayout(i, list.length);
 
       result.add(
         Lesson(
-          id: 'l$dbId',
+          id: dbId,
           title: title,
           type: LessonType.theory,
           status: status,
           order: order,
           sectionId: 'intro',
-          prereqIds: i == 0
-              ? const []
-              : [
-                  'l${(lessonsRaw[i - 1]['id'] as num).toInt()}',
-                ],
+          prereqIds: i == 0 ? const [] : [_asString(list[i - 1]['id'])],
           posX: x,
           posY: y,
         ),
@@ -118,69 +100,77 @@ class CourseRepository {
     return result;
   }
 
-  TrackId _resolveTrackId(String? slug, String title) {
-    if (slug != null) {
-      try {
-        return TrackId.values.byName(slug);
-      } catch (_) {}
+  Future<void> markLessonDone({
+    required String courseId,
+    required String lessonId,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) {
+      throw Exception('Not authenticated');
     }
-    final t = title.toLowerCase();
-    if (t.contains('python')) return TrackId.python;
-    if (t.contains('full')) return TrackId.fullstack;
-    if (t.contains('back')) return TrackId.backend;
-    if (t.contains('vanilla')) return TrackId.vanillaJs;
-    if (t.contains('type')) return TrackId.typescript;
-    if (t.contains('html')) return TrackId.html;
-    if (t.contains('css')) return TrackId.css;
-    return TrackId.fullstack;
+
+    final lessonKey = int.tryParse(lessonId) ?? lessonId;
+
+    await _client.from('user_progress').upsert({
+      'user_id': userId,
+      'lesson_id': lessonKey,
+      'is_completed': true,
+      'completed_at': DateTime.now().toIso8601String(),
+      // 'current_slide': null,
+    });
   }
 
-  Future<Map<String, dynamic>?> _findCourseRowForTrack(TrackId id) async {
-    final bySlug = await _client
+  @Deprecated('Use getCourses() + navigate by real course id (int)')
+  Future<List<Track>> getTracks() async {
+    final rows = await _client
         .from('courses')
-        .select('id,title,slug')
+        .select('id,title,description,is_published,created_at')
         .eq('is_published', true)
-        .eq('slug', id.name)
-        .limit(1);
+        .order('created_at', ascending: true);
 
-    if ((bySlug as List).isNotEmpty) {
-      return Map<String, dynamic>.from(bySlug.first as Map);
-    }
+    return (rows as List).map((row) {
+      final m = Map<String, dynamic>.from(row as Map);
+      return Track(
+        id: TrackId.fullstack,
+        title: m['title'] as String? ?? 'Untitled',
+        subtitle: m['description'] as String? ?? '',
+        progress: 0,
+      );
+    }).toList();
+  }
 
+  @Deprecated('Navigate by real course id and call getLessonsByCourseId')
+  Future<List<Lesson>> getLessons(TrackId id) async {
+    final courseId = await _findCourseIdByTitleKeyword(id);
+    if (courseId == null) return _fallbackLessons();
+    return getLessonsByCourseId(courseId);
+  }
+
+  Future<String?> _findCourseIdByTitleKeyword(TrackId id) async {
     final kw = _titleKeywordFor(id);
-    if (kw != null) {
-      final like = await _client
-          .from('courses')
-          .select('id,title,slug')
-          .eq('is_published', true)
-          .ilike('title', '%$kw%')
-          .limit(1);
+    if (kw == null) return null;
 
-      if ((like as List).isNotEmpty) {
-        return Map<String, dynamic>.from(like.first as Map);
-      }
-    }
-
-    final any = await _client
+    final like = await _client
         .from('courses')
-        .select('id,title,slug')
+        .select('id,title')
         .eq('is_published', true)
+        .ilike('title', '%$kw%')
         .limit(1);
 
-    return (any as List).isEmpty
-        ? null
-        : Map<String, dynamic>.from(any.first as Map);
+    if ((like as List).isEmpty) return null;
+    final m = Map<String, dynamic>.from(like.first as Map);
+    return _asString(m['id']);
   }
 
   String? _titleKeywordFor(TrackId id) => switch (id) {
-        TrackId.python => 'python',
-        TrackId.fullstack => 'full',
-        TrackId.backend => 'back',
-        TrackId.vanillaJs => 'vanilla',
-        TrackId.typescript => 'type',
-        TrackId.html => 'html',
-        TrackId.css => 'css',
-      };
+    TrackId.python => 'python',
+    TrackId.fullstack => 'full',
+    TrackId.backend => 'back',
+    TrackId.vanillaJs => 'vanilla',
+    TrackId.typescript => 'type',
+    TrackId.html => 'html',
+    TrackId.css => 'css',
+  };
 
   (double, double) _autoLayout(int index, int total) {
     final t = max(1, total);
@@ -190,26 +180,31 @@ class CourseRepository {
   }
 
   List<Lesson> _fallbackLessons() => const [
-        Lesson(
-          id: 'intro',
-          title: 'Introduction',
-          type: LessonType.theory,
-          status: LessonStatus.inProgress,
-          order: 1,
-          sectionId: 'intro',
-          posX: .20,
-          posY: .30,
-        ),
-        Lesson(
-          id: 'practice_1',
-          title: 'First Practice',
-          type: LessonType.fillIn,
-          status: LessonStatus.locked,
-          order: 2,
-          sectionId: 'intro',
-          prereqIds: ['intro'],
-          posX: .40,
-          posY: .40,
-        ),
-      ];
+    Lesson(
+      id: 'intro',
+      title: 'Introduction',
+      type: LessonType.theory,
+      status: LessonStatus.inProgress,
+      order: 1,
+      sectionId: 'intro',
+      posX: .20,
+      posY: .30,
+    ),
+    Lesson(
+      id: 'practice_1',
+      title: 'First Practice',
+      type: LessonType.fillIn,
+      status: LessonStatus.locked,
+      order: 2,
+      sectionId: 'intro',
+      prereqIds: ['intro'],
+      posX: .40,
+      posY: .40,
+    ),
+  ];
+
+  String _asString(dynamic v) =>
+      v is String ? v : (v is num ? v.toString() : '$v');
+
+  Object _normalizeId(String id) => int.tryParse(id) ?? id;
 }

@@ -184,7 +184,7 @@ class CourseCard extends StatelessWidget {
   }
 
   TrackId _resolveTrackIdFromCourse(Course c) {
-    final t = ('${c.title} ${c.description ?? ''}').toLowerCase();
+    final t = '${c.title} ${c.description ?? ''}'.toLowerCase();
     if (t.contains('python')) return TrackId.python;
     if (t.contains('javascript') || t.contains('js')) return TrackId.vanillaJs;
     if (t.contains('full')) return TrackId.fullstack;
@@ -193,6 +193,6 @@ class CourseCard extends StatelessWidget {
     if (t.contains('type')) return TrackId.typescript;
     if (t.contains('html')) return TrackId.html;
     if (t.contains('css')) return TrackId.css;
-    return TrackId.fullstack; 
+    return TrackId.fullstack;
   }
 }

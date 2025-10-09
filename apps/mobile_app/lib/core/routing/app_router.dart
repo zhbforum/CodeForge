@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/core/models/track.dart';
 import 'package:mobile_app/core/services/auth_refresh_provider.dart';
 import 'package:mobile_app/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile_app/features/auth/presentation/pages/signup_page.dart';
 import 'package:mobile_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
+import 'package:mobile_app/features/catalog/presentation/pages/lesson_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
@@ -63,35 +63,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navShell) => AppShell(navShell: navShell),
         branches: [
           StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/home',
-                pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: LearnPage()),
                 routes: [
                   GoRoute(
-                    path: 'track/:id',
-                    builder: (ctx, st) {
-                      final idParam = st.pathParameters['id']!;
-                      final trackId = TrackId.values.firstWhere(
-                        (e) => e.name == idParam,
-                      );
-                      final title = switch (trackId) {
-                        TrackId.fullstack => 'Full-Stack Developer',
-                        TrackId.python => 'Python Developer',
-                        TrackId.backend => 'Back-End Developer',
-                        TrackId.vanillaJs => 'Vanilla JS',
-                        TrackId.typescript => 'TypeScript',
-                        TrackId.html => 'HTML',
-                        TrackId.css => 'CSS',
-                      };
-                      return TrackDetailPage(trackId: trackId, title: title);
-                    },
+                    path: '/home',
+                    pageBuilder: (_, __) =>
+                        const NoTransitionPage(child: LearnPage()),
+                    routes: [
+                      GoRoute(
+                        path: 'course/:id',
+                        builder: (ctx, st) {
+                          final courseId = st.pathParameters['id']!;
+                          return TrackDetailPage(courseId: courseId);
+                        },
+                        routes: [
+                          GoRoute(
+                            path: 'lesson/:lessonId',
+                            builder: (ctx, st) => LessonPage(
+                              courseId: st.pathParameters['id']!,
+                              lessonId: st.pathParameters['lessonId']!,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
           StatefulShellBranch(
             routes: [
               GoRoute(

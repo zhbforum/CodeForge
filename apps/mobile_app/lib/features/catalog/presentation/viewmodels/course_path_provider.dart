@@ -1,65 +1,60 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/core/models/course.dart';
 import 'package:mobile_app/core/models/course_node.dart';
+import 'package:mobile_app/core/models/lesson.dart';
+import 'package:mobile_app/features/catalog/data/course_repository.dart';
+import 'package:mobile_app/features/catalog/data/progress_store.dart';
 
-final coursePathProvider =
-    NotifierProvider<CoursePathController, List<CourseNode>>(
-      CoursePathController.new,
-    );
+final courseRepositoryProvider = Provider<CourseRepository>(
+  (ref) => CourseRepository(),
+);
 
-class CoursePathController extends Notifier<List<CourseNode>> {
-  @override
-  List<CourseNode> build() {
-    return [
-      const CourseNode(
-        id: 'intro',
-        title: 'Intro',
-        type: NodeType.lesson,
-        status: NodeStatus.available,
-      ),
-      const CourseNode(
-        id: 'practice-1',
-        title: 'Practice 1',
-        type: NodeType.practice,
-        prerequisites: ['intro'],
-        order: 1,
-      ),
-      const CourseNode(
-        id: 'quiz-1',
-        title: 'Quiz 1',
-        type: NodeType.quiz,
-        prerequisites: ['practice-1'],
-        order: 2,
-      ),
-      const CourseNode(
-        id: 'practice-2',
-        title: 'Practice 2',
-        type: NodeType.practice,
-        prerequisites: ['quiz-1'],
-        order: 3,
-      ),
-    ];
-  }
+final courseProvider = FutureProvider.family.autoDispose<Course, String>((
+  ref,
+  id,
+) async {
+  final repo = ref.read(courseRepositoryProvider);
+  return repo.getCourse(id);
+});
 
-  void markDone(String id) {
-    final idx = state.indexWhere((n) => n.id == id);
-    if (idx == -1) return;
+final coursePathProvider = FutureProvider.family
+    .autoDispose<List<CourseNode>, String>((ref, courseId) async {
+      final repo = ref.read(courseRepositoryProvider);
+      final store = ref.read(progressStoreProvider);
+      final lessons = await repo.getLessonsByCourseId(courseId);
+      final done = await store.getLessonCompletion(courseId);
 
-    final updated = [...state];
-    updated[idx] = updated[idx].copyWith(
-      status: NodeStatus.done,
-      progress: 100,
-    );
+      final nodes = <CourseNode>[];
+      var madeAvailable = false;
 
-    for (var i = idx + 1; i < updated.length; i++) {
-      final node = updated[i];
-      final ok = node.prerequisites.every(
-        (p) => updated.any((n) => n.id == p && n.status == NodeStatus.done),
-      );
-      if (ok && node.status == NodeStatus.locked) {
-        updated[i] = node.copyWith(status: NodeStatus.available);
-        break;
+      for (var i = 0; i < lessons.length; i++) {
+        final l = lessons[i];
+        final isCompleted = done[l.id] ?? false;
+        final prevCompleted = i == 0 || (done[lessons[i - 1].id] ?? false);
+
+        final status = isCompleted
+            ? NodeStatus.locked
+            : (!madeAvailable && prevCompleted)
+            ? (madeAvailable = true, NodeStatus.available).$2
+            : NodeStatus.locked;
+
+        nodes.add(
+          CourseNode(
+            id: l.id,
+            title: l.title,
+            status: status,
+            type: _toNodeType(l.type),
+          ),
+        );
       }
-    }
-    state = updated;
+
+      return nodes;
+    });
+
+NodeType _toNodeType(LessonType t) {
+  try {
+    return NodeType.values.byName(t.name);
+  } catch (_) {
+    return NodeType.values.first;
   }
 }

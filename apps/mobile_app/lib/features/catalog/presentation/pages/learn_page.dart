@@ -29,48 +29,48 @@ class _CoursesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final w = constraints.maxWidth;
-      final crossAxisCount = w < 420
-          ? 1
-          : w < 900
-              ? 2
-              : w < 1400
-                  ? 3
-                  : 4;
-      final childAspectRatio = w < 420
-          ? 2.6
-          : w < 900
-              ? 1.45
-              : 2.2;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final w = constraints.maxWidth;
+        final crossAxisCount = w < 420
+            ? 1
+            : w < 900
+            ? 2
+            : w < 1400
+            ? 3
+            : 4;
+        final childAspectRatio = w < 420
+            ? 2.6
+            : w < 900
+            ? 1.45
+            : 2.2;
 
-      return Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: childAspectRatio,
+        return Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: childAspectRatio,
+              ),
+              itemCount: courses.length,
+              itemBuilder: (_, i) {
+                final c = courses[i];
+                final isDesktop = w >= 1200;
+                return CourseCard(
+                  course: c,
+                  dense: isDesktop,
+                  onTap: () => context.go('/home/course/${c.id}'),
+                );
+              },
             ),
-            itemCount: courses.length,
-            itemBuilder: (_, i) {
-              final c = courses[i];
-              final isDesktop = w >= 1200;
-              return CourseCard(
-                course: c,
-                progress: 0.0,              
-                dense: isDesktop,
-                highlighted: false,
-                onTap: () => context.go('/home/course/${c.id}'),
-              );
-            },
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

@@ -12,7 +12,8 @@ part of 'app_settings.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) {
   return _AppSettings.fromJson(json);
@@ -37,17 +38,19 @@ mixin _$AppSettings {
 /// @nodoc
 abstract class $AppSettingsCopyWith<$Res> {
   factory $AppSettingsCopyWith(
-          AppSettings value, $Res Function(AppSettings) then) =
-      _$AppSettingsCopyWithImpl<$Res, AppSettings>;
+    AppSettings value,
+    $Res Function(AppSettings) then,
+  ) = _$AppSettingsCopyWithImpl<$Res, AppSettings>;
   @useResult
-  $Res call(
-      {AppThemeMode themeMode,
-      bool soundEnabled,
-      bool remindersEnabled,
-      int reminderHour,
-      int reminderMinute,
-      DailyGoal dailyGoal,
-      AppIconStyle appIconStyle});
+  $Res call({
+    AppThemeMode themeMode,
+    bool soundEnabled,
+    bool remindersEnabled,
+    int reminderHour,
+    int reminderMinute,
+    DailyGoal dailyGoal,
+    AppIconStyle appIconStyle,
+  });
 }
 
 /// @nodoc
@@ -71,36 +74,39 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
     Object? dailyGoal = null,
     Object? appIconStyle = null,
   }) {
-    return _then(_value.copyWith(
-      themeMode: null == themeMode
-          ? _value.themeMode
-          : themeMode // ignore: cast_nullable_to_non_nullable
-              as AppThemeMode,
-      soundEnabled: null == soundEnabled
-          ? _value.soundEnabled
-          : soundEnabled // ignore: cast_nullable_to_non_nullable
-              as bool,
-      remindersEnabled: null == remindersEnabled
-          ? _value.remindersEnabled
-          : remindersEnabled // ignore: cast_nullable_to_non_nullable
-              as bool,
-      reminderHour: null == reminderHour
-          ? _value.reminderHour
-          : reminderHour // ignore: cast_nullable_to_non_nullable
-              as int,
-      reminderMinute: null == reminderMinute
-          ? _value.reminderMinute
-          : reminderMinute // ignore: cast_nullable_to_non_nullable
-              as int,
-      dailyGoal: null == dailyGoal
-          ? _value.dailyGoal
-          : dailyGoal // ignore: cast_nullable_to_non_nullable
-              as DailyGoal,
-      appIconStyle: null == appIconStyle
-          ? _value.appIconStyle
-          : appIconStyle // ignore: cast_nullable_to_non_nullable
-              as AppIconStyle,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            themeMode: null == themeMode
+                ? _value.themeMode
+                : themeMode // ignore: cast_nullable_to_non_nullable
+                      as AppThemeMode,
+            soundEnabled: null == soundEnabled
+                ? _value.soundEnabled
+                : soundEnabled // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            remindersEnabled: null == remindersEnabled
+                ? _value.remindersEnabled
+                : remindersEnabled // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            reminderHour: null == reminderHour
+                ? _value.reminderHour
+                : reminderHour // ignore: cast_nullable_to_non_nullable
+                      as int,
+            reminderMinute: null == reminderMinute
+                ? _value.reminderMinute
+                : reminderMinute // ignore: cast_nullable_to_non_nullable
+                      as int,
+            dailyGoal: null == dailyGoal
+                ? _value.dailyGoal
+                : dailyGoal // ignore: cast_nullable_to_non_nullable
+                      as DailyGoal,
+            appIconStyle: null == appIconStyle
+                ? _value.appIconStyle
+                : appIconStyle // ignore: cast_nullable_to_non_nullable
+                      as AppIconStyle,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -108,18 +114,20 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
 abstract class _$$AppSettingsImplCopyWith<$Res>
     implements $AppSettingsCopyWith<$Res> {
   factory _$$AppSettingsImplCopyWith(
-          _$AppSettingsImpl value, $Res Function(_$AppSettingsImpl) then) =
-      __$$AppSettingsImplCopyWithImpl<$Res>;
+    _$AppSettingsImpl value,
+    $Res Function(_$AppSettingsImpl) then,
+  ) = __$$AppSettingsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {AppThemeMode themeMode,
-      bool soundEnabled,
-      bool remindersEnabled,
-      int reminderHour,
-      int reminderMinute,
-      DailyGoal dailyGoal,
-      AppIconStyle appIconStyle});
+  $Res call({
+    AppThemeMode themeMode,
+    bool soundEnabled,
+    bool remindersEnabled,
+    int reminderHour,
+    int reminderMinute,
+    DailyGoal dailyGoal,
+    AppIconStyle appIconStyle,
+  });
 }
 
 /// @nodoc
@@ -127,8 +135,9 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     extends _$AppSettingsCopyWithImpl<$Res, _$AppSettingsImpl>
     implements _$$AppSettingsImplCopyWith<$Res> {
   __$$AppSettingsImplCopyWithImpl(
-      _$AppSettingsImpl _value, $Res Function(_$AppSettingsImpl) _then)
-      : super(_value, _then);
+    _$AppSettingsImpl _value,
+    $Res Function(_$AppSettingsImpl) _then,
+  ) : super(_value, _then);
 
   @pragma('vm:prefer-inline')
   @override
@@ -141,50 +150,53 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     Object? dailyGoal = null,
     Object? appIconStyle = null,
   }) {
-    return _then(_$AppSettingsImpl(
-      themeMode: null == themeMode
-          ? _value.themeMode
-          : themeMode // ignore: cast_nullable_to_non_nullable
-              as AppThemeMode,
-      soundEnabled: null == soundEnabled
-          ? _value.soundEnabled
-          : soundEnabled // ignore: cast_nullable_to_non_nullable
-              as bool,
-      remindersEnabled: null == remindersEnabled
-          ? _value.remindersEnabled
-          : remindersEnabled // ignore: cast_nullable_to_non_nullable
-              as bool,
-      reminderHour: null == reminderHour
-          ? _value.reminderHour
-          : reminderHour // ignore: cast_nullable_to_non_nullable
-              as int,
-      reminderMinute: null == reminderMinute
-          ? _value.reminderMinute
-          : reminderMinute // ignore: cast_nullable_to_non_nullable
-              as int,
-      dailyGoal: null == dailyGoal
-          ? _value.dailyGoal
-          : dailyGoal // ignore: cast_nullable_to_non_nullable
-              as DailyGoal,
-      appIconStyle: null == appIconStyle
-          ? _value.appIconStyle
-          : appIconStyle // ignore: cast_nullable_to_non_nullable
-              as AppIconStyle,
-    ));
+    return _then(
+      _$AppSettingsImpl(
+        themeMode: null == themeMode
+            ? _value.themeMode
+            : themeMode // ignore: cast_nullable_to_non_nullable
+                  as AppThemeMode,
+        soundEnabled: null == soundEnabled
+            ? _value.soundEnabled
+            : soundEnabled // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        remindersEnabled: null == remindersEnabled
+            ? _value.remindersEnabled
+            : remindersEnabled // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        reminderHour: null == reminderHour
+            ? _value.reminderHour
+            : reminderHour // ignore: cast_nullable_to_non_nullable
+                  as int,
+        reminderMinute: null == reminderMinute
+            ? _value.reminderMinute
+            : reminderMinute // ignore: cast_nullable_to_non_nullable
+                  as int,
+        dailyGoal: null == dailyGoal
+            ? _value.dailyGoal
+            : dailyGoal // ignore: cast_nullable_to_non_nullable
+                  as DailyGoal,
+        appIconStyle: null == appIconStyle
+            ? _value.appIconStyle
+            : appIconStyle // ignore: cast_nullable_to_non_nullable
+                  as AppIconStyle,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$AppSettingsImpl implements _AppSettings {
-  const _$AppSettingsImpl(
-      {this.themeMode = AppThemeMode.system,
-      this.soundEnabled = true,
-      this.remindersEnabled = false,
-      this.reminderHour = 9,
-      this.reminderMinute = 0,
-      this.dailyGoal = DailyGoal.casual10,
-      this.appIconStyle = AppIconStyle.classic});
+  const _$AppSettingsImpl({
+    this.themeMode = AppThemeMode.system,
+    this.soundEnabled = true,
+    this.remindersEnabled = false,
+    this.reminderHour = 9,
+    this.reminderMinute = 0,
+    this.dailyGoal = DailyGoal.casual10,
+    this.appIconStyle = AppIconStyle.classic,
+  });
 
   factory _$AppSettingsImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppSettingsImplFromJson(json);
@@ -239,8 +251,16 @@ class _$AppSettingsImpl implements _AppSettings {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, themeMode, soundEnabled,
-      remindersEnabled, reminderHour, reminderMinute, dailyGoal, appIconStyle);
+  int get hashCode => Object.hash(
+    runtimeType,
+    themeMode,
+    soundEnabled,
+    remindersEnabled,
+    reminderHour,
+    reminderMinute,
+    dailyGoal,
+    appIconStyle,
+  );
 
   @JsonKey(ignore: true)
   @override
@@ -250,21 +270,20 @@ class _$AppSettingsImpl implements _AppSettings {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$AppSettingsImplToJson(
-      this,
-    );
+    return _$$AppSettingsImplToJson(this);
   }
 }
 
 abstract class _AppSettings implements AppSettings {
-  const factory _AppSettings(
-      {final AppThemeMode themeMode,
-      final bool soundEnabled,
-      final bool remindersEnabled,
-      final int reminderHour,
-      final int reminderMinute,
-      final DailyGoal dailyGoal,
-      final AppIconStyle appIconStyle}) = _$AppSettingsImpl;
+  const factory _AppSettings({
+    final AppThemeMode themeMode,
+    final bool soundEnabled,
+    final bool remindersEnabled,
+    final int reminderHour,
+    final int reminderMinute,
+    final DailyGoal dailyGoal,
+    final AppIconStyle appIconStyle,
+  }) = _$AppSettingsImpl;
 
   factory _AppSettings.fromJson(Map<String, dynamic> json) =
       _$AppSettingsImpl.fromJson;

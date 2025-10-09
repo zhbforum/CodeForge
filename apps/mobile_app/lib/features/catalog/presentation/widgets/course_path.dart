@@ -55,11 +55,7 @@ class CoursePath extends StatelessWidget {
             children: [
               Positioned.fill(
                 child: CustomPaint(
-                  painter: CoursePathPainter(
-                    centers,
-                    color: connectorColor,
-                    strokeWidth: 6,
-                  ),
+                  painter: CoursePathPainter(centers, color: connectorColor),
                 ),
               ),
               for (var i = 0; i < nodes.length; i++)
