@@ -63,32 +63,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navShell) => AppShell(navShell: navShell),
         branches: [
           StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                pageBuilder: (_, __) =>
+                    const NoTransitionPage(child: LearnPage()),
                 routes: [
                   GoRoute(
-                    path: '/home',
-                    pageBuilder: (_, __) =>
-                        const NoTransitionPage(child: LearnPage()),
+                    path: 'course/:id',
+                    builder: (ctx, st) {
+                      final courseId = st.pathParameters['id']!;
+                      return TrackDetailPage(courseId: courseId);
+                    },
                     routes: [
                       GoRoute(
-                        path: 'course/:id',
-                        builder: (ctx, st) {
-                          final courseId = st.pathParameters['id']!;
-                          return TrackDetailPage(courseId: courseId);
-                        },
-                        routes: [
-                          GoRoute(
-                            path: 'lesson/:lessonId',
-                            builder: (ctx, st) => LessonPage(
-                              courseId: st.pathParameters['id']!,
-                              lessonId: st.pathParameters['lessonId']!,
-                            ),
-                          ),
-                        ],
+                        path: 'lesson/:lessonId',
+                        builder: (ctx, st) => LessonPage(
+                          courseId: st.pathParameters['id']!,
+                          lessonId: st.pathParameters['lessonId']!,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
+            ],
+          ),
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -136,35 +136,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             : SplashPage.routePath;
       }
 
-      if (auth.hasError) {
-        final loc = state.matchedLocation;
-        final isAuthFlow = loc.startsWith('/auth/');
-        final isWelcome = loc == WelcomePage.routePath;
-
-        if (!isAuthFlow && !isWelcome) {
-          return WelcomePage.routePath;
-        }
-        return null;
-      }
-
-      final session = auth.asData?.value;
+      final session = Supabase.instance.client.auth.currentSession;
       final isAuthed = session != null;
 
       final loc = state.matchedLocation;
+      final uri = state.uri;
+
       final isRoot = loc == '/' || loc == SplashPage.routePath;
       final isAuthFlow = loc.startsWith('/auth/');
+      final isWelcome = loc == WelcomePage.routePath;
       final isOnboarding = loc == OnboardingPage.routePath;
 
       if (!isAuthed) {
         if (_isProtected(loc)) {
-          final from = Uri.encodeComponent(loc);
+          final from = Uri.encodeComponent(uri.toString());
           return '${WelcomePage.routePath}?from=$from';
         }
         return null;
       }
 
-      if (isRoot || isOnboarding || isAuthFlow) {
-        return '/profile';
+      if (isRoot || isOnboarding || isAuthFlow || isWelcome) {
+        final from = uri.queryParameters['from'];
+        return from ?? '/profile';
       }
 
       return null;
