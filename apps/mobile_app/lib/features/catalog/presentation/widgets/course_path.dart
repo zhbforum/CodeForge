@@ -9,19 +9,21 @@ class CoursePath extends StatelessWidget {
     required this.nodes,
     required this.onNodeTap,
     super.key,
-    this.cols = 3,
-    this.itemSize = const Size(84, 84),
-    this.hGap = 48,
-    this.vGap = 64,
+    this.cols = 2,
+    this.itemSize = const Size(108, 108),
+    this.hGap = 100,
+    this.vGap = 80,
+    this.cornerRadius = 24,
+    this.strokeWidth = 8,
   });
-
   final List<CourseNode> nodes;
   final void Function(CourseNode) onNodeTap;
   final int cols;
   final Size itemSize;
   final double hGap;
   final double vGap;
-
+  final double cornerRadius;
+  final double strokeWidth;
   @override
   Widget build(BuildContext context) {
     final centers = SnakeLayout.place(
@@ -38,13 +40,18 @@ class CoursePath extends StatelessWidget {
       hGap: hGap,
       vGap: vGap,
     );
-
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final connectorColor = theme.brightness == Brightness.dark
         ? scheme.onSurfaceVariant
         : scheme.outline;
-
+    final nodeRadius = itemSize.width / 2;
+    final activeIndex = () {
+      final iAvail = nodes.indexWhere((n) => n.status == NodeStatus.available);
+      if (iAvail != -1) return iAvail;
+      final iTodo = nodes.indexWhere((n) => n.status != NodeStatus.done);
+      return iTodo == -1 ? 0 : iTodo;
+    }();
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Center(
@@ -54,8 +61,16 @@ class CoursePath extends StatelessWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: CustomPaint(
-                  painter: CoursePathPainter(centers, color: connectorColor),
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    painter: CoursePathPainter(
+                      centers,
+                      color: connectorColor,
+                      nodeRadius: nodeRadius,
+                      cornerRadius: cornerRadius,
+                      strokeWidth: strokeWidth,
+                    ),
+                  ),
                 ),
               ),
               for (var i = 0; i < nodes.length; i++)
@@ -66,6 +81,8 @@ class CoursePath extends StatelessWidget {
                     node: nodes[i],
                     onTap: () => onNodeTap(nodes[i]),
                     size: itemSize.width,
+                    isActive: i == activeIndex,
+                    pulsePeriod: const Duration(milliseconds: 650),
                   ),
                 ),
             ],

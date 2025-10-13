@@ -3,7 +3,6 @@ import 'package:mobile_app/core/models/course.dart';
 import 'package:mobile_app/core/models/course_node.dart';
 import 'package:mobile_app/core/models/lesson.dart';
 import 'package:mobile_app/features/catalog/data/course_repository.dart';
-import 'package:mobile_app/features/catalog/data/progress_store.dart';
 
 final courseRepositoryProvider = Provider<CourseRepository>(
   (ref) => CourseRepository(),
@@ -20,41 +19,31 @@ final courseProvider = FutureProvider.family.autoDispose<Course, String>((
 final coursePathProvider = FutureProvider.family
     .autoDispose<List<CourseNode>, String>((ref, courseId) async {
       final repo = ref.read(courseRepositoryProvider);
-      final store = ref.read(progressStoreProvider);
       final lessons = await repo.getLessonsByCourseId(courseId);
-      final done = await store.getLessonCompletion(courseId);
 
-      final nodes = <CourseNode>[];
-      var madeAvailable = false;
+      NodeStatus map(LessonStatus s) => switch (s) {
+        LessonStatus.completed => NodeStatus.done,
+        LessonStatus.inProgress => NodeStatus.available,
+        LessonStatus.locked => NodeStatus.locked,
+      };
 
-      for (var i = 0; i < lessons.length; i++) {
-        final l = lessons[i];
-        final isCompleted = done[l.id] ?? false;
-        final prevCompleted = i == 0 || (done[lessons[i - 1].id] ?? false);
+      NodeType toNodeType(LessonType t) {
+        try {
+          return NodeType.values.byName(t.name);
+        } catch (_) {
+          return NodeType.lesson;
+        }
+      }
 
-        final status = isCompleted
-            ? NodeStatus.locked
-            : (!madeAvailable && prevCompleted)
-            ? (madeAvailable = true, NodeStatus.available).$2
-            : NodeStatus.locked;
-
-        nodes.add(
+      return [
+        for (final l in lessons)
           CourseNode(
             id: l.id,
             title: l.title,
-            status: status,
-            type: _toNodeType(l.type),
+            type: toNodeType(l.type),
+            status: map(l.status),
+            progress: l.status == LessonStatus.completed ? 100 : 0,
+            order: l.order,
           ),
-        );
-      }
-
-      return nodes;
+      ];
     });
-
-NodeType _toNodeType(LessonType t) {
-  try {
-    return NodeType.values.byName(t.name);
-  } catch (_) {
-    return NodeType.values.first;
-  }
-}

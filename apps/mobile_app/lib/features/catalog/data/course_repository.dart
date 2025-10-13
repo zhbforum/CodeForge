@@ -33,11 +33,16 @@ class CourseRepository {
   }
 
   Future<List<Lesson>> getLessonsByCourseId(String courseId) async {
-    final rows = await _client
+    final uid = _client.auth.currentUser?.id;
+
+    final base = _client
         .from('lessons')
-        .select('id,title,"order",user_progress(is_completed)')
-        .eq('course_id', _normalizeId(courseId))
-        .order('order', ascending: true);
+        .select('id,title,"order",user_progress(is_completed,user_id)')
+        .eq('course_id', _normalizeId(courseId));
+
+    final filtered = uid != null ? base.eq('user_progress.user_id', uid) : base;
+
+    final rows = await filtered.order('order', ascending: true);
 
     final list = (rows as List)
         .map((r) => Map<String, dynamic>.from(r as Map))
@@ -49,16 +54,15 @@ class CourseRepository {
       (a, b) => ((a['order'] ?? 0) as int).compareTo((b['order'] ?? 0) as int),
     );
 
-    final completed = <int, bool>{};
-    for (var i = 0; i < list.length; i++) {
-      final upRaw = (list[i]['user_progress'] as List?) ?? const [];
+    final completedByLessonId = <String, bool>{};
+    for (final m in list) {
+      final upRaw = (m['user_progress'] as List?) ?? const [];
       final up = upRaw
           .map((e) => Map<String, dynamic>.from(e as Map))
           .toList(growable: false);
 
-      final isDone =
-          up.isNotEmpty && (up.first['is_completed'] as bool? ?? false);
-      completed[i] = isDone;
+      final isDone = up.any((e) => e['is_completed'] == true);
+      completedByLessonId[_asString(m['id'])] = isDone;
     }
 
     var inProgressUsed = false;
@@ -71,14 +75,19 @@ class CourseRepository {
       final title = m['title'] as String? ?? 'Lesson ${i + 1}';
       final order = (m['order'] as num?)?.toInt() ?? (i + 1);
 
-      final prevCompleted = i == 0 || (completed[i - 1] ?? false);
-      final thisCompleted = completed[i] ?? false;
+      final prevId = i == 0 ? null : _asString(list[i - 1]['id']);
+      final prevCompleted = i == 0 || (completedByLessonId[prevId!] ?? false);
+      final thisCompleted = completedByLessonId[dbId] ?? false;
 
-      final status = thisCompleted
-          ? LessonStatus.completed
-          : (!inProgressUsed && prevCompleted)
-          ? (inProgressUsed = true, LessonStatus.inProgress).$2
-          : LessonStatus.locked;
+      final LessonStatus status;
+      if (thisCompleted) {
+        status = LessonStatus.completed;
+      } else if (!inProgressUsed && prevCompleted) {
+        inProgressUsed = true;
+        status = LessonStatus.inProgress;
+      } else {
+        status = LessonStatus.locked;
+      }
 
       final (x, y) = _autoLayout(i, list.length);
 
@@ -116,7 +125,6 @@ class CourseRepository {
       'lesson_id': lessonKey,
       'is_completed': true,
       'completed_at': DateTime.now().toIso8601String(),
-      // 'current_slide': null,
     });
   }
 
