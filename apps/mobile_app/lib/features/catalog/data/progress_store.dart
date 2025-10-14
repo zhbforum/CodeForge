@@ -73,10 +73,8 @@ class RemoteProgressStore implements ProgressStore {
         .eq('user_id', session.user.id)
         .eq('lessons.course_id', filterCourseId);
 
-    final list = (rows as List)
-        .map((e) => Map<String, dynamic>.from(e as Map))
-        .toList();
-
+    final list = (rows as List).map((e) => Map<String, 
+      dynamic>.from(e as Map)).toList();
     final result = <String, bool>{};
     for (final r in list) {
       final lid = r['lesson_id'];
@@ -93,18 +91,38 @@ class RemoteProgressStore implements ProgressStore {
     required bool completed,
   }) async {
     final session = _client.auth.currentSession;
-    if (session == null) {
-      throw AuthRequiredException();
-    }
+    if (session == null) throw AuthRequiredException();
 
     final lessonKey = int.tryParse(lessonId) ?? lessonId;
 
-    await _client.from('user_progress').upsert({
-      'user_id': session.user.id,
-      'lesson_id': lessonKey,
-      'is_completed': completed,
-      'completed_at': DateTime.now().toIso8601String(),
-    });
+    await _client.from('user_progress').upsert(
+      {
+        'user_id': session.user.id,
+        'lesson_id': lessonKey,
+        'is_completed': completed,
+        if (completed) 'completed_at': DateTime.now().toIso8601String(),
+      },
+      onConflict: 'user_id,lesson_id',
+    );
+  }
+
+  Future<void> setCurrentSlide({
+    required String lessonId,
+    required int order,
+  }) async {
+    final session = _client.auth.currentSession;
+    if (session == null) throw AuthRequiredException();
+
+    final lessonKey = int.tryParse(lessonId) ?? lessonId;
+
+    await _client.from('user_progress').upsert(
+      {
+        'user_id': session.user.id,
+        'lesson_id': lessonKey,
+        'current_slide': order,
+      },
+      onConflict: 'user_id,lesson_id',
+    );
   }
 }
 

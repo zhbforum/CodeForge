@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/catalog/data/progress_store.dart';
+import 'package:mobile_app/features/catalog/presentation/viewmodels/course_path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 String _normalizeMd(String s) => s
@@ -36,55 +39,65 @@ final supabaseProvider = Provider<SupabaseClient>(
   (ref) => Supabase.instance.client,
 );
 
-final lessonHeaderProvider = FutureProvider.family
-    .autoDispose<LessonHeader, String>((ref, lessonId) async {
-      final client = ref.read(supabaseProvider);
-      final idKey = int.tryParse(lessonId) ?? lessonId;
-      final row = await client
-          .from('lessons')
-          .select('id,title,"order"')
-          .eq('id', idKey)
-          .single();
+final lessonHeaderProvider =
+    FutureProvider.family.autoDispose<LessonHeader, 
+      String>((ref, lessonId) async {
+  final client = ref.read(supabaseProvider);
+  final idKey = int.tryParse(lessonId) ?? lessonId;
+  final row = await client
+      .from('lessons')
+      .select('id,title,"order"')
+      .eq('id', idKey)
+      .single();
 
-      final m = Map<String, dynamic>.from(row as Map);
-      return LessonHeader(
-        id: (m['id'] is num) ? (m['id'] as num).toString() : m['id'].toString(),
-        title: (m['title'] as String?) ?? 'Lesson',
-        order: (m['order'] as num?)?.toInt() ?? 1,
-      );
-    });
+  final m = Map<String, dynamic>.from(row as Map);
+  return LessonHeader(
+    id: (m['id'] is num) ? (m['id'] as num).toString() : m['id'].toString(),
+    title: (m['title'] as String?) ?? 'Lesson',
+    order: (m['order'] as num?)?.toInt() ?? 1,
+  );
+});
 
-final lessonSlidesProvider = FutureProvider.family
-    .autoDispose<List<LessonSlide>, String>((ref, lessonId) async {
-      final client = ref.read(supabaseProvider);
-      final idKey = int.tryParse(lessonId) ?? lessonId;
+final lessonSlidesProvider =
+    FutureProvider.family.autoDispose<List<LessonSlide>, 
+      String>((ref, lessonId) async {
+  final client = ref.read(supabaseProvider);
+  final idKey = int.tryParse(lessonId) ?? lessonId;
 
-      final rows = await client
-          .from('lesson_slides')
-          .select('id,lesson_id,"order",content_type,content')
-          .eq('lesson_id', idKey)
-          .order('order', ascending: true);
+  final rows = await client
+      .from('lesson_slides')
+      .select('id,lesson_id,"order",content_type,content')
+      .eq('lesson_id', idKey)
+      .order('order', ascending: true);
 
-      final list = (rows as List)
-          .map((e) => Map<String, dynamic>.from(e as Map))
-          .map(
-            (m) => LessonSlide(
-              id: (m['id'] is num)
-                  ? (m['id'] as num).toString()
-                  : m['id'].toString(),
-              contentType: m['content_type'] as String,
-              content: Map<String, dynamic>.from(m['content'] as Map),
-              order: (m['order'] as num?)?.toInt() ?? 1,
-            ),
-          )
-          .toList();
+  final list = (rows as List)
+      .map((e) => Map<String, dynamic>.from(e as Map))
+      .map(
+        (m) => LessonSlide(
+          id: (m['id'] is num) ? (m['id'] as num)
+            .toString() : m['id'].toString(),
+          contentType: m['content_type'] as String,
+          content: Map<String, dynamic>.from(m['content'] as Map),
+          order: (m['order'] as num?)?.toInt() ?? 1,
+        ),
+      )
+      .toList();
 
-      return list;
-    });
+  return list;
+});
 
 final currentOrderProvider = StateProvider.family.autoDispose<int, String>(
   (ref, lessonId) => 1,
 );
+
+typedef LessonKey = ({String courseId, String lessonId});
+
+final lessonCompletedProvider =
+    FutureProvider.family.autoDispose<bool, LessonKey>((ref, key) async {
+  final store = ref.read(progressStoreProvider);
+  final map = await store.getLessonCompletion(key.courseId);
+  return map[key.lessonId] ?? false;
+});
 
 class LessonPage extends ConsumerWidget {
   const LessonPage({required this.courseId, required this.lessonId, super.key});
@@ -152,6 +165,14 @@ class LessonPage extends ConsumerWidget {
 
     final currentSlides = byOrder[clamped] ?? const <LessonSlide>[];
 
+    final isLastStep = clamped == maxOrder;
+    final completedAsync = ref.watch(
+      lessonCompletedProvider((
+        courseId: courseId,
+        lessonId: lessonId,
+      )),
+    );
+
     return Column(
       children: [
         _OrderNavBar(
@@ -160,11 +181,11 @@ class LessonPage extends ConsumerWidget {
           max: maxOrder,
           onPrev: clamped > minOrder
               ? () => ref.read(currentOrderProvider(lessonId).notifier).state =
-                    clamped - 1
+                  clamped - 1
               : null,
           onNext: clamped < maxOrder
               ? () => ref.read(currentOrderProvider(lessonId).notifier).state =
-                    clamped + 1
+                  clamped + 1
               : null,
         ),
         const Divider(height: 1),
@@ -179,6 +200,34 @@ class LessonPage extends ConsumerWidget {
             ),
           ),
         ),
+        if (isLastStep)
+          completedAsync.when(
+            data: (isCompleted) => _FinishBar(
+              isCompleted: isCompleted,
+              onFinish: isCompleted
+                  ? null
+                  : () async {
+                      final store = ref.read(progressStoreProvider);
+                      await store.setLessonCompleted(
+                        courseId: courseId,
+                        lessonId: lessonId,
+                        completed: true,
+                      );
+
+                      ref
+                        ..invalidate(lessonCompletedProvider((
+                          courseId: courseId,
+                          lessonId: lessonId,
+                        )))
+                        ..invalidate(coursePathProvider(courseId));
+
+                      if (!context.mounted) return;
+                      context.go('/home/course/$courseId');
+                    },
+            ),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
       ],
     );
   }
@@ -210,15 +259,15 @@ class _OrderNavBar extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: onPrev,
-            tooltip: 'Назад',
+            tooltip: 'Back',
           ),
           const SizedBox(width: 8),
-          Text('Шаг $current из $max'),
+          Text('Step $current of $max'),
           const Spacer(),
           IconButton(
             icon: const Icon(Icons.chevron_right),
             onPressed: onNext,
-            tooltip: 'Далее',
+            tooltip: 'Next',
           ),
         ],
       ),
@@ -262,64 +311,59 @@ class _SlideCard extends StatelessWidget {
                       child: Text(
                         title,
                         style: Theme.of(context).textTheme.titleLarge,
-                        textAlign: isCenter
-                            ? TextAlign.center
-                            : TextAlign.start,
+                        textAlign: isCenter ? 
+                          TextAlign.center : TextAlign.start,
                       ),
                     ),
                   Align(
-                    alignment: isCenter
-                        ? Alignment.center
-                        : Alignment.centerLeft,
+                    alignment:
+                        isCenter ? Alignment.center : Alignment.centerLeft,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 800),
                       child: MarkdownBody(
                         data: md,
                         selectable: true,
-                        styleSheet:
-                            MarkdownStyleSheet.fromTheme(
-                              Theme.of(context),
-                            ).copyWith(
-                              h1: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w700,
-                                height: 1.2,
-                              ),
-                              h2: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                                height: 1.25,
-                              ),
-                              h3: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                height: 1.3,
-                              ),
-                              p: const TextStyle(fontSize: 16, height: 1.4),
-                              strong: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                              ),
-                              listBullet: const TextStyle(fontSize: 16),
-                              code: const TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: 14,
-                                height: 1.35,
-                              ),
-                              codeblockDecoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
-                              ),
-                              blockquoteDecoration: BoxDecoration(
-                                border: Border(
-                                  left: BorderSide(
-                                    width: 4,
-                                    color: Theme.of(context).dividerColor,
-                                  ),
-                                ),
+                        styleSheet: MarkdownStyleSheet.fromTheme(
+                          Theme.of(context),
+                        ).copyWith(
+                          h1: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                          ),
+                          h2: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            height: 1.25,
+                          ),
+                          h3: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            height: 1.3,
+                          ),
+                          p: const TextStyle(fontSize: 16, height: 1.4),
+                          strong: const TextStyle(fontWeight: FontWeight.w700),
+                          listBullet: const TextStyle(fontSize: 16),
+                          code: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 14,
+                            height: 1.35,
+                          ),
+                          codeblockDecoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
+                          ),
+                          blockquoteDecoration: BoxDecoration(
+                            border: Border(
+                              left: BorderSide(
+                                width: 4,
+                                color: Theme.of(context).dividerColor,
                               ),
                             ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -347,8 +391,7 @@ class _SlideCard extends StatelessWidget {
       case 'quiz':
         {
           final q = slide.content['question'] as String? ?? '';
-          final answers =
-              (slide.content['answers'] as List?)
+          final answers = (slide.content['answers'] as List?)
                   ?.map((e) => e.toString())
                   .toList() ??
               const <String>[];
@@ -413,19 +456,18 @@ class _ImageCard extends StatelessWidget {
       } catch (_) {}
     }
 
-    final isSvg =
-        (mime == 'image/svg+xml') || url.toLowerCase().endsWith('.svg');
+    final isSvg = (mime == 'image/svg+xml') || url.toLowerCase().endsWith('.svg');
 
     Widget imageWidget;
     if (bytes != null) {
-      imageWidget = isSvg
-          ? SvgPicture.memory(bytes, fit: fit)
-          : Image.memory(bytes, fit: fit);
+      imageWidget =
+          isSvg ? SvgPicture.memory(bytes, fit: fit) : 
+            Image.memory(bytes, fit: fit);
     } else {
       if (url.isEmpty) return const SizedBox.shrink();
-      imageWidget = isSvg
-          ? SvgPicture.network(url, fit: fit)
-          : Image.network(url, fit: fit);
+      imageWidget =
+          isSvg ? SvgPicture.network(url, fit: fit) : 
+            Image.network(url, fit: fit);
     }
 
     return Card(
@@ -440,6 +482,40 @@ class _ImageCard extends StatelessWidget {
               child: Text(alt, style: Theme.of(context).textTheme.bodySmall),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _FinishBar extends StatelessWidget {
+  const _FinishBar({required this.isCompleted, this.onFinish});
+  final bool isCompleted;
+  final VoidCallback? onFinish;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: cs.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Row(
+          children: [
+            if (isCompleted) ...[
+              const Icon(Icons.check_circle, size: 20),
+              const SizedBox(width: 8),
+              const Text('Lesson is completed'),
+            ] else ...[
+              const Text('You are on the last step'),
+              const Spacer(),
+              FilledButton.icon(
+                onPressed: onFinish,
+                icon: const Icon(Icons.flag),
+                label: const Text('Finish lesson'),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

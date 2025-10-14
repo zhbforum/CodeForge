@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/models/course_node.dart';
-import 'package:mobile_app/features/catalog/data/progress_store.dart';
 import 'package:mobile_app/features/catalog/presentation/viewmodels/course_path_provider.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/course_header.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/course_meta_panel.dart';
@@ -204,21 +203,6 @@ class TrackDetailPage extends ConsumerWidget {
     CourseNode n,
   ) async {
     if (n.status == NodeStatus.locked) return;
-
-    final store = ref.read(progressStoreProvider);
-    final router = GoRouter.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-
-    try {
-      await store.setLessonCompleted(
-        courseId: courseId,
-        lessonId: n.id,
-        completed: true,
-      );
-      ref.invalidate(coursePathProvider(courseId));
-      router.go('/home/course/$courseId/lesson/${n.id}');
-    } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Ошибка сохранения: $e')));
-    }
+    context.go('/home/course/$courseId/lesson/${n.id}');
   }
 }
