@@ -51,13 +51,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return SignUpPage(returnTo: from);
         },
       ),
-      GoRoute(
-        path: WelcomePage.routePath,
-        builder: (ctx, st) {
-          final from = st.uri.queryParameters['from'];
-          return WelcomePage(returnTo: from);
-        },
-      ),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navShell) => AppShell(navShell: navShell),
@@ -120,6 +113,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     ),
                   );
                 },
+                routes: [
+                  GoRoute(
+                    path: 'welcome',
+                    builder: (ctx, st) {
+                      final from = st.uri.queryParameters['from'];
+                      return WelcomePage(returnTo: from);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -144,20 +146,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       final isRoot = loc == '/' || loc == SplashPage.routePath;
       final isAuthFlow = loc.startsWith('/auth/');
-      final isWelcome = loc == WelcomePage.routePath;
+      final isWelcome =
+          loc == '/profile/welcome' || loc.startsWith('/profile/welcome');
       final isOnboarding = loc == OnboardingPage.routePath;
 
       if (!isAuthed) {
         if (_isProtected(loc)) {
           final from = Uri.encodeComponent(uri.toString());
-          return '${WelcomePage.routePath}?from=$from';
+          return '/profile/welcome?from=$from';
         }
         return null;
       }
 
       if (isRoot || isOnboarding || isAuthFlow || isWelcome) {
         final from = uri.queryParameters['from'];
-        return from ?? '/profile';
+        final safe = _sanitizeReturn(from);
+        return safe ?? '/profile';
       }
 
       return null;
@@ -189,5 +193,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 bool _isProtected(String loc) {
-  return loc.startsWith('/profile');
+  if (loc == '/profile/welcome' || loc.startsWith('/profile/welcome')) {
+    return false;
+  }
+  return loc == '/profile' || loc.startsWith('/profile/');
+}
+
+String? _sanitizeReturn(String? from) {
+  if (from == null || from.isEmpty) return null;
+  if (from == '/profile/welcome' || from.startsWith('/auth/')) {
+    return '/profile';
+  }
+  return from;
 }

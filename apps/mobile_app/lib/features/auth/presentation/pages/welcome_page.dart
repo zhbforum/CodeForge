@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/features/settings/presentation/settings_bottom_sheet.dart';
+import 'package:mobile_app/features/settings/presentation/widgets/settings_bottom_sheet.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key, this.returnTo});
-  static const routePath = '/welcome';
+  static const routePath = '/profile/welcome';
   final String? returnTo;
 
   String get _fallbackReturn =>

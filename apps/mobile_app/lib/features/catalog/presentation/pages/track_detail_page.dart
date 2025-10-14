@@ -24,7 +24,6 @@ class TrackDetailPage extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
       body: nodesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -44,6 +43,16 @@ class TrackDetailPage extends ConsumerWidget {
 
           void openLesson(CourseNode n) => _openOrComplete(context, ref, n);
 
+          final headerPill = CourseHeader(
+            title: title,
+            progress: progress,
+            onBack: () => context.pop(),
+            onContinue:
+                (nextNode == null || nextNode.status == NodeStatus.locked)
+                ? null
+                : () => openLesson(nextNode!),
+          );
+
           return LayoutBuilder(
             builder: (context, c) {
               final w = c.maxWidth;
@@ -51,16 +60,6 @@ class TrackDetailPage extends ConsumerWidget {
               final isTablet = w >= 700 && w < 1100;
               final isDesktop = w >= 1100;
               final cs = Theme.of(context).colorScheme;
-
-              final header = CourseHeader(
-                title: title,
-                subtitle: 'Lessons: $done / $total',
-                progress: progress,
-                onContinue:
-                    (nextNode == null || nextNode.status == NodeStatus.locked)
-                    ? null
-                    : () => openLesson(nextNode!),
-              );
 
               final outline = LessonOutline(nodes: nodes, onTap: openLesson);
 
@@ -90,17 +89,23 @@ class TrackDetailPage extends ConsumerWidget {
               if (isMobile) {
                 return SafeArea(
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    padding: EdgeInsets.zero,
                     children: [
-                      header,
-                      const SizedBox(height: 12),
-                      path,
-                      const SizedBox(height: 24),
-                      outline,
-                      const SizedBox(height: 24),
+                      headerPill,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Column(
+                          children: [
+                            path,
+                            const SizedBox(height: 24),
+                            outline,
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -110,10 +115,7 @@ class TrackDetailPage extends ConsumerWidget {
                 return SafeArea(
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                        child: header,
-                      ),
+                      headerPill,
                       Expanded(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -148,10 +150,7 @@ class TrackDetailPage extends ConsumerWidget {
               return SafeArea(
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                      child: header,
-                    ),
+                    headerPill,
                     Expanded(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
