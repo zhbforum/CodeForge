@@ -9,7 +9,7 @@ import 'package:mobile_app/features/profile/presentation/widgets/friends_card.da
 import 'package:mobile_app/features/profile/presentation/widgets/list_block.dart';
 import 'package:mobile_app/features/profile/presentation/widgets/profile_edit_dialog.dart';
 import 'package:mobile_app/features/profile/presentation/widgets/section_header.dart';
-import 'package:mobile_app/features/settings/presentation/settings_bottom_sheet.dart';
+import 'package:mobile_app/features/settings/presentation/widgets/settings_bottom_sheet.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});

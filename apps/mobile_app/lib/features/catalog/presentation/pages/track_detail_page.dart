@@ -1,81 +1,208 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_app/core/models/lesson.dart';
-import 'package:mobile_app/core/models/track.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/track_detail_view_model.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile_app/core/models/course_node.dart';
+import 'package:mobile_app/features/catalog/presentation/viewmodels/course_path_provider.dart';
+import 'package:mobile_app/features/catalog/presentation/widgets/course_header.dart';
+import 'package:mobile_app/features/catalog/presentation/widgets/course_meta_panel.dart';
+import 'package:mobile_app/features/catalog/presentation/widgets/course_path.dart';
+import 'package:mobile_app/features/catalog/presentation/widgets/lesson_outline.dart';
 
 class TrackDetailPage extends ConsumerWidget {
-  const TrackDetailPage({
-    required this.trackId,
-    required this.title,
-    super.key,
-  });
-
-  final TrackId trackId;
-  final String title;
-
-  IconData _iconFor(LessonType t) {
-    switch (t) {
-      case LessonType.theory:
-        return Icons.menu_book;
-      case LessonType.fillIn:
-        return Icons.edit_note;
-      case LessonType.quiz:
-        return Icons.quiz;
-    }
-  }
-
-  Widget _statusChip(BuildContext ctx, LessonStatus s) {
-    final scheme = Theme.of(ctx).colorScheme;
-    switch (s) {
-      case LessonStatus.completed:
-        return Chip(
-          label: const Text('Done'),
-          backgroundColor: scheme.secondaryContainer,
-        );
-      case LessonStatus.inProgress:
-        return Chip(
-          label: const Text('In progress'),
-          backgroundColor: scheme.primaryContainer,
-        );
-      case LessonStatus.locked:
-        return const Chip(label: Text('Locked'));
-    }
-  }
+  const TrackDetailPage({required this.courseId, super.key});
+  final String courseId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncLessons = ref.watch(lessonsProvider(trackId));
+    final courseAsync = ref.watch(courseProvider(courseId));
+    final nodesAsync = ref.watch(coursePathProvider(courseId));
+
+    final title = courseAsync.maybeWhen(
+      data: (c) => c.title,
+      orElse: () => 'Course',
+    );
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: asyncLessons.when(
+      body: nodesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Failed to load lessons: $e')),
-        data: (List<Lesson> lessons) => ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: lessons.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
-          itemBuilder: (ctx, i) {
-            final l = lessons[i];
-            return Card(
-              child: ListTile(
-                leading: Icon(_iconFor(l.type)),
-                title: Text(l.title),
-                subtitle: Text('#${l.order} • ${l.type.name}'),
-                trailing: _statusChip(ctx, l.status),
-                onTap: l.status == LessonStatus.locked
-                    ? null
-                    : () {
-                        ScaffoldMessenger.of(ctx).showSnackBar(
-                          SnackBar(content: Text('Open "${l.title}" (TBD)')),
-                        );
-                      },
-              ),
+        error: (e, _) => Center(child: Text('Error: $e')),
+        data: (nodes) {
+          final total = nodes.length;
+          final done = nodes.where((n) => n.status == NodeStatus.done).length;
+          final progress = total == 0 ? 0.0 : done / total;
+
+          CourseNode? nextNode;
+          try {
+            nextNode = nodes.firstWhere(
+              (n) => n.status == NodeStatus.available,
             );
-          },
-        ),
+          } catch (_) {
+            if (nodes.isNotEmpty) nextNode = nodes.first;
+          }
+
+          void openLesson(CourseNode n) => _openOrComplete(context, ref, n);
+
+          final headerPill = CourseHeader(
+            title: title,
+            progress: progress,
+            onBack: () => context.pop(),
+            onContinue:
+                (nextNode == null || nextNode.status == NodeStatus.locked)
+                ? null
+                : () => openLesson(nextNode!),
+          );
+
+          return LayoutBuilder(
+            builder: (context, c) {
+              final w = c.maxWidth;
+              final isMobile = w < 700;
+              final isTablet = w >= 700 && w < 1100;
+              final isDesktop = w >= 1100;
+              final cs = Theme.of(context).colorScheme;
+
+              final outline = LessonOutline(nodes: nodes, onTap: openLesson);
+
+              final metaPanel = CourseMetaPanel(
+                total: total,
+                done: done,
+                estimatedHours: (total * 0.15).toStringAsFixed(1),
+                tags: const ['Beginner', 'Hands-on', 'Path'],
+              );
+
+              final cols = isDesktop ? 4 : (isTablet ? 3 : 2);
+              final itemSize = isMobile
+                  ? const Size(108, 108)
+                  : const Size(96, 96);
+              final hGap = isMobile ? 100.0 : 140.0;
+              final vGap = isMobile ? 80.0 : 120.0;
+
+              final path = CoursePath(
+                nodes: nodes,
+                cols: cols,
+                itemSize: itemSize,
+                hGap: hGap,
+                vGap: vGap,
+                onNodeTap: openLesson,
+              );
+
+              if (isMobile) {
+                return SafeArea(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      headerPill,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Column(
+                          children: [
+                            path,
+                            const SizedBox(height: 24),
+                            outline,
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              if (isTablet) {
+                return SafeArea(
+                  child: Column(
+                    children: [
+                      headerPill,
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 360),
+                              child: Material(
+                                color: cs.surfaceContainerHighest,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: outline,
+                                ),
+                              ),
+                            ),
+                            const VerticalDivider(width: 1),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: path,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return SafeArea(
+                child: Column(
+                  children: [
+                    headerPill,
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 360),
+                            child: Material(
+                              color: cs.surfaceContainerHighest,
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: outline,
+                              ),
+                            ),
+                          ),
+                          const VerticalDivider(width: 1),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: path,
+                            ),
+                          ),
+                          const VerticalDivider(width: 1),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 320),
+                            child: Material(
+                              color: cs.surfaceContainerHighest,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: metaPanel,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
     );
+  }
+
+  Future<void> _openOrComplete(
+    BuildContext context,
+    WidgetRef ref,
+    CourseNode n,
+  ) async {
+    if (n.status == NodeStatus.locked) return;
+    context.go('/home/course/$courseId/lesson/${n.id}');
   }
 }

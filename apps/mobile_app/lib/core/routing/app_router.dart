@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/core/models/track.dart';
 import 'package:mobile_app/core/services/auth_refresh_provider.dart';
 import 'package:mobile_app/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile_app/features/auth/presentation/pages/signup_page.dart';
 import 'package:mobile_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
+import 'package:mobile_app/features/catalog/presentation/pages/lesson_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
@@ -51,13 +51,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return SignUpPage(returnTo: from);
         },
       ),
-      GoRoute(
-        path: WelcomePage.routePath,
-        builder: (ctx, st) {
-          final from = st.uri.queryParameters['from'];
-          return WelcomePage(returnTo: from);
-        },
-      ),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navShell) => AppShell(navShell: navShell),
@@ -70,23 +63,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     const NoTransitionPage(child: LearnPage()),
                 routes: [
                   GoRoute(
-                    path: 'track/:id',
+                    path: 'course/:id',
                     builder: (ctx, st) {
-                      final idParam = st.pathParameters['id']!;
-                      final trackId = TrackId.values.firstWhere(
-                        (e) => e.name == idParam,
-                      );
-                      final title = switch (trackId) {
-                        TrackId.fullstack => 'Full-Stack Developer',
-                        TrackId.python => 'Python Developer',
-                        TrackId.backend => 'Back-End Developer',
-                        TrackId.vanillaJs => 'Vanilla JS',
-                        TrackId.typescript => 'TypeScript',
-                        TrackId.html => 'HTML',
-                        TrackId.css => 'CSS',
-                      };
-                      return TrackDetailPage(trackId: trackId, title: title);
+                      final courseId = st.pathParameters['id']!;
+                      return TrackDetailPage(courseId: courseId);
                     },
+                    routes: [
+                      GoRoute(
+                        path: 'lesson/:lessonId',
+                        builder: (ctx, st) => LessonPage(
+                          courseId: st.pathParameters['id']!,
+                          lessonId: st.pathParameters['lessonId']!,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -123,6 +113,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     ),
                   );
                 },
+                routes: [
+                  GoRoute(
+                    path: 'welcome',
+                    builder: (ctx, st) {
+                      final from = st.uri.queryParameters['from'];
+                      return WelcomePage(returnTo: from);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -139,35 +138,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             : SplashPage.routePath;
       }
 
-      if (auth.hasError) {
-        final loc = state.matchedLocation;
-        final isAuthFlow = loc.startsWith('/auth/');
-        final isWelcome = loc == WelcomePage.routePath;
-
-        if (!isAuthFlow && !isWelcome) {
-          return WelcomePage.routePath;
-        }
-        return null;
-      }
-
-      final session = auth.asData?.value;
+      final session = Supabase.instance.client.auth.currentSession;
       final isAuthed = session != null;
 
       final loc = state.matchedLocation;
+      final uri = state.uri;
+
       final isRoot = loc == '/' || loc == SplashPage.routePath;
       final isAuthFlow = loc.startsWith('/auth/');
+      final isWelcome =
+          loc == '/profile/welcome' || loc.startsWith('/profile/welcome');
       final isOnboarding = loc == OnboardingPage.routePath;
 
       if (!isAuthed) {
         if (_isProtected(loc)) {
-          final from = Uri.encodeComponent(loc);
-          return '${WelcomePage.routePath}?from=$from';
+          final from = Uri.encodeComponent(uri.toString());
+          return '/profile/welcome?from=$from';
         }
         return null;
       }
 
-      if (isRoot || isOnboarding || isAuthFlow) {
-        return '/profile';
+      if (isRoot || isOnboarding || isAuthFlow || isWelcome) {
+        final from = uri.queryParameters['from'];
+        final safe = _sanitizeReturn(from);
+        return safe ?? '/profile';
       }
 
       return null;
@@ -199,5 +193,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 bool _isProtected(String loc) {
-  return loc.startsWith('/profile');
+  if (loc == '/profile/welcome' || loc.startsWith('/profile/welcome')) {
+    return false;
+  }
+  return loc == '/profile' || loc.startsWith('/profile/');
+}
+
+String? _sanitizeReturn(String? from) {
+  if (from == null || from.isEmpty) return null;
+  if (from == '/profile/welcome' || from.startsWith('/auth/')) {
+    return '/profile';
+  }
+  return from;
 }
