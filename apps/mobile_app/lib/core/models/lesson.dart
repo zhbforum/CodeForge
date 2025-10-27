@@ -27,6 +27,29 @@ class Lesson {
   final double posY;
 }
 
+class LessonHeader {
+  LessonHeader({required this.id, required this.title, required this.order});
+  final String id;
+  final String title;
+  final int order;
+}
+
+class LessonSlide {
+  LessonSlide({
+    required this.id,
+    required this.contentType,
+    required this.content,
+    required this.order,
+  });
+  final String id;
+  final String contentType;
+  final Map<String, dynamic> content;
+  final int order;
+}
+
+
+typedef LessonKey = ({String courseId, String lessonId});
+
 extension LessonX on Lesson {
   bool isUnlocked(Set<String> completed) => prereqIds.every(completed.contains);
 }

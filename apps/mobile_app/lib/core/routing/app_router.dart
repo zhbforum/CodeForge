@@ -9,6 +9,7 @@ import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/lesson_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
+import 'package:mobile_app/features/catalog/presentation/viewmodels/module_providers.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
 import 'package:mobile_app/features/onboarding/onboarding_page.dart';
@@ -23,20 +24,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     debugLogDiagnostics: true,
     refreshListenable: refreshListenable,
-
     routes: [
       GoRoute(path: '/', redirect: (_, __) => SplashPage.routePath),
-
       GoRoute(
         path: SplashPage.routePath,
         builder: (_, __) => const SplashPage(),
       ),
-
       GoRoute(
         path: OnboardingPage.routePath,
         builder: (_, __) => const OnboardingPage(),
       ),
-
       GoRoute(
         path: '/auth/login',
         builder: (ctx, st) {
@@ -51,7 +48,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return SignUpPage(returnTo: from);
         },
       ),
-
       StatefulShellRoute.indexedStack(
         builder: (context, state, navShell) => AppShell(navShell: navShell),
         branches: [
@@ -63,16 +59,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     const NoTransitionPage(child: LearnPage()),
                 routes: [
                   GoRoute(
-                    path: 'course/:id',
+                    path: 'course/:courseId',
                     builder: (ctx, st) {
-                      final courseId = st.pathParameters['id']!;
-                      return TrackDetailPage(courseId: courseId);
+                      final courseId = st.pathParameters['courseId']!;
+                      final path = st.uri.path;
+                      final base = '/home/course/$courseId';
+                      final isExact = path == base || path == '$base/';
+                      return _CourseAutoRedirect(
+                        courseId: courseId,
+                        isExact: isExact,
+                      );
                     },
                     routes: [
                       GoRoute(
+                        path: 'module/:moduleId',
+                        builder: (ctx, st) {
+                          final courseId = st.pathParameters['courseId']!;
+                          final moduleId = st.pathParameters['moduleId']!;
+                          return TrackDetailPage(
+                            courseId: courseId,
+                            moduleId: moduleId,
+                          );
+                        },
+                      ),
+                      GoRoute(
                         path: 'lesson/:lessonId',
                         builder: (ctx, st) => LessonPage(
-                          courseId: st.pathParameters['id']!,
+                          courseId: st.pathParameters['courseId']!,
                           lessonId: st.pathParameters['lessonId']!,
                         ),
                       ),
@@ -105,7 +118,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/profile',
                 pageBuilder: (ctx, state) {
-                  final uid = Supabase.instance.client.auth.currentUser?.id;
+                  final uid =
+                      Supabase.instance.client.auth.currentUser?.id;
                   return NoTransitionPage(
                     child: KeyedSubtree(
                       key: ValueKey(uid),
@@ -128,7 +142,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-
     redirect: (context, state) {
       final auth = ref.read(authSessionProvider);
 
@@ -147,7 +160,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isRoot = loc == '/' || loc == SplashPage.routePath;
       final isAuthFlow = loc.startsWith('/auth/');
       final isWelcome =
-          loc == '/profile/welcome' || loc.startsWith('/profile/welcome');
+          loc == '/profile/welcome' ||
+          loc.startsWith('/profile/welcome');
       final isOnboarding = loc == OnboardingPage.routePath;
 
       if (!isAuthed) {
@@ -166,7 +180,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       return null;
     },
-
     errorBuilder: (context, state) {
       return Scaffold(
         body: Center(
@@ -193,7 +206,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 bool _isProtected(String loc) {
-  if (loc == '/profile/welcome' || loc.startsWith('/profile/welcome')) {
+  if (loc == '/profile/welcome' ||
+      loc.startsWith('/profile/welcome')) {
     return false;
   }
   return loc == '/profile' || loc.startsWith('/profile/');
@@ -205,4 +219,42 @@ String? _sanitizeReturn(String? from) {
     return '/profile';
   }
   return from;
+}
+
+class _CourseAutoRedirect extends ConsumerWidget {
+  const _CourseAutoRedirect({
+    required this.courseId,
+    required this.isExact,
+  });
+
+  final String courseId;
+  final bool isExact;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!isExact) return const SizedBox.shrink();
+
+    final modulesAsync = ref.watch(courseModulesProvider(courseId));
+    return modulesAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Scaffold(
+        body: Center(child: Text('Failed to load modules: $e')),
+      ),
+      data: (modules) {
+        if (modules.isEmpty) {
+          return const Scaffold(
+            body: Center(child: Text('No modules yet')),
+          );
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          final first = modules.first;
+          context.go('/home/course/$courseId/module/${first.id}');
+        });
+        return const SizedBox.shrink();
+      },
+    );
+  }
 }
