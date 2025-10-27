@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
+typedef Void = void Function();
+
 class CourseHeader extends StatelessWidget {
   const CourseHeader({
-    required this.title, super.key,
+    required this.title,
+    super.key,
     this.progress = 0,
     this.onContinue,
     this.onBack,
-    this.onTitleTap,
   });
 
   final String title;
   final double progress;
-  final VoidCallback? onContinue;
-  final VoidCallback? onBack;
-  final VoidCallback? onTitleTap;
+  final Void? onContinue;
+  final Void? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -72,24 +73,18 @@ class CourseHeader extends StatelessWidget {
                   ),
                 ],
               ),
+
               Center(
-                child: GestureDetector(
-                  onTap: onTitleTap,
-                  behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, 
-                      vertical: 6),
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
