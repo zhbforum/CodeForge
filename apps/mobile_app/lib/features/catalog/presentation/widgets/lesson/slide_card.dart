@@ -8,8 +8,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile_app/core/models/lesson.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/lesson/quiz_card.dart';
 
-String normalizeMd(String s) =>
-    s.replaceAll('\r\n', '\n').replaceAll(r'\r\n', '\n').replaceAll(r'\n', '\n');
+String normalizeMd(String s) => s
+    .replaceAll('\r\n', '\n')
+    .replaceAll(r'\r\n', '\n')
+    .replaceAll(r'\n', '\n');
 
 class SlideCard extends StatelessWidget {
   const SlideCard({required this.slide, super.key});
@@ -52,7 +54,8 @@ class _TextCard extends StatelessWidget {
     };
     final isCenter = alignStr == 'center';
 
-    final blocks = (content['blocks'] as List?)
+    final blocks =
+        (content['blocks'] as List?)
             ?.map((e) => Map<String, dynamic>.from(e as Map))
             .toList() ??
         const <Map<String, dynamic>>[];
@@ -71,10 +74,9 @@ class _TextCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
                   title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                   textAlign: isCenter ? TextAlign.center : TextAlign.start,
                 ),
               ),
@@ -130,9 +132,9 @@ class _ImageCard extends StatelessWidget {
 
     Widget imageWidget;
     if (bytes != null) {
-      imageWidget =
-          isSvg ? SvgPicture.memory(bytes, fit: fit) : Image.memory(bytes, 
-            fit: fit);
+      imageWidget = isSvg
+          ? SvgPicture.memory(bytes, fit: fit)
+          : Image.memory(bytes, fit: fit);
     } else {
       if (url.isEmpty) return const SizedBox.shrink();
       imageWidget = isSvg
@@ -270,12 +272,12 @@ class _HeroBlock extends StatelessWidget {
     final w = (asset != null && asset!.toLowerCase().endsWith('.svg'))
         ? SvgPicture.asset(asset!, height: height)
         : (asset != null)
-            ? Image.asset(asset!, height: height)
-            : (url != null && url!.toLowerCase().endsWith('.svg'))
-                ? SvgPicture.network(url!, height: height)
-                : (url != null)
-                    ? Image.network(url!, height: height)
-                    : const SizedBox.shrink();
+        ? Image.asset(asset!, height: height)
+        : (url != null && url!.toLowerCase().endsWith('.svg'))
+        ? SvgPicture.network(url!, height: height)
+        : (url != null)
+        ? Image.network(url!, height: height)
+        : const SizedBox.shrink();
 
     final alignment = switch (align) {
       'start' => Alignment.centerLeft,

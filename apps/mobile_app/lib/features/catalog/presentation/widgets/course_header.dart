@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class CourseHeader extends StatelessWidget {
   const CourseHeader({
-    required this.title, super.key,
+    required this.title,
+    super.key,
     this.progress = 0,
     this.onContinue,
     this.onBack,
@@ -77,15 +78,17 @@ class CourseHeader extends StatelessWidget {
                   onTap: onTitleTap,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, 
-                      vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
                     child: Text(
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),

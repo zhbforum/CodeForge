@@ -3,7 +3,9 @@ import 'package:mobile_app/core/models/module.dart';
 
 class CourseModuleListSheet extends StatelessWidget {
   const CourseModuleListSheet({
-    required this.title, required this.modules, super.key,
+    required this.title,
+    required this.modules,
+    super.key,
   });
 
   final String title;
@@ -31,10 +33,9 @@ class CourseModuleListSheet extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             Flexible(

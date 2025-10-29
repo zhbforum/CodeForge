@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FinishBar extends StatelessWidget {
-  const FinishBar({
-    required this.isCompleted, super.key,
-    this.onFinish,
-  });
+  const FinishBar({required this.isCompleted, super.key, this.onFinish});
 
   final bool isCompleted;
   final VoidCallback? onFinish;

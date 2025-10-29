@@ -41,8 +41,7 @@ class TrackDetailPage extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (nodes) {
           final total = nodes.length;
-          final done =
-              nodes.where((n) => n.status == NodeStatus.done).length;
+          final done = nodes.where((n) => n.status == NodeStatus.done).length;
           final progress = total == 0 ? 0.0 : done / total;
 
           CourseNode? nextNode;
@@ -60,15 +59,14 @@ class TrackDetailPage extends ConsumerWidget {
             title: title,
             progress: progress,
             onBack: context.pop,
-            onContinue: (nextNode == null ||
-                    nextNode.status == NodeStatus.locked)
+            onContinue:
+                (nextNode == null || nextNode.status == NodeStatus.locked)
                 ? null
                 : () => openLesson(nextNode!),
             onTitleTap: () async {
               final modules = await modulesAsync.maybeWhen(
                 data: Future.value,
-                orElse: () =>
-                    ref.read(courseModulesProvider(courseId).future),
+                orElse: () => ref.read(courseModulesProvider(courseId).future),
               );
 
               if (!context.mounted) return;
@@ -77,17 +75,12 @@ class TrackDetailPage extends ConsumerWidget {
                 context: context,
                 useSafeArea: true,
                 isScrollControlled: true,
-                backgroundColor:
-                    Theme.of(context).colorScheme.surface,
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(24),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
-                builder: (ctx) => CourseModuleListSheet(
-                  title: title,
-                  modules: modules,
-                ),
+                builder: (ctx) =>
+                    CourseModuleListSheet(title: title, modules: modules),
               );
 
               if (!context.mounted) return;
@@ -104,14 +97,12 @@ class TrackDetailPage extends ConsumerWidget {
               final isTablet = w >= 700 && w < 1100;
               final cs = Theme.of(context).colorScheme;
 
-              final outline =
-                  LessonOutline(nodes: nodes, onTap: openLesson);
+              final outline = LessonOutline(nodes: nodes, onTap: openLesson);
 
               final metaPanel = CourseMetaPanel(
                 total: total,
                 done: done,
-                estimatedHours:
-                    (total * 0.15).toStringAsFixed(1),
+                estimatedHours: (total * 0.15).toStringAsFixed(1),
                 tags: const ['Beginner', 'Hands-on', 'Path'],
               );
 
@@ -163,16 +154,12 @@ class TrackDetailPage extends ConsumerWidget {
                       headerPill,
                       Expanded(
                         child: Row(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.stretch,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                maxWidth: 360,
-                              ),
+                              constraints: const BoxConstraints(maxWidth: 360),
                               child: Material(
-                                color:
-                                    cs.surfaceContainerHighest,
+                                color: cs.surfaceContainerHighest,
                                 child: Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: outline,
@@ -202,16 +189,12 @@ class TrackDetailPage extends ConsumerWidget {
                     headerPill,
                     Expanded(
                       child: Row(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.stretch,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxWidth: 360,
-                            ),
+                            constraints: const BoxConstraints(maxWidth: 360),
                             child: Material(
-                              color:
-                                  cs.surfaceContainerHighest,
+                              color: cs.surfaceContainerHighest,
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: outline,
@@ -229,12 +212,9 @@ class TrackDetailPage extends ConsumerWidget {
                           ),
                           const VerticalDivider(width: 1),
                           ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxWidth: 320,
-                            ),
+                            constraints: const BoxConstraints(maxWidth: 320),
                             child: Material(
-                              color:
-                                  cs.surfaceContainerHighest,
+                              color: cs.surfaceContainerHighest,
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: metaPanel,

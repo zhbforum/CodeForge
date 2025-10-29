@@ -94,10 +94,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       appBar: AppBar(
         title: const Text('Leaderboards'),
         actions: [
-          IconButton(
-            onPressed: _refresh,
-            icon: const Icon(Icons.refresh),
-          ),
+          IconButton(onPressed: _refresh, icon: const Icon(Icons.refresh)),
         ],
       ),
       body: RefreshIndicator(
@@ -193,14 +190,15 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                     return ListTile(
                       isThreeLine: true,
                       leading: CircleAvatar(
-                        foregroundImage: (r.avatarUrl != null 
-                          && r.avatarUrl!.isNotEmpty)
+                        foregroundImage:
+                            (r.avatarUrl != null && r.avatarUrl!.isNotEmpty)
                             ? NetworkImage(r.avatarUrl!)
                             : null,
                         onForegroundImageError: (_, __) {},
                         child: Text(
-                          r.displayName.isNotEmpty 
-                            ? r.displayName[0].toUpperCase() : '?',
+                          r.displayName.isNotEmpty
+                              ? r.displayName[0].toUpperCase()
+                              : '?',
                         ),
                       ),
                       title: Text(
@@ -218,11 +216,19 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('Season ${r.seasonExp}', style: 
-                              const TextStyle(fontWeight: FontWeight.w600)),
-                            Text('Total ${r.totalExp}', 
-                              style: const TextStyle(fontSize: 12, 
-                                color: Colors.grey)),
+                            Text(
+                              'Season ${r.seasonExp}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              'Total ${r.totalExp}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -247,9 +253,7 @@ class _StatLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: Text(label, style: const TextStyle(fontSize: 16)),
-        ),
+        Expanded(child: Text(label, style: const TextStyle(fontSize: 16))),
         Text(
           '$value',
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -265,10 +269,7 @@ class _UserXP {
     required this.seasonExp,
     required this.level,
   });
-  const _UserXP.empty()
-      : totalExp = 0,
-        seasonExp = 0,
-        level = 1;
+  const _UserXP.empty() : totalExp = 0, seasonExp = 0, level = 1;
   final int totalExp;
   final int seasonExp;
   final int level;

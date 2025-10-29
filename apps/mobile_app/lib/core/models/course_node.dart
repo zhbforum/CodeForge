@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 enum NodeType { lesson, practice, quiz, boss }
+
 enum NodeStatus { locked, available, done }
 
 @immutable
