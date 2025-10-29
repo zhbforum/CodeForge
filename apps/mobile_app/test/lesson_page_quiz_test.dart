@@ -32,22 +32,26 @@ void main() {
   const courseId = '1';
   const slideId = 'q1';
 
-  final headerOverride = lessonHeaderProvider(lessonId)
-    .overrideWith((ref) async {
+  final headerOverride = lessonHeaderProvider(lessonId).overrideWith((
+    ref,
+  ) async {
     return LessonHeader(id: lessonId, title: 'Lesson (Test)', order: 1);
   });
 
-  final slidesOverride = lessonSlidesProvider(lessonId)
-    .overrideWith((ref) async {
+  final slidesOverride = lessonSlidesProvider(lessonId).overrideWith((
+    ref,
+  ) async {
     return <LessonSlide>[_quizSlide(id: slideId, correctIndex: 1)];
   });
 
-  final completedOverride = lessonCompletedProvider(
-    (courseId: courseId, lessonId: lessonId),
-  ).overrideWith((ref) async => false);
+  final completedOverride = lessonCompletedProvider((
+    courseId: courseId,
+    lessonId: lessonId,
+  )).overrideWith((ref) async => false);
 
-  testWidgets('quiz flow: wrong -> banner; correct -> success & lock', 
-    (tester) async {
+  testWidgets('quiz flow: wrong -> banner; correct -> success & lock', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [headerOverride, slidesOverride, completedOverride],

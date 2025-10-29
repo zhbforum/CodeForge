@@ -47,7 +47,6 @@ class LessonSlide {
   final int order;
 }
 
-
 typedef LessonKey = ({String courseId, String lessonId});
 
 extension LessonX on Lesson {

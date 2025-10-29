@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 class TopProgressBar extends StatelessWidget {
   const TopProgressBar({
-    required this.current, required this.min, required this.max, super.key,
+    required this.current,
+    required this.min,
+    required this.max,
+    super.key,
   });
 
   final int current;

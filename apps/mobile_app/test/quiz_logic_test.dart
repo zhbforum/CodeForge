@@ -20,8 +20,8 @@ void main() {
     container.read(quizSelectedProvider(slideId).notifier).state = 0;
     expect(container.read(quizSelectedProvider(slideId)), 0);
 
-    container.read(quizWrongIndexProvider(slideId).notifier).state =
-        container.read(quizSelectedProvider(slideId));
+    container.read(quizWrongIndexProvider(slideId).notifier).state = container
+        .read(quizSelectedProvider(slideId));
     expect(container.read(quizWrongIndexProvider(slideId)), 0);
     expect(container.read(quizRevealedProvider(slideId)), false);
 

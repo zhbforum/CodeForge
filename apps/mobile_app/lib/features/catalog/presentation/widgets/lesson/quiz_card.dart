@@ -43,10 +43,14 @@ class QuizCard extends ConsumerWidget {
                 onSelect: revealed
                     ? null
                     : () {
-                        ref.read(quizSelectedProvider(slide.id)
-                          .notifier).state = i;
-                        ref.read(quizWrongIndexProvider(slide.id)
-                          .notifier).state = null;
+                        ref
+                                .read(quizSelectedProvider(slide.id).notifier)
+                                .state =
+                            i;
+                        ref
+                                .read(quizWrongIndexProvider(slide.id).notifier)
+                                .state =
+                            null;
                       },
               ),
 
@@ -59,13 +63,25 @@ class QuizCard extends ConsumerWidget {
                       ? null
                       : () {
                           if (selected == correctIndex) {
-                            ref.read(quizRevealedProvider(slide.id)
-                              .notifier).state = true;
-                            ref.read(quizWrongIndexProvider(slide.id)
-                              .notifier).state = null;
+                            ref
+                                    .read(
+                                      quizRevealedProvider(slide.id).notifier,
+                                    )
+                                    .state =
+                                true;
+                            ref
+                                    .read(
+                                      quizWrongIndexProvider(slide.id).notifier,
+                                    )
+                                    .state =
+                                null;
                           } else {
-                            ref.read(quizWrongIndexProvider(slide.id)
-                              .notifier).state = selected;
+                            ref
+                                    .read(
+                                      quizWrongIndexProvider(slide.id).notifier,
+                                    )
+                                    .state =
+                                selected;
                           }
                         },
                   child: const Text('Check answer'),
@@ -74,12 +90,14 @@ class QuizCard extends ConsumerWidget {
                 if (revealed)
                   TextButton(
                     onPressed: () {
-                      ref.read(quizSelectedProvider(slide.id)
-                        .notifier).state = null;
-                      ref.read(quizRevealedProvider(slide.id)
-                        .notifier).state = false;
-                      ref.read(quizWrongIndexProvider(slide.id)
-                        .notifier).state = null;
+                      ref.read(quizSelectedProvider(slide.id).notifier).state =
+                          null;
+                      ref.read(quizRevealedProvider(slide.id).notifier).state =
+                          false;
+                      ref
+                              .read(quizWrongIndexProvider(slide.id).notifier)
+                              .state =
+                          null;
                     },
                     child: const Text('Try again'),
                   ),
@@ -140,8 +158,8 @@ class _AnswerOptionTile extends StatelessWidget {
         ? Colors.green.withValues(alpha: 0.25)
         : Colors.green.withValues(alpha: 0.12);
 
-    final isMarkedWrong = wrongIndex != 
-      null && wrongIndex == index && !revealed;
+    final isMarkedWrong =
+        wrongIndex != null && wrongIndex == index && !revealed;
 
     late Color bg;
     late Color border;
@@ -228,8 +246,9 @@ class _AnswerIndexBadge extends StatelessWidget {
     final bg = isCorrect
         ? Colors.green
         : (revealed ? cs.surfaceContainerHighest : cs.surfaceContainerHighest);
-    final fg =
-        isCorrect ? Colors.white : Theme.of(context).textTheme.bodySmall?.color;
+    final fg = isCorrect
+        ? Colors.white
+        : Theme.of(context).textTheme.bodySmall?.color;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -291,8 +310,8 @@ class _ResultBanner extends StatelessWidget {
 
     final bg = correct
         ? (Theme.of(context).brightness == Brightness.dark
-            ? Colors.green.withValues(alpha: 0.25)
-            : Colors.green.withValues(alpha: 0.12))
+              ? Colors.green.withValues(alpha: 0.25)
+              : Colors.green.withValues(alpha: 0.12))
         : cs.errorContainer;
 
     final icon = correct ? Icons.check_circle : Icons.close_rounded;

@@ -11,11 +11,7 @@ import 'package:mobile_app/features/catalog/presentation/widgets/lesson/slide_ca
 import 'package:mobile_app/features/catalog/presentation/widgets/lesson/top_progress_bar.dart';
 
 class LessonPage extends ConsumerWidget {
-  const LessonPage({
-    required this.courseId,
-    required this.lessonId,
-    super.key,
-  });
+  const LessonPage({required this.courseId, required this.lessonId, super.key});
 
   final String courseId;
   final String lessonId;
@@ -90,15 +86,13 @@ class LessonPage extends ConsumerWidget {
         const SingleActivator(LogicalKeyboardKey.arrowLeft): () {
           final curr = ref.read(currentOrderProvider(lessonId));
           if (curr > minOrder) {
-            ref.read(currentOrderProvider(lessonId).notifier).state =
-                curr - 1;
+            ref.read(currentOrderProvider(lessonId).notifier).state = curr - 1;
           }
         },
         const SingleActivator(LogicalKeyboardKey.arrowRight): () {
           final curr = ref.read(currentOrderProvider(lessonId));
           if (curr < maxOrder) {
-            ref.read(currentOrderProvider(lessonId).notifier).state =
-                curr + 1;
+            ref.read(currentOrderProvider(lessonId).notifier).state = curr + 1;
           }
         },
       },
@@ -109,26 +103,40 @@ class LessonPage extends ConsumerWidget {
             TopProgressBar(current: clamped, min: minOrder, max: maxOrder),
             if (maxOrder > minOrder)
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
                       icon: const Icon(Icons.chevron_left),
                       onPressed: clamped > minOrder
-                          ? () => ref
-                              .read(currentOrderProvider(lessonId).notifier)
-                              .state = clamped - 1
+                          ? () =>
+                                ref
+                                        .read(
+                                          currentOrderProvider(
+                                            lessonId,
+                                          ).notifier,
+                                        )
+                                        .state =
+                                    clamped - 1
                           : null,
                       tooltip: 'Previous',
                     ),
                     IconButton(
                       icon: const Icon(Icons.chevron_right),
                       onPressed: clamped < maxOrder
-                          ? () => ref
-                              .read(currentOrderProvider(lessonId).notifier)
-                              .state = clamped + 1
+                          ? () =>
+                                ref
+                                        .read(
+                                          currentOrderProvider(
+                                            lessonId,
+                                          ).notifier,
+                                        )
+                                        .state =
+                                    clamped + 1
                           : null,
                       tooltip: 'Next',
                     ),
@@ -142,8 +150,7 @@ class LessonPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   itemCount: currentSlides.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (_, i) =>
-                      SlideCard(slide: currentSlides[i]),
+                  itemBuilder: (_, i) => SlideCard(slide: currentSlides[i]),
                 ),
               ),
             ),
