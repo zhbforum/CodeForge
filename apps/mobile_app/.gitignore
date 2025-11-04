@@ -62,3 +62,6 @@ tools/*.ps1
 certs/
 *.pfx
 *.cer
+
+# VS Code
+.vscode/
