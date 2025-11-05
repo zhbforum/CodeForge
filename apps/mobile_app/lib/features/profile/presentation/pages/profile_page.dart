@@ -30,7 +30,8 @@ class ProfilePage extends ConsumerWidget {
               useRootNavigator: true,
               isScrollControlled: true,
               showDragHandle: true,
-              builder: (_) => const SettingsBottomSheet(),
+              builder: (sheetContext) =>
+                  SettingsBottomSheet(sheetContext: sheetContext),
             ),
           ),
         ],
