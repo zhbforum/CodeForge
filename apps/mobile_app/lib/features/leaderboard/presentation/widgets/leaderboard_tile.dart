@@ -54,7 +54,9 @@ class LeaderboardTile extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             'lvl ${entry.level}',
-            style: theme.textTheme.labelSmall?.copyWith(color: Colors.grey),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: .68),
+            ),
           ),
         ],
       ),
@@ -76,19 +78,23 @@ class LeaderboardTile extends StatelessWidget {
     bool muted = false,
   }) {
     final bg = muted
-        ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.45)
+        ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: .60)
         : theme.colorScheme.surfaceContainerHighest;
+    final txt = muted
+        ? theme.colorScheme.onSurface.withValues(alpha: .68)
+        : theme.colorScheme.onSurface.withValues(alpha: .87);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         '$label $value',
-        style: theme.textTheme.labelMedium?.copyWith(
+        style: theme.textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w700,
-          color: muted ? Colors.grey : null,
+          color: txt,
         ),
       ),
     );
