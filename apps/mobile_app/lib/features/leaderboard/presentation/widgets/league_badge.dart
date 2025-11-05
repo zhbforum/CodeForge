@@ -11,8 +11,8 @@ class LeagueBadge extends StatelessWidget {
     final color = _palette(leagueName, theme);
 
     final bg = isDark
-        ? color.withValues(alpha: .18)
-        : color.withValues(alpha: .14);
+        ? color.withValues(alpha: .20)
+        : color.withValues(alpha: .25);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -23,7 +23,7 @@ class LeagueBadge extends StatelessWidget {
       ),
       child: Text(
         leagueName,
-        style: theme.textTheme.labelSmall?.copyWith(
+        style: theme.textTheme.bodyMedium?.copyWith(
           color: isDark ? color : color.withValues(alpha: .95),
           fontWeight: FontWeight.w700,
           letterSpacing: .2,
