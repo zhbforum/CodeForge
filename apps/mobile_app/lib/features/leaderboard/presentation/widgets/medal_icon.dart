@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class MedalIcon extends StatelessWidget {
-  const MedalIcon(this.rank, {super.key});
+  const MedalIcon(this.rank, {super.key, this.size = 20});
   final int rank;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     var icon = Icons.emoji_events;
-    Color? color;
+    Color color;
+
     switch (rank) {
       case 1:
         color = const Color(0xFFFFD700);
@@ -19,6 +21,6 @@ class MedalIcon extends StatelessWidget {
         icon = Icons.leaderboard_outlined;
         color = Theme.of(context).colorScheme.primary;
     }
-    return Icon(icon, color: color);
+    return Icon(icon, color: color, size: size);
   }
 }
