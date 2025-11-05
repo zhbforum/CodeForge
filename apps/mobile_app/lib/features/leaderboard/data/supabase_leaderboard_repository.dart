@@ -45,9 +45,15 @@ class SupabaseLeaderboardRepository implements LeaderboardRepository {
   Future<List<LeaderboardEntry>> fetchTop({int limit = 20}) async {
     final raw = await _sb
         .from('leaderboard_v')
-        .select(
-          'display_name, avatar_url, level, league_name, season_exp, total_exp, rank',
-        )
+        .select('''
+        display_name,
+        avatar_url,
+        level,
+        league_name,
+        season_exp,
+        total_exp,
+        rank
+        ''')
         .order('rank', ascending: true)
         .limit(limit);
 
