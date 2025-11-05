@@ -28,7 +28,8 @@ class WelcomePage extends StatelessWidget {
                 useSafeArea: true,
                 isScrollControlled: true,
                 showDragHandle: true,
-                builder: (_) => const SettingsBottomSheet(),
+                builder: (sheetContext) =>
+                    SettingsBottomSheet(sheetContext: sheetContext),
               );
             },
           ),

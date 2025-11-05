@@ -11,7 +11,19 @@ import 'package:mobile_app/features/settings/presentation/widgets/cyclic_time_pi
 import 'package:mobile_app/features/settings/presentation/widgets/preview_option_tile.dart';
 
 class SettingsBottomSheet extends StatelessWidget {
-  const SettingsBottomSheet({super.key});
+  const SettingsBottomSheet({required this.sheetContext, super.key});
+  final BuildContext sheetContext;
+
+  static Future<T?> show<T>(BuildContext context) {
+    return showModalBottomSheet<T>(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) =>
+          SettingsBottomSheet(sheetContext: sheetContext),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +33,9 @@ class SettingsBottomSheet extends StatelessWidget {
         child: Navigator(
           onGenerateRoute: (settings) {
             return MaterialPageRoute<void>(
-              builder: (_) => const _SettingsHomeView(),
+              builder: (_) => _SettingsHomeView(
+                onClose: () => Navigator.of(sheetContext).pop(),
+              ),
               settings: const RouteSettings(name: '/'),
             );
           },
@@ -32,7 +46,8 @@ class SettingsBottomSheet extends StatelessWidget {
 }
 
 class _SettingsHomeView extends ConsumerWidget {
-  const _SettingsHomeView();
+  const _SettingsHomeView({required this.onClose});
+  final VoidCallback onClose;
 
   bool get _showAppIconOption =>
       !kIsWeb &&
@@ -44,10 +59,14 @@ class _SettingsHomeView extends ConsumerWidget {
     final st = ref.watch(settingsViewModelProvider);
 
     return st.when(
-      loading: () => const _SheetScaffold(
-        body: Center(child: CircularProgressIndicator()),
+      loading: () => _SheetScaffold(
+        body: const Center(child: CircularProgressIndicator()),
+        onClose: onClose,
       ),
-      error: (e, _) => _SheetScaffold(body: Center(child: Text('Error: $e'))),
+      error: (e, _) => _SheetScaffold(
+        body: Center(child: Text('Error: $e')),
+        onClose: onClose,
+      ),
       data: (s) {
         final cs = Theme.of(context).colorScheme;
 
@@ -55,6 +74,7 @@ class _SettingsHomeView extends ConsumerWidget {
 
         return _SheetScaffold(
           title: 'Settings',
+          onClose: onClose,
           body: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             children: [
@@ -75,7 +95,8 @@ class _SettingsHomeView extends ConsumerWidget {
                       title: const Text('Appearance'),
                       subtitle: Text(_themeLabel(s.themeMode)),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _push(context, const _AppearanceView()),
+                      onTap: () =>
+                          _push(context, _AppearanceView(onClose: onClose)),
                     ),
                     const Divider(height: 1),
                     SwitchListTile(
@@ -91,7 +112,8 @@ class _SettingsHomeView extends ConsumerWidget {
                         title: const Text('App icon'),
                         subtitle: Text(_appIconLabel(s.appIconStyle)),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () => _push(context, const _AppIconView()),
+                        onTap: () =>
+                            _push(context, _AppIconView(onClose: onClose)),
                       ),
                     ],
                     const Divider(height: 1),
@@ -99,7 +121,8 @@ class _SettingsHomeView extends ConsumerWidget {
                       title: const Text('Set goal'),
                       subtitle: Text(_goalLabel(s.dailyGoal)),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _push(context, const _SetGoalView()),
+                      onTap: () =>
+                          _push(context, _SetGoalView(onClose: onClose)),
                     ),
                   ],
                 ),
@@ -221,7 +244,8 @@ class _SettingsHomeView extends ConsumerWidget {
 }
 
 class _AppearanceView extends ConsumerWidget {
-  const _AppearanceView();
+  const _AppearanceView({required this.onClose});
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -232,6 +256,7 @@ class _AppearanceView extends ConsumerWidget {
 
     return _SheetScaffold(
       title: 'Appearance',
+      onClose: onClose,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
@@ -273,15 +298,16 @@ class _AppearanceView extends ConsumerWidget {
   }
 }
 
-/// App Icon selection screen.
 class _AppIconView extends ConsumerWidget {
-  const _AppIconView();
+  const _AppIconView({required this.onClose});
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (kIsWeb) {
       return _SheetScaffold(
         title: 'App icon',
+        onClose: onClose,
         body: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           child: Column(
@@ -317,6 +343,7 @@ class _AppIconView extends ConsumerWidget {
 
     return _SheetScaffold(
       title: 'App icon',
+      onClose: onClose,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
@@ -340,7 +367,8 @@ class _AppIconView extends ConsumerWidget {
 }
 
 class _SetGoalView extends ConsumerWidget {
-  const _SetGoalView();
+  const _SetGoalView({required this.onClose});
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -349,6 +377,7 @@ class _SetGoalView extends ConsumerWidget {
 
     return _SheetScaffold(
       title: 'Set goal',
+      onClose: onClose,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         child: Column(
@@ -391,7 +420,6 @@ class _GoalTile extends StatelessWidget {
     required this.selected,
     required this.onChanged,
   });
-
   final String label;
   final String minutesText;
   final bool selected;
@@ -503,25 +531,23 @@ class _GoalBadge extends StatelessWidget {
 
 String _formatTime(int h, int m) =>
     '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
-
 String _themeLabel(AppThemeMode m) => switch (m) {
   AppThemeMode.system => 'Device settings',
   AppThemeMode.light => 'Light',
   AppThemeMode.dark => 'Dark',
 };
-
 String _goalLabel(DailyGoal g) => switch (g) {
   DailyGoal.casual10 => '10 min',
   DailyGoal.regular30 => '30 min',
   DailyGoal.pro60 => '60 min',
 };
-
 String _appIconLabel(AppIconStyle s) => s.label;
 
 class _SheetScaffold extends StatelessWidget {
-  const _SheetScaffold({required this.body, this.title});
+  const _SheetScaffold({required this.body, this.title, this.onClose});
   final String? title;
   final Widget body;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -529,6 +555,10 @@ class _SheetScaffold extends StatelessWidget {
     final innerCanPop = Navigator.of(context).canPop();
 
     void closeSheet() {
+      if (onClose != null) {
+        onClose!();
+        return;
+      }
       if (innerCanPop) {
         Navigator.of(context).maybePop();
       } else {
