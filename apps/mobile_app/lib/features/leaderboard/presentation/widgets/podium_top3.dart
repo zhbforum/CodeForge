@@ -25,8 +25,8 @@ class PodiumTop3 extends StatelessWidget {
           ? theme.colorScheme.primary.withValues(alpha: .30)
           : theme.colorScheme.surfaceContainerHighest.withValues(alpha: .95);
       final gradBottom = isDark
-          ? theme.colorScheme.primary.withValues(alpha: .08)
-          : theme.colorScheme.surface.withValues(alpha: .90);
+          ? theme.colorScheme.primary.withValues(alpha: .10)
+          : theme.colorScheme.surface.withValues(alpha: .92);
 
       return Expanded(
         child: Column(
@@ -51,7 +51,7 @@ class PodiumTop3 extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 12,
                     backgroundColor: theme.scaffoldBackgroundColor,
-                    child: MedalIcon(e.rank),
+                    child: MedalIcon(e.rank, size: 22),
                   ),
                 ),
               ],
@@ -61,14 +61,14 @@ class PodiumTop3 extends StatelessWidget {
               e.displayName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             Text(
               'lvl ${e.level}',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: .6),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: .68),
               ),
             ),
             const SizedBox(height: 8),
@@ -98,9 +98,15 @@ class PodiumTop3 extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 '#${e.rank}',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: theme.colorScheme.onSurface.withValues(alpha: .85),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: theme.colorScheme.onSurface.withValues(alpha: .90),
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withValues(alpha: .18),
+                      blurRadius: 3,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -115,7 +121,9 @@ class PodiumTop3 extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark
               ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: .25)
-              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: .6),
+              : theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: .60,
+                ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: theme.colorScheme.outlineVariant.withValues(
