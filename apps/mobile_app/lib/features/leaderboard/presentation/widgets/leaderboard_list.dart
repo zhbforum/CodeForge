@@ -4,7 +4,6 @@ import 'package:mobile_app/features/leaderboard/presentation/widgets/leaderboard
 
 class LeaderboardList extends StatelessWidget {
   const LeaderboardList({required this.entries, super.key});
-
   final List<LeaderboardEntry> entries;
 
   @override
