@@ -20,6 +20,8 @@ class LeaderboardPage extends ConsumerWidget {
     final userStats = ref.watch(userStatsProvider);
     final topList = ref.watch(topLeaderboardProvider);
 
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Leaderboards'),
@@ -34,7 +36,8 @@ class LeaderboardPage extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () => _refresh(ref),
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
           children: [
             userStats.when(
               loading: () => const _LoadingCard(height: 160),
@@ -42,9 +45,7 @@ class LeaderboardPage extends ConsumerWidget {
                   _ErrorCard(message: 'Failed to load user stats: $e'),
               data: (data) => HeroStatsCard(stats: data),
             ),
-
             const SizedBox(height: 16),
-
             Text(
               'Top 20',
               style: Theme.of(
@@ -52,7 +53,6 @@ class LeaderboardPage extends ConsumerWidget {
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-
             topList.when(
               loading: () => const _LoadingList(items: 6),
               error: (e, _) =>
