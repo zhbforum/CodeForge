@@ -6,66 +6,80 @@ import 'package:mobile_app/shared/avatar/generated_avatar.dart';
 
 class LeaderboardTile extends StatelessWidget {
   const LeaderboardTile({required this.entry, super.key});
-
   final LeaderboardEntry entry;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final onMed = theme.colorScheme.onSurface.withValues(alpha: .68);
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      leading: Stack(
-        alignment: Alignment.bottomRight,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: theme.colorScheme.surfaceContainerHighest,
-            foregroundImage:
-                (entry.avatarUrl != null && entry.avatarUrl!.isNotEmpty)
-                ? NetworkImage(entry.avatarUrl!)
-                : null,
-            child: (entry.avatarUrl == null || entry.avatarUrl!.isEmpty)
-                ? GeneratedAvatar(seed: entry.displayName, size: 24)
-                : null,
+          Stack(
+            alignment: Alignment.bottomRight,
+            clipBehavior: Clip.none,
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                foregroundImage:
+                    (entry.avatarUrl != null && entry.avatarUrl!.isNotEmpty)
+                    ? NetworkImage(entry.avatarUrl!)
+                    : null,
+                child: (entry.avatarUrl == null || entry.avatarUrl!.isEmpty)
+                    ? GeneratedAvatar(seed: entry.displayName, size: 24)
+                    : null,
+              ),
+              Positioned(
+                right: -2,
+                bottom: -2,
+                child: CircleAvatar(
+                  radius: 12,
+                  backgroundColor: theme.scaffoldBackgroundColor,
+                  child: MedalIcon(entry.rank),
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            right: -2,
-            bottom: -2,
-            child: CircleAvatar(
-              radius: 12,
-              backgroundColor: theme.scaffoldBackgroundColor,
-              child: MedalIcon(entry.rank),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${entry.rank}. ${entry.displayName}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Flexible(child: LeagueBadge(entry.leagueName)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'lvl ${entry.level}',
+                      style: theme.textTheme.bodyMedium?.copyWith(color: onMed),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _xpMini('Season', entry.seasonExp, theme),
+                    _xpMini('Total', entry.totalExp, theme, muted: true),
+                  ],
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-      title: Text(
-        '${entry.rank}. ${entry.displayName}',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: Row(
-        children: [
-          LeagueBadge(entry.leagueName),
-          const SizedBox(width: 8),
-          Text(
-            'lvl ${entry.level}',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: .68),
-            ),
-          ),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _xpMini('Season', entry.seasonExp, theme),
-          const SizedBox(width: 6),
-          _xpMini('Total', entry.totalExp, theme, muted: true),
         ],
       ),
     );
@@ -84,17 +98,22 @@ class LeaderboardTile extends StatelessWidget {
         ? theme.colorScheme.onSurface.withValues(alpha: .68)
         : theme.colorScheme.onSurface.withValues(alpha: .87);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        '$label $value',
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: txt,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 220, minHeight: 36),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          '$label $value',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: txt,
+          ),
         ),
       ),
     );
