@@ -75,7 +75,6 @@ class HeroStatsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,17 +96,21 @@ class HeroStatsCard extends StatelessWidget {
                         .withValues(alpha: isDark ? .35 : .55),
                   ),
                 ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '$xpInLevel / $nextLevelXp',
+                    style: theme.textTheme.bodyMedium?.copyWith(color: onMed),
+                  ),
+                ),
                 const SizedBox(height: 10),
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     _StatChip(label: 'Global XP', value: stats.totalExp),
-                    const SizedBox(width: 8),
                     _StatChip(label: 'Season XP', value: stats.seasonExp),
-                    const Spacer(),
-                    Text(
-                      '$xpInLevel / $nextLevelXp',
-                      style: theme.textTheme.bodyMedium?.copyWith(color: onMed),
-                    ),
                   ],
                 ),
               ],
@@ -140,10 +143,15 @@ class _StatChip extends StatelessWidget {
           color: theme.colorScheme.outlineVariant.withValues(alpha: .40),
         ),
       ),
-      child: Text(
-        '$label: $value',
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w700,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 20, maxWidth: 320),
+        child: Text(
+          '$label: $value',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     );
