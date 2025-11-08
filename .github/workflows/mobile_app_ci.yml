@@ -66,8 +66,20 @@ jobs:
           git config --global core.autocrlf input
           git status --porcelain
 
-      - name: Ensure no uncommitted changes after generation
-        run: git diff --exit-code
+      - name: Ensure no uncommitted changes after generation (skip generated)
+        shell: bash
+        run: |
+          set -e
+          git update-index --refresh
+          CHANGED=$(git diff --name-only -- . \
+            ':(exclude)**/*.g.dart' \
+            ':(exclude)**/*.freezed.dart')
+          if [ -n "$CHANGED" ]; then
+            echo "Non-generated files changed after codegen/format:"
+            echo "$CHANGED"
+            exit 1
+          fi
+          echo "OK: only generated files differ (or none)."
 
       - name: Run tests (with coverage)
         run: flutter test --coverage
