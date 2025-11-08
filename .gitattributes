@@ -1,7 +1,7 @@
 * text=auto eol=lf
-
 *.dart text eol=lf
 *.yaml text eol=lf
 *.yml  text eol=lf
 *.md   text eol=lf
 *.sh   text eol=lf
+apps/mobile_app/android/app/src/main/res/mipmap-*/ic_launcher_*.png filter=lfs diff=lfs merge=lfs -text
