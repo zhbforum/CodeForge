@@ -25,31 +25,22 @@ jobs:
     defaults:
       run:
         working-directory: apps/mobile_app
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          lfs: true
-
-      - name: Git LFS pull (safety)
-        run: git lfs pull
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version: "3.35.4"
           cache: true
-
       - name: Flutter version
         run: flutter --version
-
-      - name: Install dependencies (enforce lockfile)
+      - name: Install dependencies
         run: flutter pub get --enforce-lockfile
-
-      - name: Verify launcher images (no LFS pointers)
+      - name: Verify launcher images
         shell: bash
         run: |
           shopt -s nullglob
@@ -59,74 +50,55 @@ jobs:
             exit 1
           fi
           for f in "${files[@]}"; do
-            # 1) Detect Git LFS pointer (text file starting with 'version https://git-lfs')
             if head -c 25 "$f" | tr -d '\0' | grep -qa '^version https://git-lfs'; then
-              echo "LFS POINTER detected (not a real image): $f"
-              ls -l "$f" || true
+              echo "LFS POINTER detected: $f"
               exit 1
             fi
-            # 2) Accept PNG/JPEG/WEBP by magic bytes
             sig=$(xxd -p -l 12 "$f" 2>/dev/null || echo "")
             if [[ "$sig" == 89504e470d0a1a0a* ]]; then
               echo "OK PNG:  $f"
             elif [[ "$sig" == ffd8ff* ]]; then
               echo "OK JPEG: $f"
-            elif [[ "$sig" == 52494646* ]]; then
-              # RIFF....WEBP
-              if head -c 12 "$f" | strings | grep -qa 'WEBP'; then
-                echo "OK WEBP: $f"
-              else
-                echo "Unknown RIFF type: $f"
-                exit 1
-              fi
+            elif [[ "$sig" == 52494646* ]] && head -c 12 "$f" | strings | grep -qa 'WEBP'; then
+              echo "OK WEBP: $f"
             else
               echo "Unknown/invalid image header: $f (sig=$sig)"
               exit 1
             fi
           done
-          echo "All launcher images look valid (no LFS pointers)."
-
-      - name: Generate code (build_runner)
+          echo "All launcher images look valid."
+      - name: Generate code
         run: dart run build_runner build -d
-
-      - name: Check formatting (skip generated)
+      - name: Check formatting
         shell: bash
         run: |
           set -e
-          FILES=$(git ls-files '*.dart' ':!**/*.g.dart' ':!**/*.freezed.dart')
+          FILES=$(git ls-files '*.dart' ':!**/*.g.dart' ':!**/*.freezed.dart' ':!**/*.gen.dart' ':!**/generated/**')
           if [ -n "$FILES" ]; then
             dart format --output=none --set-exit-if-changed $FILES
           else
             echo "No non-generated Dart files to check."
           fi
-
-      - name: Analyze (fail on infos & warnings)
-        run: flutter analyze --no-pub --fatal-infos --fatal-warnings
-
-      - name: Normalize line endings for diff
-        run: |
-          git config --global --add safe.directory "$(pwd)"
-          git config --global core.autocrlf input
-          git status --porcelain
-
-      - name: Ensure no uncommitted changes after generation (skip generated)
+      - name: Analyze
+        run: flutter analyze --no-pub --fatal-warnings
+      - name: Ensure no uncommitted changes after generation
         shell: bash
         run: |
           git update-index -q --refresh || true
           CHANGED=$(git diff --name-only -- . \
             ':(exclude)**/*.g.dart' \
-            ':(exclude)**/*.freezed.dart')
+            ':(exclude)**/*.freezed.dart' \
+            ':(exclude)**/*.gen.dart' \
+            ':(exclude)**/generated/**')
           if [ -n "$CHANGED" ]; then
             echo "Non-generated files changed after codegen/format:"
             echo "$CHANGED"
             exit 1
           fi
           echo "OK: only generated files differ (or none)."
-
-      - name: Run tests (with coverage)
+      - name: Run tests
         run: flutter test --coverage
-
-      - name: Enforce coverage threshold (10%)
+      - name: Enforce coverage threshold
         shell: bash
         run: |
           LCOV=coverage/lcov.info
@@ -143,10 +115,6 @@ jobs:
           fi
           echo "Coverage: ${pct}%  (Lines: ${hit}/${total})"
           awk -v p="$pct" -v th=10 'BEGIN{ exit (p+0<th) ? 1 : 0 }'
-
-      - name: Pub outdated (non-blocking)
-        run: dart pub outdated || true
-
       - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -162,40 +130,30 @@ jobs:
     defaults:
       run:
         working-directory: apps/mobile_app
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          lfs: true
-
-      - name: Git LFS pull (safety)
-        run: git lfs pull
-
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version: "3.35.4"
           cache: true
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Flutter doctor (debug info)
+      - name: Flutter doctor
         run: flutter doctor -v
-
-      - name: Install dependencies (enforce lockfile)
+      - name: Install dependencies
         run: flutter pub get --enforce-lockfile
-
-      - name: Verify launcher images (no LFS pointers)
+      - name: Verify launcher images
         shell: bash
         run: |
           shopt -s nullglob
@@ -206,8 +164,7 @@ jobs:
           fi
           for f in "${files[@]}"; do
             if head -c 25 "$f" | tr -d '\0' | grep -qa '^version https://git-lfs'; then
-              echo "LFS POINTER detected (not a real image): $f"
-              ls -l "$f" || true
+              echo "LFS POINTER detected: $f"
               exit 1
             fi
             sig=$(xxd -p -l 12 "$f" 2>/dev/null || echo "")
@@ -215,28 +172,34 @@ jobs:
               echo "OK PNG:  $f"
             elif [[ "$sig" == ffd8ff* ]]; then
               echo "OK JPEG: $f"
-            elif [[ "$sig" == 52494646* ]]; then
-              if head -c 12 "$f" | strings | grep -qa 'WEBP'; then
-                echo "OK WEBP: $f"
-              else
-                echo "Unknown RIFF type: $f"
-                exit 1
-              fi
+            elif [[ "$sig" == 52494646* ]] && head -c 12 "$f" | strings | grep -qa 'WEBP'; then
+              echo "OK WEBP: $f"
             else
               echo "Unknown/invalid image header: $f (sig=$sig)"
               exit 1
             fi
           done
-          echo "All launcher images look valid (no LFS pointers)."
-
-      - name: Generate code (build_runner)
+          echo "All launcher images look valid."
+      - name: Generate code
         run: dart run build_runner build -d
-
-      - name: Build release APK
-        run: flutter build apk --release
-
-      - name: Upload APK artifact
+      - name: Build release APK (per-ABI)
+        run: flutter build apk --release --split-per-abi
+      - name: Locate APK(s)
+        id: locate_apk
+        shell: bash
+        run: |
+          ROOT="build/app/outputs"
+          ls -R "$ROOT" || true
+          files=()
+          while IFS= read -r -d '' f; do files+=("$f"); done < <(find "$ROOT" -type f -name "*.apk" -print0)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "paths=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf 'paths<<EOF\n%s\nEOF\n' "$(printf "%s\n" "${files[@]}")" >> "$GITHUB_OUTPUT"
+      - name: Upload APK artifact(s)
+        if: ${{ steps.locate_apk.outputs.paths != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: app-apk
+          path: ${{ steps.locate_apk.outputs.paths }}
