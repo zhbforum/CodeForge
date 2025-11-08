@@ -33,6 +33,9 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      - name: Git LFS pull (safety)
+        run: git lfs pull
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -46,25 +49,42 @@ jobs:
       - name: Install dependencies (enforce lockfile)
         run: flutter pub get --enforce-lockfile
 
-      - name: Verify LFS PNGs
+      - name: Verify launcher images (no LFS pointers)
         shell: bash
         run: |
           shopt -s nullglob
           files=(android/app/src/main/res/mipmap-*/ic_launcher_*.png)
           if [ ${#files[@]} -eq 0 ]; then
-            echo "No launcher PNGs found — check paths."
+            echo "No launcher images found — check paths."
             exit 1
           fi
           for f in "${files[@]}"; do
-            head=$(hexdump -n 8 -v -e '8/1 "%02x"' "$f" || true)
-            if [ "$head" != "89504e470d0a1a0a" ]; then
-              echo "NOT a real PNG (likely LFS pointer): $f"
-              echo "First bytes: $head"
+            # 1) Detect Git LFS pointer (text file starting with 'version https://git-lfs')
+            if head -c 25 "$f" | tr -d '\0' | grep -qa '^version https://git-lfs'; then
+              echo "LFS POINTER detected (not a real image): $f"
               ls -l "$f" || true
               exit 1
             fi
+            # 2) Accept PNG/JPEG/WEBP by magic bytes
+            sig=$(xxd -p -l 12 "$f" 2>/dev/null || echo "")
+            if [[ "$sig" == 89504e470d0a1a0a* ]]; then
+              echo "OK PNG:  $f"
+            elif [[ "$sig" == ffd8ff* ]]; then
+              echo "OK JPEG: $f"
+            elif [[ "$sig" == 52494646* ]]; then
+              # RIFF....WEBP
+              if head -c 12 "$f" | strings | grep -qa 'WEBP'; then
+                echo "OK WEBP: $f"
+              else
+                echo "Unknown RIFF type: $f"
+                exit 1
+              fi
+            else
+              echo "Unknown/invalid image header: $f (sig=$sig)"
+              exit 1
+            fi
           done
-          echo "All launcher icons look like real PNGs."
+          echo "All launcher images look valid (no LFS pointers)."
 
       - name: Generate code (build_runner)
         run: dart run build_runner build -d
@@ -150,6 +170,9 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      - name: Git LFS pull (safety)
+        run: git lfs pull
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -172,25 +195,39 @@ jobs:
       - name: Install dependencies (enforce lockfile)
         run: flutter pub get --enforce-lockfile
 
-      - name: Verify LFS PNGs
+      - name: Verify launcher images (no LFS pointers)
         shell: bash
         run: |
           shopt -s nullglob
           files=(android/app/src/main/res/mipmap-*/ic_launcher_*.png)
           if [ ${#files[@]} -eq 0 ]; then
-            echo "No launcher PNGs found — check paths."
+            echo "No launcher images found — check paths."
             exit 1
           fi
           for f in "${files[@]}"; do
-            head=$(hexdump -n 8 -v -e '8/1 "%02x"' "$f" || true)
-            if [ "$head" != "89504e470d0a1a0a" ]; then
-              echo "NOT a real PNG (likely LFS pointer): $f"
-              echo "First bytes: $head"
+            if head -c 25 "$f" | tr -d '\0' | grep -qa '^version https://git-lfs'; then
+              echo "LFS POINTER detected (not a real image): $f"
               ls -l "$f" || true
               exit 1
             fi
+            sig=$(xxd -p -l 12 "$f" 2>/dev/null || echo "")
+            if [[ "$sig" == 89504e470d0a1a0a* ]]; then
+              echo "OK PNG:  $f"
+            elif [[ "$sig" == ffd8ff* ]]; then
+              echo "OK JPEG: $f"
+            elif [[ "$sig" == 52494646* ]]; then
+              if head -c 12 "$f" | strings | grep -qa 'WEBP'; then
+                echo "OK WEBP: $f"
+              else
+                echo "Unknown RIFF type: $f"
+                exit 1
+              fi
+            else
+              echo "Unknown/invalid image header: $f (sig=$sig)"
+              exit 1
+            fi
           done
-          echo "All launcher icons look like real PNGs."
+          echo "All launcher images look valid (no LFS pointers)."
 
       - name: Generate code (build_runner)
         run: dart run build_runner build -d
