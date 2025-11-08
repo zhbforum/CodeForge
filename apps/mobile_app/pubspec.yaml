@@ -30,6 +30,7 @@ dev_dependencies:
   freezed: 2.4.7
   json_serializable: ^6.8.0
   msix: ^3.16.12
+  remove_from_coverage: ^2.0.0
   very_good_analysis: ^5.1.0
 
 flutter:
