@@ -29,6 +29,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -69,11 +71,12 @@ jobs:
       - name: Ensure no uncommitted changes after generation (skip generated)
         shell: bash
         run: |
-          set -e
-          git update-index --refresh
+          git update-index -q --refresh || true
+
           CHANGED=$(git diff --name-only -- . \
             ':(exclude)**/*.g.dart' \
             ':(exclude)**/*.freezed.dart')
+
           if [ -n "$CHANGED" ]; then
             echo "Non-generated files changed after codegen/format:"
             echo "$CHANGED"
@@ -124,6 +127,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
