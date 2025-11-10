@@ -50,6 +50,16 @@ class CourseHeader extends StatelessWidget {
       );
     }
 
+    final continueStyle = FilledButton.styleFrom(
+      visualDensity: isNarrow ? VisualDensity.compact : VisualDensity.standard,
+      padding: EdgeInsets.symmetric(horizontal: isNarrow ? 12 : 16),
+      minimumSize: Size(0, isNarrow ? 36 : 40),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      shape: StadiumBorder(side: BorderSide(color: cs.outlineVariant)),
+    );
+
+    final titleHPad = isNarrow ? 64.0 : 8.0;
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1100),
@@ -73,13 +83,14 @@ class CourseHeader extends StatelessWidget {
                   ),
                 ],
               ),
+
               Center(
                 child: GestureDetector(
                   onTap: onTitleTap,
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: titleHPad,
                       vertical: 6,
                     ),
                     child: Text(
@@ -93,6 +104,7 @@ class CourseHeader extends StatelessWidget {
                   ),
                 ),
               ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -100,9 +112,20 @@ class CourseHeader extends StatelessWidget {
                   if (!isNarrow) const SizedBox(width: 8),
                   if (onContinue != null)
                     FilledButton.icon(
+                      style: continueStyle,
                       onPressed: onContinue,
-                      icon: const Icon(Icons.play_arrow_rounded),
-                      label: const Text('Continue'),
+                      icon: Icon(
+                        Icons.play_arrow_rounded,
+                        size: isNarrow ? 18 : 20,
+                      ),
+                      label: Text(
+                        'Continue',
+                        style: isNarrow
+                            ? Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: cs.onPrimary,
+                              )
+                            : null,
+                      ),
                     ),
                 ],
               ),
