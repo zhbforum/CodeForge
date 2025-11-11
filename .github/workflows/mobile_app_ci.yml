@@ -111,16 +111,15 @@ jobs:
       - name: Run tests (with coverage)
         run: flutter test --coverage
 
-      - name: Filter coverage (keep lib/, then exclude generated)
+      - name: Filter coverage (exclude generated & platforms)
         run: |
-          lcov --extract coverage/lcov.info '*/lib/*' -o coverage/lcov.info
           lcov --remove coverage/lcov.info \
             '*/lib/**/*.g.dart' \
             '*/lib/**/*.freezed.dart' \
             '*/lib/**/*.gen.dart' \
             '*/lib/**/generated/**' \
             '*/android/**' '*/ios/**' '*/linux/**' '*/macos/**' '*/windows/**' '*/web/**' \
-            --ignore-errors unused \
+            --ignore-errors unused,empty \
             -o coverage/lcov.info
 
       - name: Enforce coverage threshold
@@ -223,7 +222,7 @@ jobs:
         id: locate_apk
         shell: bash
         run: |
-          ROOT="build/app/outputs"
+          ROOT="build/app/outputs"  
           ls -R "$ROOT" || true
           files=()
           while IFS= read -r -d '' f; do files+=("$f"); done < <(find "$ROOT" -type f -name "*.apk" -print0)
