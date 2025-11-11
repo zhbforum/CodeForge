@@ -111,14 +111,16 @@ jobs:
       - name: Run tests (with coverage)
         run: flutter test --coverage
 
-      - name: Filter coverage (exclude generated & platforms)
+      - name: Filter coverage (keep lib/, then exclude generated)
         run: |
+          lcov --extract coverage/lcov.info '*/lib/*' -o coverage/lcov.info
           lcov --remove coverage/lcov.info \
-            'lib/**.g.dart' \
-            'lib/**.freezed.dart' \
-            'lib/**.gen.dart' \
-            'lib/**/generated/**' \
-            'android/**' 'ios/**' 'linux/**' 'macos/**' 'windows/**' 'web/**' \
+            '*/lib/**/*.g.dart' \
+            '*/lib/**/*.freezed.dart' \
+            '*/lib/**/*.gen.dart' \
+            '*/lib/**/generated/**' \
+            '*/android/**' '*/ios/**' '*/linux/**' '*/macos/**' '*/windows/**' '*/web/**' \
+            --ignore-errors unused \
             -o coverage/lcov.info
 
       - name: Generate HTML report
