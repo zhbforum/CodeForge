@@ -3,7 +3,11 @@ import 'package:mobile_app/features/leaderboard/data/supabase_leaderboard_reposi
 import 'package:mobile_app/features/leaderboard/domain/models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+final supabaseClientProvider = Provider<SupabaseClient>(
+  (_) => Supabase.instance.client,
+);
+
 final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
-  final sb = Supabase.instance.client;
+  final sb = ref.read(supabaseClientProvider);
   return SupabaseLeaderboardRepository(sb);
 });
