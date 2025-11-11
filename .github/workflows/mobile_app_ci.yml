@@ -111,19 +111,17 @@ jobs:
       - name: Run tests (with coverage)
         run: flutter test --coverage
 
-      - name: Filter coverage (exclude generated & platforms)
+      - name: Filter coverage (keep lib/, then exclude generated)
         run: |
+          lcov --extract coverage/lcov.info '*/lib/*' -o coverage/lcov.info
           lcov --remove coverage/lcov.info \
-            'lib/*.g.dart' 'lib/*/*.g.dart' 'lib/*/*/*.g.dart' 'lib/*/*/*/*.g.dart' \
-            'lib/*.freezed.dart' 'lib/*/*.freezed.dart' 'lib/*/*/*.freezed.dart' 'lib/*/*/*/*.freezed.dart' \
-            'lib/*.gen.dart' 'lib/*/*.gen.dart' 'lib/*/*/*.gen.dart' 'lib/*/*/*/*.gen.dart' \
-            'lib/generated/*' 'lib/*/generated/*' 'lib/*/*/generated/*' 'lib/*/*/*/generated/*' \
-            'android/**' 'ios/**' 'linux/**' 'macos/**' 'windows/**' 'web/**' \
-            --ignore-errors unused,empty \
+            '*/lib/**/*.g.dart' \
+            '*/lib/**/*.freezed.dart' \
+            '*/lib/**/*.gen.dart' \
+            '*/lib/**/generated/**' \
+            '*/android/**' '*/ios/**' '*/linux/**' '*/macos/**' '*/windows/**' '*/web/**' \
+            --ignore-errors unused \
             -o coverage/lcov.info
-
-      - name: Generate HTML report
-        run: genhtml coverage/lcov.info -o coverage/html --ignore-errors source,branch,missing
 
       - name: Enforce coverage threshold
         shell: bash
