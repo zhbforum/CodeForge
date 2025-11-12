@@ -14,5 +14,8 @@ void main() {
     );
     expect(iconsForTrackId(TrackId.python), equals(const [Tech.python]));
     expect(iconsForTrackId(TrackId.typescript), equals(const [Tech.ts]));
+
+    expect(iconsForTrackId(TrackId.html), equals(const [Tech.html]));
+    expect(iconsForTrackId(TrackId.css), equals(const [Tech.css]));
   });
 }
