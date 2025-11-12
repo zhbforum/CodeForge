@@ -15,5 +15,32 @@ void main() {
       expect(AuthValidators.password('abcdef'), isNull);
       expect(AuthValidators.password('Abcdef1'), isNull);
     });
+
+    group('confirm password', () {
+      test('null -> asks to repeat', () {
+        expect(
+          AuthValidators.confirm(null, 'abcdef'),
+          equals('Repeat password please'),
+        );
+      });
+
+      test('empty -> asks to repeat', () {
+        expect(
+          AuthValidators.confirm('', 'abcdef'),
+          equals('Repeat password please'),
+        );
+      });
+
+      test('mismatch -> shows mismatch error', () {
+        expect(
+          AuthValidators.confirm('abcdef', 'abcdef1'),
+          equals('Passwords do not match'),
+        );
+      });
+
+      test('match -> ok (null)', () {
+        expect(AuthValidators.confirm('secret123', 'secret123'), isNull);
+      });
+    });
   });
 }
