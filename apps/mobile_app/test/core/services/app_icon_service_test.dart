@@ -26,16 +26,35 @@ void main() {
       addTearDown(() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, null);
+        AppIconService.debugIsAndroidOverride = null;
       });
 
       await AppIconService.switchIcon(AppIconAlias.classic);
-
-      expect(
-        invoked,
-        isFalse,
-        reason:
-            'MethodChannel should not be invoked when Platform is not Android.',
-      );
+      expect(invoked, isFalse);
     },
   );
+
+  test('switchIcon invokes channel on Android with correct args', () async {
+    const channel = MethodChannel('app_icon');
+    MethodCall? captured;
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall call) async {
+          captured = call;
+          return null;
+        });
+
+    addTearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
+      AppIconService.debugIsAndroidOverride = null;
+    });
+
+    AppIconService.debugIsAndroidOverride = true;
+
+    await AppIconService.switchIcon(AppIconAlias.outline);
+
+    expect(captured?.method, 'switchIcon');
+    expect(captured?.arguments, {'alias': 'MainActivityAliasOutline'});
+  });
 }
