@@ -13,9 +13,8 @@ import 'package:mobile_app/features/catalog/presentation/viewmodels/module_provi
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
 import 'package:mobile_app/features/onboarding/onboarding_page.dart';
-import 'package:mobile_app/features/practice/practice_page.dart';
 import 'package:mobile_app/features/profile/presentation/pages/profile_page.dart';
-import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
+import 'package:mobile_app/ui/app_shell.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -92,15 +91,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     ],
                   ),
                 ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/practice',
-                pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: PracticePage()),
               ),
             ],
           ),

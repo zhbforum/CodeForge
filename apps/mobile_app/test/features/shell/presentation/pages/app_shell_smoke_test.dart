@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
+import 'package:mobile_app/ui/app_shell.dart';
 
 void main() {
   testWidgets('AppShell builds and switches tabs', (tester) async {

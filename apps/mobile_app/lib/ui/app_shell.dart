@@ -14,7 +14,6 @@ class AppShell extends StatelessWidget {
         onDestinationSelected: navShell.goBranch,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.school), label: 'Learn'),
-          NavigationDestination(icon: Icon(Icons.task_alt), label: 'Practice'),
           NavigationDestination(icon: Icon(Icons.leaderboard), label: 'Table'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
