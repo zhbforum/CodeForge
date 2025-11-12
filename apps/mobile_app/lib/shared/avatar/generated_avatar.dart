@@ -8,6 +8,7 @@ class GeneratedAvatar extends StatelessWidget {
     this.url,
     this.shape = BoxShape.circle,
     this.border,
+    @visibleForTesting this.debugForceMinFill = false,
   });
 
   final double size;
@@ -15,6 +16,8 @@ class GeneratedAvatar extends StatelessWidget {
   final String? url;
   final BoxShape shape;
   final BoxBorder? border;
+  @visibleForTesting
+  final bool debugForceMinFill;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,10 @@ class GeneratedAvatar extends StatelessWidget {
       decoration: decoration,
       clipBehavior: Clip.antiAlias,
       child: CustomPaint(
-        painter: _IdenticonPainter(seed: seed),
+        painter: _IdenticonPainter(
+          seed: seed,
+          debugForceMinFill: debugForceMinFill,
+        ),
         child: _InitialsFallback(seed: seed),
       ),
     );
@@ -66,9 +72,10 @@ class _SeedRng {
 }
 
 class _IdenticonPainter extends CustomPainter {
-  _IdenticonPainter({required this.seed});
+  _IdenticonPainter({required this.seed, this.debugForceMinFill = false});
 
   final String seed;
+  final bool debugForceMinFill;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -109,6 +116,11 @@ class _IdenticonPainter extends CustomPainter {
       0,
       (acc, r) => acc + r.where((e) => e).length,
     );
+
+    if (debugForceMinFill) {
+      onCount = 0;
+    }
+
     for (; onCount < 3; onCount++) {
       final rr = rng.nextInt(n);
       final cc = rng.nextInt(n);
@@ -134,7 +146,8 @@ class _IdenticonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _IdenticonPainter oldDelegate) =>
-      oldDelegate.seed != seed;
+      oldDelegate.seed != seed ||
+      oldDelegate.debugForceMinFill != debugForceMinFill;
 }
 
 class _InitialsFallback extends StatelessWidget {
