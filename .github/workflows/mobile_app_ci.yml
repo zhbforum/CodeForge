@@ -114,7 +114,7 @@ jobs:
             pct=0
           fi
           echo "Coverage: ${pct}%  (Lines: ${hit}/${total})"
-          awk -v p="$pct" -v th=10 'BEGIN{ exit (p+0<th) ? 1 : 0 }'
+          awk -v p="$pct" -v th=20 'BEGIN{ exit (p+0<th) ? 1 : 0 }'
       - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@v4

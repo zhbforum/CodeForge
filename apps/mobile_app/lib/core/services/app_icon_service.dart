@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 enum AppIconAlias {
@@ -13,8 +14,12 @@ enum AppIconAlias {
 class AppIconService {
   static const _channel = MethodChannel('app_icon');
 
+  @visibleForTesting
+  static bool? debugIsAndroidOverride;
+
   static Future<void> switchIcon(AppIconAlias alias) async {
-    if (!Platform.isAndroid) return;
+    final isAndroid = debugIsAndroidOverride ?? Platform.isAndroid;
+    if (!isAndroid) return;
     await _channel.invokeMethod('switchIcon', {'alias': alias.value});
   }
 }

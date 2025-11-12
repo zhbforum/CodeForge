@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/ui/tech_icon.dart';
@@ -28,4 +30,44 @@ void main() {
       expect(p.height, size);
     }
   });
+
+  testWidgets('TechIconsRow constructor is executed at runtime (non-const)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(
+        TechIconsRow(
+          key: UniqueKey(),
+          items: const [Tech.react],
+          size: 16,
+          spacing: 4,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TechIconsRow), findsOneWidget);
+    expect(find.byType(SvgPicture), findsOneWidget);
+  });
+
+  testWidgets(
+    'TechIconsRow hits all Tech cases (react/ts/python/node/db/lock)',
+    (tester) async {
+      const all = [
+        Tech.react,
+        Tech.ts,
+        Tech.python,
+        Tech.node,
+        Tech.db,
+        Tech.lock,
+      ];
+
+      await tester.pumpWidget(
+        wrap(const TechIconsRow(items: all, size: 24, spacing: 4)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SvgPicture), findsNWidgets(all.length));
+    },
+  );
 }
