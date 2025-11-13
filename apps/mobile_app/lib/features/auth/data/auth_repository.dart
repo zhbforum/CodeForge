@@ -1,67 +1,24 @@
-import 'package:mobile_app/app/supabase_init.dart';
+import 'package:mobile_app/core/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthRepository {
-  AuthRepository(this._auth);
-  factory AuthRepository.supabase() => AuthRepository(AppSupabase.client.auth);
+  AuthRepository(this._service);
+  final AuthService _service;
 
-  final GoTrueClient _auth;
+  Session? get currentSession => _service.currentSession;
+  User? get currentUser => _service.currentUser;
+  Stream<AuthState> get onAuthStateChange => _service.onAuthStateChange;
 
-  static const _redirect = 'codeforge://auth-callback';
+  Future<AuthResponse> signInWithPassword(String email, String password) =>
+      _service.signInWithPassword(email, password);
 
-  Session? get currentSession => _auth.currentSession;
-  User? get currentUser => _auth.currentUser;
+  Future<AuthResponse> signUpWithPassword(String email, String password) =>
+      _service.signUpWithPassword(email, password);
 
-  Stream<AuthState> onAuthStateChange() => _auth.onAuthStateChange;
+  Future<void> sendMagicLink(String email) => _service.sendMagicLink(email);
 
-  Future<AuthResponse> signInWithPassword({
-    required String email,
-    required String password,
-  }) => _auth.signInWithPassword(email: email, password: password);
+  Future<void> signInWithOAuth(OAuthProvider provider) =>
+      _service.signInWithOAuth(provider);
 
-  Future<AuthResponse> signUpWithPassword({
-    required String email,
-    required String password,
-    String? emailRedirectTo,
-  }) => _auth.signUp(
-    email: email,
-    password: password,
-    emailRedirectTo: emailRedirectTo,
-  );
-
-  Future<void> sendMagicLink({required String email, String? redirectTo}) =>
-      _auth.signInWithOtp(
-        email: email,
-        emailRedirectTo: redirectTo ?? _redirect,
-      );
-
-  Future<void> signInWithOAuth(OAuthProvider provider, {String? redirectTo}) =>
-      _auth.signInWithOAuth(
-        provider,
-        redirectTo: redirectTo ?? _redirect,
-        // queryParams: queryParams,
-      );
-
-  Future<void> signInWithGoogle({String? redirectTo}) =>
-      signInWithOAuth(OAuthProvider.google, redirectTo: redirectTo);
-
-  Future<void> signInWithApple({String? redirectTo}) =>
-      signInWithOAuth(OAuthProvider.apple, redirectTo: redirectTo);
-
-  Future<void> signInWithFacebook({String? redirectTo}) =>
-      signInWithOAuth(OAuthProvider.facebook, redirectTo: redirectTo);
-
-  Future<AuthResponse> signInWithIdToken({
-    required OAuthProvider provider,
-    required String idToken,
-    String? accessToken,
-    String? nonce,
-  }) => _auth.signInWithIdToken(
-    provider: provider,
-    idToken: idToken,
-    accessToken: accessToken,
-    nonce: nonce,
-  );
-
-  Future<void> signOut() => _auth.signOut();
+  Future<void> signOut() => _service.signOut();
 }

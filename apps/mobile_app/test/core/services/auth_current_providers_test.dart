@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart'
+import 'package:mobile_app/features/auth/shared/auth_providers.dart'
     show authStateStreamProvider;
 import 'package:mobile_app/features/auth/shared/auth_providers.dart'
     show

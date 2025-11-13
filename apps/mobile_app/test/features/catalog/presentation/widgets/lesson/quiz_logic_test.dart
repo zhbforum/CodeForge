@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:mobile_app/features/catalog/presentation/viewmodels/lesson_providers.dart';
+import 'package:mobile_app/features/catalog/presentation/providers/lesson_providers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

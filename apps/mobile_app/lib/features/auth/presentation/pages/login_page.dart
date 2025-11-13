@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart';
 import 'package:mobile_app/features/auth/presentation/widgets/login_fields.dart';
+import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -63,10 +63,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (!_formKey.currentState!.validate()) return;
     final vm = ref.read(authViewModelProvider.notifier);
     try {
-      await vm.signInWithPassword(
-        email: _email.text.trim(),
-        password: _password.text,
-      );
+      await vm.signInWithPassword(_email.text.trim(), _password.text);
       if (!mounted) return;
       context.go(widget.returnTo);
     } catch (_) {}
@@ -80,9 +77,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authStateStreamProvider);
     final isLoading = ref.watch(authViewModelProvider).isLoading;
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+
+    if (authState.value?.session != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go(widget.returnTo);
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(

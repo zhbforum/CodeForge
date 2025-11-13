@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/features/leaderboard/domain/models.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobile_app/core/models/leaderboard.dart';
 import 'package:mobile_app/features/leaderboard/presentation/widgets/league_badge.dart';
 import 'package:mobile_app/features/leaderboard/presentation/widgets/medal_icon.dart';
 import 'package:mobile_app/shared/avatar/generated_avatar.dart';
@@ -12,6 +13,14 @@ class LeaderboardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final onMed = theme.colorScheme.onSurface.withValues(alpha: .68);
+
+    final avatarUrl = entry.avatarUrl;
+    final isSvg =
+        avatarUrl != null &&
+        avatarUrl.isNotEmpty &&
+        (avatarUrl.endsWith('.svg') ||
+            avatarUrl.contains('/svg') ||
+            avatarUrl.contains('format=svg'));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -26,12 +35,27 @@ class LeaderboardTile extends StatelessWidget {
                 radius: 22,
                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
                 foregroundImage:
-                    (entry.avatarUrl != null && entry.avatarUrl!.isNotEmpty)
-                    ? NetworkImage(entry.avatarUrl!)
+                    (!isSvg && avatarUrl != null && avatarUrl.isNotEmpty)
+                    ? NetworkImage(avatarUrl)
                     : null,
-                child: (entry.avatarUrl == null || entry.avatarUrl!.isEmpty)
-                    ? GeneratedAvatar(seed: entry.displayName, size: 24)
-                    : null,
+                child: () {
+                  if (isSvg && avatarUrl.isNotEmpty) {
+                    return ClipOval(
+                      child: SvgPicture.network(
+                        avatarUrl,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  }
+
+                  if (avatarUrl == null || avatarUrl.isEmpty) {
+                    return GeneratedAvatar(seed: entry.displayName, size: 24);
+                  }
+
+                  return null;
+                }(),
               ),
               Positioned(
                 right: -2,

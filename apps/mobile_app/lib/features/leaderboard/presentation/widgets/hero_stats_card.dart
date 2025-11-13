@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/features/leaderboard/domain/models.dart';
+import 'package:mobile_app/core/models/leaderboard.dart';
 
 class HeroStatsCard extends StatelessWidget {
   const HeroStatsCard({required this.stats, super.key});

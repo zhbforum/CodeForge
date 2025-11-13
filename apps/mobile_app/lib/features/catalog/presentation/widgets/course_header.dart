@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class CourseHeader extends StatelessWidget {
   const CourseHeader({
@@ -78,7 +79,7 @@ class CourseHeader extends StatelessWidget {
                 children: [
                   IconButton(
                     visualDensity: VisualDensity.compact,
-                    onPressed: onBack ?? () => Navigator.of(context).maybePop(),
+                    onPressed: onBack ?? () => context.go('/home'),
                     icon: const Icon(Icons.arrow_back_rounded),
                   ),
                 ],

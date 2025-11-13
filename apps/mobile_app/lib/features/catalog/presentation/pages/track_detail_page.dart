@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mobile_app/core/models/course_node.dart';
 import 'package:mobile_app/core/models/module.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/course_path_provider.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/module_providers.dart';
+import 'package:mobile_app/features/catalog/presentation/providers/course_path_provider.dart';
+import 'package:mobile_app/features/catalog/presentation/providers/module_providers.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/course_header.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/course_meta_panel.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/course_module_list_sheet.dart';
@@ -58,7 +58,6 @@ class TrackDetailPage extends ConsumerWidget {
           final headerPill = CourseHeader(
             title: title,
             progress: progress,
-            onBack: context.pop,
             onContinue:
                 (nextNode == null || nextNode.status == NodeStatus.locked)
                 ? null
@@ -236,6 +235,6 @@ class TrackDetailPage extends ConsumerWidget {
 
   void _openLesson(BuildContext context, CourseNode n) {
     if (n.status == NodeStatus.locked) return;
-    context.go('/home/course/$courseId/lesson/${n.id}');
+    context.go('/home/course/$courseId/module/$moduleId/lesson/${n.id}');
   }
 }

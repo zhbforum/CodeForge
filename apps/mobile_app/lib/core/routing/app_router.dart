@@ -9,13 +9,12 @@ import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/lesson_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/module_providers.dart';
+import 'package:mobile_app/features/catalog/presentation/providers/module_providers.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
 import 'package:mobile_app/features/onboarding/onboarding_page.dart';
-import 'package:mobile_app/features/practice/practice_page.dart';
 import 'package:mobile_app/features/profile/presentation/pages/profile_page.dart';
-import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
+import 'package:mobile_app/ui/app_shell.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -81,26 +80,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                             moduleId: moduleId,
                           );
                         },
-                      ),
-                      GoRoute(
-                        path: 'lesson/:lessonId',
-                        builder: (ctx, st) => LessonPage(
-                          courseId: st.pathParameters['courseId']!,
-                          lessonId: st.pathParameters['lessonId']!,
-                        ),
+                        routes: [
+                          GoRoute(
+                            path: 'lesson/:lessonId',
+                            builder: (ctx, st) => LessonPage(
+                              courseId: st.pathParameters['courseId']!,
+                              moduleId: st.pathParameters['moduleId']!,
+                              lessonId: st.pathParameters['lessonId']!,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/practice',
-                pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: PracticePage()),
               ),
             ],
           ),
@@ -238,11 +231,14 @@ class _CourseAutoRedirect extends ConsumerWidget {
         if (modules.isEmpty) {
           return const Scaffold(body: Center(child: Text('No modules yet')));
         }
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
           final first = modules.first;
+
           context.go('/home/course/$courseId/module/${first.id}');
         });
+
         return const SizedBox.shrink();
       },
     );

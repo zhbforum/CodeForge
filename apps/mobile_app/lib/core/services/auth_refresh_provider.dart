@@ -1,17 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_app/app/supabase_init.dart';
+import 'package:mobile_app/core/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 typedef CurrentSessionGetter = Session? Function();
 
-@visibleForTesting
-final authStateStreamProvider = Provider<Stream<AuthState>>(
-  (ref) => AppSupabase.client.auth.onAuthStateChange,
-);
-
-@visibleForTesting
 final currentSessionGetterProvider = Provider<CurrentSessionGetter>(
   (ref) =>
       () => Supabase.instance.client.auth.currentSession,

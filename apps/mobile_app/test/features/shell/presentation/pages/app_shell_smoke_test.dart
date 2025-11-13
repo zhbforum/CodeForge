@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/features/shell/presentation/pages/app_shell.dart';
+import 'package:mobile_app/ui/app_shell.dart';
 
 void main() {
   testWidgets('AppShell builds and switches tabs', (tester) async {
@@ -16,15 +16,6 @@ void main() {
                   path: '/learn',
                   builder: (context, state) =>
                       const Center(child: Text('Learn page')),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/practice',
-                  builder: (context, state) =>
-                      const Center(child: Text('Practice page')),
                 ),
               ],
             ),
@@ -57,10 +48,6 @@ void main() {
 
     expect(find.byType(AppShell), findsOneWidget);
     expect(find.text('Learn page'), findsOneWidget);
-
-    await tester.tap(find.text('Practice'));
-    await tester.pump(const Duration(milliseconds: 120));
-    expect(find.text('Practice page'), findsOneWidget);
 
     await tester.tap(find.text('Profile'));
     await tester.pump(const Duration(milliseconds: 120));

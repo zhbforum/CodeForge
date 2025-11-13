@@ -1,9 +1,12 @@
-import 'package:mobile_app/features/leaderboard/domain/models.dart';
+import 'package:mobile_app/core/models/leaderboard.dart';
+import 'package:mobile_app/core/services/api_service.dart';
+import 'package:mobile_app/features/leaderboard/domain/leaderboard_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseLeaderboardRepository implements LeaderboardRepository {
-  SupabaseLeaderboardRepository(this._sb);
+  SupabaseLeaderboardRepository(this._api, this._sb);
 
+  final ApiService _api;
   final SupabaseClient _sb;
 
   int _levelFromExp(int xp) => (xp ~/ 1000) + 1;
@@ -16,22 +19,26 @@ class SupabaseLeaderboardRepository implements LeaderboardRepository {
     }
     final uid = session.user.id;
 
-    final ugp = await _sb
-        .from('user_global_progress')
-        .select('total_exp')
-        .eq('user_id', uid)
-        .maybeSingle();
+    final ugpRows = await _api.query(
+      table: 'user_global_progress',
+      select: 'total_exp',
+      filters: {'user_id': uid},
+      limit: 1,
+    );
 
+    final ugp = ugpRows.isEmpty ? null : ugpRows.first;
     final totalExp = (ugp?['total_exp'] as num?)?.toInt() ?? 0;
 
-    final usp = await _sb
-        .from('user_season_progress')
-        .select('season_exp')
-        .eq('user_id', uid)
-        .order('season_exp', ascending: false)
-        .limit(1)
-        .maybeSingle();
+    final uspRows = await _api.query(
+      table: 'user_season_progress',
+      select: 'season_exp',
+      filters: {'user_id': uid},
+      orderBy: 'season_exp',
+      ascending: false,
+      limit: 1,
+    );
 
+    final usp = uspRows.isEmpty ? null : uspRows.first;
     final seasonExp = (usp?['season_exp'] as num?)?.toInt() ?? 0;
 
     return UserStats(
@@ -43,9 +50,9 @@ class SupabaseLeaderboardRepository implements LeaderboardRepository {
 
   @override
   Future<List<LeaderboardEntry>> fetchTop({int limit = 20}) async {
-    final raw = await _sb
-        .from('leaderboard_v')
-        .select('''
+    final raw = await _api.query(
+      table: 'leaderboard_v',
+      select: '''
         display_name,
         avatar_url,
         level,
@@ -53,13 +60,12 @@ class SupabaseLeaderboardRepository implements LeaderboardRepository {
         season_exp,
         total_exp,
         rank
-        ''')
-        .order('rank', ascending: true)
-        .limit(limit);
+      ''',
+      orderBy: 'rank',
+      limit: limit,
+    );
 
-    final rows = (raw as List).cast<Map<String, dynamic>>();
-
-    return rows.map((e) {
+    return raw.map((e) {
       int toInt(Object? v, [int fallback = 0]) =>
           (v as num?)?.toInt() ?? fallback;
       String toStr(Object? v, [String fallback = '']) =>

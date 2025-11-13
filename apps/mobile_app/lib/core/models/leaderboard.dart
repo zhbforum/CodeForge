@@ -7,6 +7,7 @@ class UserStats {
     required this.seasonExp,
     required this.level,
   });
+
   factory UserStats.empty() =>
       const UserStats(totalExp: 0, seasonExp: 0, level: 1);
 
@@ -34,9 +35,4 @@ class LeaderboardEntry {
   final String leagueName;
   final int seasonExp;
   final int totalExp;
-}
-
-abstract class LeaderboardRepository {
-  Future<UserStats> fetchUserStats();
-  Future<List<LeaderboardEntry>> fetchTop({int limit = 20});
 }
