@@ -22,15 +22,6 @@ void main() {
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/practice',
-                  builder: (context, state) =>
-                      const Center(child: Text('Practice page')),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
                   path: '/table',
                   builder: (context, state) =>
                       const Center(child: Text('Table page')),
@@ -57,10 +48,6 @@ void main() {
 
     expect(find.byType(AppShell), findsOneWidget);
     expect(find.text('Learn page'), findsOneWidget);
-
-    await tester.tap(find.text('Practice'));
-    await tester.pump(const Duration(milliseconds: 120));
-    expect(find.text('Practice page'), findsOneWidget);
 
     await tester.tap(find.text('Profile'));
     await tester.pump(const Duration(milliseconds: 120));

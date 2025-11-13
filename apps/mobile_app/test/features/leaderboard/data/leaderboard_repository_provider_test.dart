@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile_app/core/services/api_service.dart' as core;
 import 'package:mobile_app/core/services/api_service_provider.dart';
 import 'package:mobile_app/features/leaderboard/data/leaderboard_repository_provider.dart';
 import 'package:mobile_app/features/leaderboard/data/supabase_leaderboard_repository.dart';
@@ -17,7 +18,13 @@ void main() {
         );
 
         final container = ProviderContainer(
-          overrides: [supabaseClientProvider.overrideWithValue(fakeClient)],
+          overrides: [
+            supabaseClientProvider.overrideWithValue(fakeClient),
+
+            apiServiceProvider.overrideWith(
+              (ref) => core.ApiService(client: fakeClient),
+            ),
+          ],
         );
         addTearDown(container.dispose);
 
