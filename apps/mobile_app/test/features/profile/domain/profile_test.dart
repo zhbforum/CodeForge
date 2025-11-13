@@ -84,7 +84,7 @@ void main() {
       expect(updated.updatedAt, original.updatedAt);
     });
 
-    test('copyWith keeps username and bio when null is passed', () {
+    test('copyWith without overrides keeps all fields unchanged', () {
       final original = Profile(
         id: 'user-2',
         username: 'original-username',
@@ -94,12 +94,12 @@ void main() {
         updatedAt: DateTime.utc(2025, 11, 11),
       );
 
-      final copy = original.copyWith(username: null, bio: null);
+      final copy = original.copyWith();
 
-      expect(copy.username, 'original-username');
-      expect(copy.bio, 'Original bio');
       expect(copy.id, original.id);
+      expect(copy.username, original.username);
       expect(copy.fullName, original.fullName);
+      expect(copy.bio, original.bio);
       expect(copy.avatarUrl, original.avatarUrl);
       expect(copy.updatedAt, original.updatedAt);
     });
