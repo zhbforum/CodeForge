@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/models/lesson.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/lesson_providers.dart';
+import 'package:mobile_app/features/catalog/presentation/providers/lesson_providers.dart';
 
 class QuizCard extends ConsumerWidget {
   const QuizCard({required this.slide, super.key});

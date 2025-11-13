@@ -4,7 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:mobile_app/core/models/lesson.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/lesson_page.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/lesson_providers.dart';
+import 'package:mobile_app/features/catalog/presentation/providers/lesson_providers.dart'
+    as lesson_vm;
 
 LessonSlide _quizSlide({required String id, required int correctIndex}) {
   return LessonSlide(
@@ -30,33 +31,42 @@ void main() {
 
   const lessonId = '31';
   const courseId = '1';
+  const moduleId = 'test-module';
   const slideId = 'q1';
 
-  final headerOverride = lessonHeaderProvider(lessonId).overrideWith((
-    ref,
-  ) async {
-    return LessonHeader(id: lessonId, title: 'Lesson (Test)', order: 1);
-  });
+  final headerOverride = lesson_vm.lessonHeaderProvider(lessonId).overrideWith(
+    (ref) async {
+      return LessonHeader(id: lessonId, title: 'Lesson (Test)', order: 1);
+    },
+  );
 
-  final slidesOverride = lessonSlidesProvider(lessonId).overrideWith((
-    ref,
-  ) async {
-    return <LessonSlide>[_quizSlide(id: slideId, correctIndex: 1)];
-  });
+  final slidesOverride = lesson_vm.lessonSlidesProvider(lessonId).overrideWith(
+    (ref) async {
+      return <LessonSlide>[
+        _quizSlide(id: slideId, correctIndex: 1),
+      ];
+    },
+  );
 
-  final completedOverride = lessonCompletedProvider((
-    courseId: courseId,
-    lessonId: lessonId,
-  )).overrideWith((ref) async => false);
+  final completedOverride = lesson_vm.lessonCompletedProvider(
+    (courseId: courseId, lessonId: lessonId),
+  ).overrideWith((ref) async => false);
 
-  testWidgets('quiz flow: wrong -> banner; correct -> success & lock', (
-    tester,
-  ) async {
+  testWidgets('quiz flow: wrong -> banner; correct -> success & lock',
+      (tester) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [headerOverride, slidesOverride, completedOverride],
+        overrides: [
+          headerOverride,
+          slidesOverride,
+          completedOverride,
+        ],
         child: const MaterialApp(
-          home: LessonPage(courseId: courseId, lessonId: lessonId),
+          home: LessonPage(
+            courseId: courseId,
+            moduleId: moduleId,
+            lessonId: lessonId,
+          ),
         ),
       ),
     );
@@ -64,7 +74,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Which is true about Python?'), findsOneWidget);
-    await tester.tap(find.text('Compiles to native machine code without VM'));
+
+    await tester.tap(
+      find.text('Compiles to native machine code without VM'),
+    );
     await tester.pump();
 
     await tester.tap(find.widgetWithText(FilledButton, 'Check answer'));

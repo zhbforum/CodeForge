@@ -19,7 +19,7 @@ abstract class ProgressStore {
 }
 
 class LocalProgressStore implements ProgressStore {
-  static String _key(String courseId) => 'progress:$courseId';
+  static String _key(String courseId) => 'progress_course:$courseId';
 
   @override
   Future<Map<String, bool>> getLessonCompletion(String courseId) async {
@@ -123,9 +123,16 @@ class RemoteProgressStore implements ProgressStore {
 
 final progressStoreProvider = Provider<ProgressStore>((ref) {
   final client = Supabase.instance.client;
-  final hasSession = client.auth.currentSession != null;
-  return hasSession ? RemoteProgressStore(client) : LocalProgressStore();
+  final session = client.auth.currentSession;
+  final isAnon = session?.user.isAnonymous ?? true;
+
+  if (!isAnon && session != null) {
+    return RemoteProgressStore(client);
+  } else {
+    return LocalProgressStore();
+  }
 });
+
 
 Future<void> migrateLocalToRemoteForCourse(String courseId) async {
   final client = Supabase.instance.client;

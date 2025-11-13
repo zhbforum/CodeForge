@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/features/auth/presentation/viewmodels/auth_view_model.dart';
 import 'package:mobile_app/features/auth/presentation/widgets/register_fields.dart';
+import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
@@ -37,17 +37,16 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       fireImmediately: false,
     );
 
-    _subVm = ref.listenManual<AsyncValue<void>>(authViewModelProvider, (
-      prev,
-      next,
-    ) {
-      if (next is AsyncError && mounted) {
-        final err = next.error;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Auth error: $err')));
-      }
-    });
+    _subVm = ref.listenManual<AsyncValue<void>>(
+      authViewModelProvider,
+      (prev, next) {
+        if (next is AsyncError && mounted) {
+          final err = next.error;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Auth error: $err')));
+        }
+      },
+    );
   }
 
   @override
@@ -55,9 +54,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     _email.dispose();
     _password.dispose();
     _confirm.dispose();
-    super.dispose();
     _subAuth.close();
     _subVm.close();
+    super.dispose();
   }
 
   Future<void> _submit() async {
@@ -66,8 +65,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
     try {
       await vm.signUpWithPassword(
-        email: _email.text.trim(),
-        password: _password.text,
+        _email.text.trim(),
+        _password.text,
       );
 
       if (!mounted) return;
@@ -82,14 +81,13 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
             const SnackBar(content: Text('Check and confirm your e-mail.')),
           );
       }
-    } catch (e) {
+    } catch (e, st) {
       if (kDebugMode) {
-        debugPrint('SignUp error: $e');
+        debugPrint('SignUp error: $e\n$st');
       }
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Sign up failed: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Sign up failed: $e')));
       }
     }
   }

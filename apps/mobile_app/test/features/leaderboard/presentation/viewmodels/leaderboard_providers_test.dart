@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile_app/core/models/leaderboard.dart';
 import 'package:mobile_app/features/leaderboard/data/leaderboard_repository_provider.dart';
-import 'package:mobile_app/features/leaderboard/domain/models.dart';
+import 'package:mobile_app/features/leaderboard/domain/leaderboard_repository.dart';
 import 'package:mobile_app/features/leaderboard/presentation/viewmodels/leaderboard_providers.dart';
 import 'package:mocktail/mocktail.dart';
 

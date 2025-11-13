@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile_app/core/services/api_service_provider.dart';
 import 'package:mobile_app/features/leaderboard/data/leaderboard_repository_provider.dart';
 import 'package:mobile_app/features/leaderboard/data/supabase_leaderboard_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase/supabase.dart' as s;
 import 'package:supabase_flutter/supabase_flutter.dart' as sf;
 
 void main() {
@@ -11,13 +11,15 @@ void main() {
     test(
       'returns SupabaseLeaderboardRepository and memoizes instance (override)',
       () {
-        final fakeClient = s.SupabaseClient(
+        final fakeClient = sf.SupabaseClient(
           'https://example-project.supabase.co',
           'public-anon-key',
         );
 
         final container = ProviderContainer(
-          overrides: [supabaseClientProvider.overrideWithValue(fakeClient)],
+          overrides: [
+            supabaseClientProvider.overrideWithValue(fakeClient),
+          ],
         );
         addTearDown(container.dispose);
 
@@ -45,7 +47,7 @@ void main() {
         addTearDown(container.dispose);
 
         final client = container.read(supabaseClientProvider);
-        expect(client, isA<s.SupabaseClient>());
+        expect(client, isA<sf.SupabaseClient>());
       },
     );
   });

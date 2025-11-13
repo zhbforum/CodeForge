@@ -4,16 +4,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/models/lesson.dart';
 import 'package:mobile_app/features/catalog/data/progress_store.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/course_path_provider.dart';
-import 'package:mobile_app/features/catalog/presentation/viewmodels/lesson_providers.dart';
+import 'package:mobile_app/features/catalog/presentation/providers/course_path_provider.dart';
+import 'package:mobile_app/features/catalog/presentation/providers/lesson_providers.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/lesson/finish_bar.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/lesson/slide_card.dart';
 import 'package:mobile_app/features/catalog/presentation/widgets/lesson/top_progress_bar.dart';
 
 class LessonPage extends ConsumerWidget {
-  const LessonPage({required this.courseId, required this.lessonId, super.key});
+  const LessonPage({
+    required this.courseId,
+    required this.moduleId,
+    required this.lessonId,
+    super.key,
+  });
 
   final String courseId;
+  final String moduleId;
   final String lessonId;
 
   @override
@@ -169,10 +175,8 @@ class LessonPage extends ConsumerWidget {
                           );
                           ref
                             ..invalidate(
-                              lessonCompletedProvider((
-                                courseId: courseId,
-                                lessonId: lessonId,
-                              )),
+                              lessonCompletedProvider(
+                                (courseId: courseId, lessonId: lessonId)),
                             )
                             ..invalidate(coursePathProvider(courseId));
                           if (!context.mounted) return;

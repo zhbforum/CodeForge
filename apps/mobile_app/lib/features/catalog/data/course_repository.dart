@@ -1,143 +1,166 @@
 import 'dart:math';
+
 import 'package:mobile_app/core/models/course.dart';
 import 'package:mobile_app/core/models/lesson.dart';
 import 'package:mobile_app/core/models/track.dart';
+import 'package:mobile_app/core/services/api_service.dart';
+import 'package:mobile_app/core/services/error_handler.dart';
+import 'package:mobile_app/features/catalog/data/progress_store.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CourseRepository {
-  CourseRepository({SupabaseClient? client})
-    : _client = client ?? Supabase.instance.client;
+  CourseRepository({
+    ApiService? api,
+    ErrorHandler? errorHandler,
+  })  : _api = api ?? ApiService(),
+        _errorHandler = errorHandler ?? ErrorHandler();
 
-  final SupabaseClient _client;
+  final ApiService _api;
+  final ErrorHandler _errorHandler;
 
   Future<List<Course>> getCourses() async {
-    final rows = await _client
-        .from('courses')
-        .select('id,title,description,cover_image,is_published,created_at')
-        .eq('is_published', true)
-        .order('created_at', ascending: true);
+    try {
+      final rows = await _api.query(
+        table: 'courses',
+        select: 'id,title,description,cover_image,is_published,created_at',
+        filters: {'is_published': true},
+        orderBy: 'created_at',
+      );
 
-    return (rows as List)
-        .map((row) => Course.fromJson(Map<String, dynamic>.from(row as Map)))
-        .toList();
+      return rows.map(Course.fromJson).toList();
+    } catch (e, st) {
+      _errorHandler.handle(e, st);
+      rethrow;
+    }
   }
 
   Future<Course> getCourse(String id) async {
-    final row = await _client
-        .from('courses')
-        .select('id,title,description,cover_image,is_published,created_at')
-        .eq('id', _normalizeId(id))
-        .single();
+    try {
+      final rows = await _api.query(
+        table: 'courses',
+        select: 'id,title,description,cover_image,is_published,created_at',
+        filters: {'id': _normalizeId(id)},
+      );
 
-    return Course.fromJson(Map<String, dynamic>.from(row as Map));
+      if (rows.isEmpty) {
+        throw Exception('Course not found');
+      }
+
+      return Course.fromJson(rows.first);
+    } catch (e, st) {
+      _errorHandler.handle(e, st);
+      rethrow;
+    }
   }
 
   Future<List<Lesson>> getLessonsByCourseId(String courseId) async {
-    final uid = _client.auth.currentUser?.id;
+    try {
+      final client = Supabase.instance.client;
+      final session = client.auth.currentSession;
 
-    final base = _client
-        .from('lessons')
-        .select('id,title,"order",user_progress(is_completed,user_id)')
-        .eq('course_id', _normalizeId(courseId));
+      final rows = await _api.query(
+        table: 'lessons',
+        select: 'id,title,"order"',
+        filters: {'course_id': _normalizeId(courseId)},
+        orderBy: 'order',
+      );
 
-    final filtered = uid != null ? base.eq('user_progress.user_id', uid) : base;
+      if (rows.isEmpty) return _fallbackLessons();
 
-    final rows = await filtered.order('order', ascending: true);
+      final store = session == null
+          ? LocalProgressStore()
+          : RemoteProgressStore(client);
 
-    final list = (rows as List)
-        .map((r) => Map<String, dynamic>.from(r as Map))
-        .toList();
+      final completionMap = await store.getLessonCompletion(courseId);
 
-    if (list.isEmpty) return _fallbackLessons();
+      rows.sort(
+        (a, b) =>
+            ((a['order'] ?? 0) as int).compareTo((b['order'] ?? 0) as int),
+      );
 
-    list.sort(
-      (a, b) => ((a['order'] ?? 0) as int).compareTo((b['order'] ?? 0) as int),
-    );
+      var nextShouldBeInProgress = true;
+      final result = <Lesson>[];
 
-    final completedByLessonId = <String, bool>{};
-    for (final m in list) {
-      final upRaw = (m['user_progress'] as List?) ?? const [];
-      final up = upRaw
-          .map((e) => Map<String, dynamic>.from(e as Map))
-          .toList(growable: false);
+      for (var i = 0; i < rows.length; i++) {
+        final m = rows[i];
 
-      final isDone = up.any((e) => e['is_completed'] == true);
-      completedByLessonId[_asString(m['id'])] = isDone;
-    }
+        final id = _asString(m['id']);
+        final title = m['title'] as String? ?? 'Lesson ${i + 1}';
+        final order = (m['order'] as num?)?.toInt() ?? (i + 1);
 
-    var inProgressUsed = false;
-    final result = <Lesson>[];
+        final completed = completionMap[id] ?? false;
 
-    for (var i = 0; i < list.length; i++) {
-      final m = list[i];
+        late final LessonStatus status;
 
-      final dbId = _asString(m['id']);
-      final title = m['title'] as String? ?? 'Lesson ${i + 1}';
-      final order = (m['order'] as num?)?.toInt() ?? (i + 1);
+        if (completed) {
+          status = LessonStatus.completed;
+        } else if (nextShouldBeInProgress) {
+          status = LessonStatus.inProgress;
+          nextShouldBeInProgress = false;
+        } else {
+          status = LessonStatus.locked;
+        }
 
-      final prevId = i == 0 ? null : _asString(list[i - 1]['id']);
-      final prevCompleted = i == 0 || (completedByLessonId[prevId!] ?? false);
-      final thisCompleted = completedByLessonId[dbId] ?? false;
+        final (x, y) = _autoLayout(i, rows.length);
 
-      final LessonStatus status;
-      if (thisCompleted) {
-        status = LessonStatus.completed;
-      } else if (!inProgressUsed && prevCompleted) {
-        inProgressUsed = true;
-        status = LessonStatus.inProgress;
-      } else {
-        status = LessonStatus.locked;
+        result.add(
+          Lesson(
+            id: id,
+            title: title,
+            type: LessonType.theory,
+            status: status,
+            order: order,
+            sectionId: 'intro',
+            prereqIds: i == 0 ? const [] : [_asString(rows[i - 1]['id'])],
+            posX: x,
+            posY: y,
+          ),
+        );
       }
 
-      final (x, y) = _autoLayout(i, list.length);
-
-      result.add(
-        Lesson(
-          id: dbId,
-          title: title,
-          type: LessonType.theory,
-          status: status,
-          order: order,
-          sectionId: 'intro',
-          prereqIds: i == 0 ? const [] : [_asString(list[i - 1]['id'])],
-          posX: x,
-          posY: y,
-        ),
-      );
+      return result;
+    } catch (e, st) {
+      _errorHandler.handle(e, st);
+      rethrow;
     }
-
-    return result;
   }
 
   Future<void> markLessonDone({
     required String courseId,
     required String lessonId,
   }) async {
-    final userId = _client.auth.currentUser?.id;
-    if (userId == null) {
+    final client = Supabase.instance.client;
+    final session = client.auth.currentSession;
+
+    if (session == null) {
       throw Exception('Not authenticated');
     }
 
     final lessonKey = int.tryParse(lessonId) ?? lessonId;
 
-    await _client.from('user_progress').upsert({
-      'user_id': userId,
-      'lesson_id': lessonKey,
-      'is_completed': true,
-      'completed_at': DateTime.now().toIso8601String(),
-    });
+    await _api.upsert(
+      table: 'user_progress',
+      values: {
+        'user_id': session.user.id,
+        'lesson_id': lessonKey,
+        'is_completed': true,
+        'completed_at': DateTime.now().toIso8601String(),
+      },
+      onConflict: 'user_id,lesson_id',
+    );
   }
 
   @Deprecated('Use getCourses() + navigate by real course id (int)')
   Future<List<Track>> getTracks() async {
-    final rows = await _client
-        .from('courses')
-        .select('id,title,description,is_published,created_at')
-        .eq('is_published', true)
-        .order('created_at', ascending: true);
+    final rows = await _api.query(
+      table: 'courses',
+      select: 'id,title,description,is_published,created_at',
+      filters: {'is_published': true},
+      orderBy: 'created_at',
+    );
 
-    return (rows as List).map((row) {
-      final m = Map<String, dynamic>.from(row as Map);
+    return rows.map((row) {
+      final m = Map<String, dynamic>.from(row);
       return Track(
         id: TrackId.fullstack,
         title: m['title'] as String? ?? 'Untitled',
@@ -158,27 +181,30 @@ class CourseRepository {
     final kw = _titleKeywordFor(id);
     if (kw == null) return null;
 
-    final like = await _client
-        .from('courses')
-        .select('id,title')
-        .eq('is_published', true)
-        .ilike('title', '%$kw%')
-        .limit(1);
+    final rows = await _api.query(
+      table: 'courses',
+      select: 'id,title',
+      filters: {
+        'is_published': true,
+        'title': 'like:$kw',
+      },
+      limit: 1,
+    );
 
-    if ((like as List).isEmpty) return null;
-    final m = Map<String, dynamic>.from(like.first as Map);
-    return _asString(m['id']);
+    if (rows.isEmpty) return null;
+
+    return _asString(rows.first['id']);
   }
 
   String? _titleKeywordFor(TrackId id) => switch (id) {
-    TrackId.python => 'python',
-    TrackId.fullstack => 'full',
-    TrackId.backend => 'back',
-    TrackId.vanillaJs => 'vanilla',
-    TrackId.typescript => 'type',
-    TrackId.html => 'html',
-    TrackId.css => 'css',
-  };
+        TrackId.python => 'python',
+        TrackId.fullstack => 'full',
+        TrackId.backend => 'back',
+        TrackId.vanillaJs => 'vanilla',
+        TrackId.typescript => 'type',
+        TrackId.html => 'html',
+        TrackId.css => 'css',
+      };
 
   (double, double) _autoLayout(int index, int total) {
     final t = max(1, total);
@@ -188,28 +214,28 @@ class CourseRepository {
   }
 
   List<Lesson> _fallbackLessons() => const [
-    Lesson(
-      id: 'intro',
-      title: 'Introduction',
-      type: LessonType.theory,
-      status: LessonStatus.inProgress,
-      order: 1,
-      sectionId: 'intro',
-      posX: .20,
-      posY: .30,
-    ),
-    Lesson(
-      id: 'practice_1',
-      title: 'First Practice',
-      type: LessonType.fillIn,
-      status: LessonStatus.locked,
-      order: 2,
-      sectionId: 'intro',
-      prereqIds: ['intro'],
-      posX: .40,
-      posY: .40,
-    ),
-  ];
+        Lesson(
+          id: 'intro',
+          title: 'Introduction',
+          type: LessonType.theory,
+          status: LessonStatus.inProgress,
+          order: 1,
+          sectionId: 'intro',
+          posX: .20,
+          posY: .30,
+        ),
+        Lesson(
+          id: 'practice_1',
+          title: 'First Practice',
+          type: LessonType.fillIn,
+          status: LessonStatus.locked,
+          order: 2,
+          sectionId: 'intro',
+          prereqIds: ['intro'],
+          posX: .40,
+          posY: .40,
+        ),
+      ];
 
   String _asString(dynamic v) =>
       v is String ? v : (v is num ? v.toString() : '$v');

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/services/auth_refresh_provider.dart';
+import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
@@ -16,7 +17,7 @@ void main() {
       controller = StreamController<AuthState>();
       container = ProviderContainer(
         overrides: [
-          authStateStreamProvider.overrideWithValue(controller.stream),
+          authStateStreamProvider.overrideWith((ref) => controller.stream),
           currentSessionGetterProvider.overrideWithValue(() => null),
         ],
       );
@@ -70,7 +71,7 @@ void main() {
         controller = StreamController<AuthState>();
         container = ProviderContainer(
           overrides: [
-            authStateStreamProvider.overrideWithValue(controller.stream),
+            authStateStreamProvider.overrideWith((ref) => controller.stream),
             currentSessionGetterProvider.overrideWithValue(() {
               if (shouldThrow) {
                 throw StateError('boom');

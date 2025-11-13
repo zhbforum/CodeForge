@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/features/leaderboard/domain/models.dart';
+import 'package:mobile_app/core/models/leaderboard.dart';
 import 'package:mobile_app/features/leaderboard/presentation/widgets/xp_chip.dart';
 
 class UserStatsCard extends StatelessWidget {

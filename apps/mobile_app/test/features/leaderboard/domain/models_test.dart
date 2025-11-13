@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_app/features/leaderboard/domain/models.dart';
+import 'package:mobile_app/core/models/leaderboard.dart';
 
 void main() {
   group('UserStats.empty', () {
