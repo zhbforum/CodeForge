@@ -37,16 +37,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       fireImmediately: false,
     );
 
-    _subVm = ref.listenManual<AsyncValue<void>>(
-      authViewModelProvider,
-      (prev, next) {
-        if (next is AsyncError && mounted) {
-          final err = next.error;
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Auth error: $err')));
-        }
-      },
-    );
+    _subVm = ref.listenManual<AsyncValue<void>>(authViewModelProvider, (
+      prev,
+      next,
+    ) {
+      if (next is AsyncError && mounted) {
+        final err = next.error;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Auth error: $err')));
+      }
+    });
   }
 
   @override
@@ -64,10 +65,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     final vm = ref.read(authViewModelProvider.notifier);
 
     try {
-      await vm.signUpWithPassword(
-        _email.text.trim(),
-        _password.text,
-      );
+      await vm.signUpWithPassword(_email.text.trim(), _password.text);
 
       if (!mounted) return;
 
@@ -86,8 +84,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
         debugPrint('SignUp error: $e\n$st');
       }
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Sign up failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sign up failed: $e')));
       }
     }
   }

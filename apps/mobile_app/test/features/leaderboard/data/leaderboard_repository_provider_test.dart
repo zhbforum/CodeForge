@@ -17,9 +17,7 @@ void main() {
         );
 
         final container = ProviderContainer(
-          overrides: [
-            supabaseClientProvider.overrideWithValue(fakeClient),
-          ],
+          overrides: [supabaseClientProvider.overrideWithValue(fakeClient)],
         );
         addTearDown(container.dispose);
 

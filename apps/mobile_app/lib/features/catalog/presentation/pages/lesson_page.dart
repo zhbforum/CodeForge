@@ -175,8 +175,10 @@ class LessonPage extends ConsumerWidget {
                           );
                           ref
                             ..invalidate(
-                              lessonCompletedProvider(
-                                (courseId: courseId, lessonId: lessonId)),
+                              lessonCompletedProvider((
+                                courseId: courseId,
+                                lessonId: lessonId,
+                              )),
                             )
                             ..invalidate(coursePathProvider(courseId));
                           if (!context.mounted) return;

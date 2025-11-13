@@ -22,9 +22,7 @@ class SupabaseLeaderboardRepository implements LeaderboardRepository {
     final ugpRows = await _api.query(
       table: 'user_global_progress',
       select: 'total_exp',
-      filters: {
-        'user_id': uid,
-      },
+      filters: {'user_id': uid},
       limit: 1,
     );
 
@@ -34,9 +32,7 @@ class SupabaseLeaderboardRepository implements LeaderboardRepository {
     final uspRows = await _api.query(
       table: 'user_season_progress',
       select: 'season_exp',
-      filters: {
-        'user_id': uid,
-      },
+      filters: {'user_id': uid},
       orderBy: 'season_exp',
       ascending: false,
       limit: 1,

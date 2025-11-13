@@ -34,33 +34,28 @@ void main() {
   const moduleId = 'test-module';
   const slideId = 'q1';
 
-  final headerOverride = lesson_vm.lessonHeaderProvider(lessonId).overrideWith(
-    (ref) async {
-      return LessonHeader(id: lessonId, title: 'Lesson (Test)', order: 1);
-    },
-  );
+  final headerOverride = lesson_vm.lessonHeaderProvider(lessonId).overrideWith((
+    ref,
+  ) async {
+    return LessonHeader(id: lessonId, title: 'Lesson (Test)', order: 1);
+  });
 
-  final slidesOverride = lesson_vm.lessonSlidesProvider(lessonId).overrideWith(
-    (ref) async {
-      return <LessonSlide>[
-        _quizSlide(id: slideId, correctIndex: 1),
-      ];
-    },
-  );
+  final slidesOverride = lesson_vm.lessonSlidesProvider(lessonId).overrideWith((
+    ref,
+  ) async {
+    return <LessonSlide>[_quizSlide(id: slideId, correctIndex: 1)];
+  });
 
-  final completedOverride = lesson_vm.lessonCompletedProvider(
-    (courseId: courseId, lessonId: lessonId),
-  ).overrideWith((ref) async => false);
+  final completedOverride = lesson_vm
+      .lessonCompletedProvider((courseId: courseId, lessonId: lessonId))
+      .overrideWith((ref) async => false);
 
-  testWidgets('quiz flow: wrong -> banner; correct -> success & lock',
-      (tester) async {
+  testWidgets('quiz flow: wrong -> banner; correct -> success & lock', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          headerOverride,
-          slidesOverride,
-          completedOverride,
-        ],
+        overrides: [headerOverride, slidesOverride, completedOverride],
         child: const MaterialApp(
           home: LessonPage(
             courseId: courseId,
@@ -75,9 +70,7 @@ void main() {
 
     expect(find.text('Which is true about Python?'), findsOneWidget);
 
-    await tester.tap(
-      find.text('Compiles to native machine code without VM'),
-    );
+    await tester.tap(find.text('Compiles to native machine code without VM'));
     await tester.pump();
 
     await tester.tap(find.widgetWithText(FilledButton, 'Check answer'));

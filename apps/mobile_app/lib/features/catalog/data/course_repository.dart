@@ -9,11 +9,9 @@ import 'package:mobile_app/features/catalog/data/progress_store.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CourseRepository {
-  CourseRepository({
-    ApiService? api,
-    ErrorHandler? errorHandler,
-  })  : _api = api ?? ApiService(),
-        _errorHandler = errorHandler ?? ErrorHandler();
+  CourseRepository({ApiService? api, ErrorHandler? errorHandler})
+    : _api = api ?? ApiService(),
+      _errorHandler = errorHandler ?? ErrorHandler();
 
   final ApiService _api;
   final ErrorHandler _errorHandler;
@@ -184,10 +182,7 @@ class CourseRepository {
     final rows = await _api.query(
       table: 'courses',
       select: 'id,title',
-      filters: {
-        'is_published': true,
-        'title': 'like:$kw',
-      },
+      filters: {'is_published': true, 'title': 'like:$kw'},
       limit: 1,
     );
 
@@ -197,14 +192,14 @@ class CourseRepository {
   }
 
   String? _titleKeywordFor(TrackId id) => switch (id) {
-        TrackId.python => 'python',
-        TrackId.fullstack => 'full',
-        TrackId.backend => 'back',
-        TrackId.vanillaJs => 'vanilla',
-        TrackId.typescript => 'type',
-        TrackId.html => 'html',
-        TrackId.css => 'css',
-      };
+    TrackId.python => 'python',
+    TrackId.fullstack => 'full',
+    TrackId.backend => 'back',
+    TrackId.vanillaJs => 'vanilla',
+    TrackId.typescript => 'type',
+    TrackId.html => 'html',
+    TrackId.css => 'css',
+  };
 
   (double, double) _autoLayout(int index, int total) {
     final t = max(1, total);
@@ -214,28 +209,28 @@ class CourseRepository {
   }
 
   List<Lesson> _fallbackLessons() => const [
-        Lesson(
-          id: 'intro',
-          title: 'Introduction',
-          type: LessonType.theory,
-          status: LessonStatus.inProgress,
-          order: 1,
-          sectionId: 'intro',
-          posX: .20,
-          posY: .30,
-        ),
-        Lesson(
-          id: 'practice_1',
-          title: 'First Practice',
-          type: LessonType.fillIn,
-          status: LessonStatus.locked,
-          order: 2,
-          sectionId: 'intro',
-          prereqIds: ['intro'],
-          posX: .40,
-          posY: .40,
-        ),
-      ];
+    Lesson(
+      id: 'intro',
+      title: 'Introduction',
+      type: LessonType.theory,
+      status: LessonStatus.inProgress,
+      order: 1,
+      sectionId: 'intro',
+      posX: .20,
+      posY: .30,
+    ),
+    Lesson(
+      id: 'practice_1',
+      title: 'First Practice',
+      type: LessonType.fillIn,
+      status: LessonStatus.locked,
+      order: 2,
+      sectionId: 'intro',
+      prereqIds: ['intro'],
+      posX: .40,
+      posY: .40,
+    ),
+  ];
 
   String _asString(dynamic v) =>
       v is String ? v : (v is num ? v.toString() : '$v');

@@ -2,11 +2,9 @@ import 'package:mobile_app/core/services/error_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApiService {
-  ApiService({
-    SupabaseClient? client,
-    ErrorHandler? errorHandler,
-  })  : _client = client ?? Supabase.instance.client,
-        _errorHandler = errorHandler ?? ErrorHandler();
+  ApiService({SupabaseClient? client, ErrorHandler? errorHandler})
+    : _client = client ?? Supabase.instance.client,
+      _errorHandler = errorHandler ?? ErrorHandler();
 
   final SupabaseClient _client;
   final ErrorHandler _errorHandler;
@@ -41,8 +39,10 @@ class ApiService {
           filterBuilder as PostgrestTransformBuilder<List<dynamic>>;
 
       if (orderBy != null) {
-        transformBuilder = transformBuilder
-          .order(orderBy, ascending: ascending);
+        transformBuilder = transformBuilder.order(
+          orderBy,
+          ascending: ascending,
+        );
       }
       if (limit != null) {
         transformBuilder = transformBuilder.limit(limit);
@@ -101,10 +101,7 @@ class ApiService {
     }
   }
 
-  Future<T?> rpc<T>(
-    String fn, {
-    Map<String, dynamic>? params,
-  }) async {
+  Future<T?> rpc<T>(String fn, {Map<String, dynamic>? params}) async {
     try {
       final result = await _client.rpc<T>(fn, params: params);
       return result;

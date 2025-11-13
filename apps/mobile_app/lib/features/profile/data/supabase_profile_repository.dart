@@ -39,11 +39,7 @@ class SupabaseProfileRepository implements ProfileRepository {
 
     await _api.upsert(
       table: 'profiles',
-      values: {
-        'id': uid,
-        'username': suggestedUsername,
-        'updated_at': now,
-      },
+      values: {'id': uid, 'username': suggestedUsername, 'updated_at': now},
       onConflict: 'id',
     );
 
@@ -68,11 +64,7 @@ class SupabaseProfileRepository implements ProfileRepository {
 
     await _api.upsert(
       table: 'profiles',
-      values: {
-        'id': uid,
-        'avatar_url': url,
-        'updated_at': now,
-      },
+      values: {'id': uid, 'avatar_url': url, 'updated_at': now},
       onConflict: 'id',
     );
   }
@@ -83,10 +75,7 @@ class SupabaseProfileRepository implements ProfileRepository {
 
     await _api.upsert(
       table: 'profiles',
-      values: {
-        'id': uid,
-        'updated_at': now,
-      },
+      values: {'id': uid, 'updated_at': now},
       onConflict: 'id',
     );
   }
@@ -98,11 +87,7 @@ class SupabaseProfileRepository implements ProfileRepository {
 
     await _api.upsert(
       table: 'profiles',
-      values: {
-        'id': uid,
-        'full_name': fullName,
-        'updated_at': now,
-      },
+      values: {'id': uid, 'full_name': fullName, 'updated_at': now},
       onConflict: 'id',
     );
   }
@@ -114,11 +99,7 @@ class SupabaseProfileRepository implements ProfileRepository {
 
     await _api.upsert(
       table: 'profiles',
-      values: {
-        'id': uid,
-        'bio': bio,
-        'updated_at': now,
-      },
+      values: {'id': uid, 'bio': bio, 'updated_at': now},
       onConflict: 'id',
     );
   }

@@ -133,7 +133,6 @@ final progressStoreProvider = Provider<ProgressStore>((ref) {
   }
 });
 
-
 Future<void> migrateLocalToRemoteForCourse(String courseId) async {
   final client = Supabase.instance.client;
   final session = client.auth.currentSession;

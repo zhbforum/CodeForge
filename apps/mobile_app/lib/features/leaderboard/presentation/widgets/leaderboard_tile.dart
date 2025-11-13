@@ -15,13 +15,12 @@ class LeaderboardTile extends StatelessWidget {
     final onMed = theme.colorScheme.onSurface.withValues(alpha: .68);
 
     final avatarUrl = entry.avatarUrl;
-    final isSvg = avatarUrl != null &&
+    final isSvg =
+        avatarUrl != null &&
         avatarUrl.isNotEmpty &&
-        (
-          avatarUrl.endsWith('.svg') ||
-          avatarUrl.contains('/svg') ||
-          avatarUrl.contains('format=svg')
-        );
+        (avatarUrl.endsWith('.svg') ||
+            avatarUrl.contains('/svg') ||
+            avatarUrl.contains('format=svg'));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -35,9 +34,8 @@ class LeaderboardTile extends StatelessWidget {
               CircleAvatar(
                 radius: 22,
                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                foregroundImage: (!isSvg &&
-                        avatarUrl != null &&
-                        avatarUrl.isNotEmpty)
+                foregroundImage:
+                    (!isSvg && avatarUrl != null && avatarUrl.isNotEmpty)
                     ? NetworkImage(avatarUrl)
                     : null,
                 child: () {
@@ -53,10 +51,7 @@ class LeaderboardTile extends StatelessWidget {
                   }
 
                   if (avatarUrl == null || avatarUrl.isEmpty) {
-                    return GeneratedAvatar(
-                      seed: entry.displayName,
-                      size: 24,
-                    );
+                    return GeneratedAvatar(seed: entry.displayName, size: 24);
                   }
 
                   return null;

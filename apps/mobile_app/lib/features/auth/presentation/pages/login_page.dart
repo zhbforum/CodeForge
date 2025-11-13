@@ -37,17 +37,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       fireImmediately: false,
     );
 
-    _subVm = ref.listenManual<AsyncValue<void>>(
-      authViewModelProvider,
-      (prev, next) {
-        if (next is AsyncError && mounted) {
-          final err = next.error;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Auth error: $err')),
-          );
-        }
-      },
-    );
+    _subVm = ref.listenManual<AsyncValue<void>>(authViewModelProvider, (
+      prev,
+      next,
+    ) {
+      if (next is AsyncError && mounted) {
+        final err = next.error;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Auth error: $err')));
+      }
+    });
   }
 
   @override
@@ -63,10 +63,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (!_formKey.currentState!.validate()) return;
     final vm = ref.read(authViewModelProvider.notifier);
     try {
-      await vm.signInWithPassword(
-        _email.text.trim(),
-        _password.text,
-      );
+      await vm.signInWithPassword(_email.text.trim(), _password.text);
       if (!mounted) return;
       context.go(widget.returnTo);
     } catch (_) {}
@@ -181,8 +178,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => context.go(
-                                  '/auth/signup?from=${widget.returnTo}',
-                                ),
+                              '/auth/signup?from=${widget.returnTo}',
+                            ),
                         ),
                       ],
                     ),

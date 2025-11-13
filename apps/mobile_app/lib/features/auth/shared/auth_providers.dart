@@ -16,8 +16,8 @@ final authStateStreamProviderAlias = StreamProvider<AuthState>(
 
 final authViewModelProvider =
     StateNotifierProvider<AuthViewModel, AsyncValue<void>>(
-  (ref) => AuthViewModel(ref.read(authRepositoryProvider)),
-);
+      (ref) => AuthViewModel(ref.read(authRepositoryProvider)),
+    );
 
 final authStateStreamProvider = StreamProvider<AuthState>(
   (ref) => ref.read(authServiceProvider).onAuthStateChange,

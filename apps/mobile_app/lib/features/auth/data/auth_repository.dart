@@ -2,7 +2,6 @@ import 'package:mobile_app/core/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthRepository {
-
   AuthRepository(this._service);
   final AuthService _service;
 
@@ -16,8 +15,7 @@ class AuthRepository {
   Future<AuthResponse> signUpWithPassword(String email, String password) =>
       _service.signUpWithPassword(email, password);
 
-  Future<void> sendMagicLink(String email) =>
-      _service.sendMagicLink(email);
+  Future<void> sendMagicLink(String email) => _service.sendMagicLink(email);
 
   Future<void> signInWithOAuth(OAuthProvider provider) =>
       _service.signInWithOAuth(provider);

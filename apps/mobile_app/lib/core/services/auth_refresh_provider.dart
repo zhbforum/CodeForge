@@ -8,7 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 typedef CurrentSessionGetter = Session? Function();
 
 final currentSessionGetterProvider = Provider<CurrentSessionGetter>(
-  (ref) => () => Supabase.instance.client.auth.currentSession,
+  (ref) =>
+      () => Supabase.instance.client.auth.currentSession,
 );
 
 final authRefreshProvider = Provider<ChangeNotifier>((ref) {
@@ -24,8 +25,8 @@ class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(
     Stream<AuthState> authStream,
     CurrentSessionGetter getCurrentSession,
-  )   : _getCurrentSession = getCurrentSession,
-        _sub = authStream.listen((_) {}) {
+  ) : _getCurrentSession = getCurrentSession,
+      _sub = authStream.listen((_) {}) {
     final cached = _getCurrentSession();
     _value = AsyncValue.data(cached);
 

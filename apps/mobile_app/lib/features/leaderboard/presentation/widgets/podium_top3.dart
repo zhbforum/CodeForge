@@ -8,7 +8,6 @@ class PodiumTop3 extends StatelessWidget {
   const PodiumTop3({required this.top3, super.key});
   final List<LeaderboardEntry> top3;
 
-
   @override
   Widget build(BuildContext context) {
     if (top3.isEmpty) return const SizedBox.shrink();
@@ -22,66 +21,63 @@ class PodiumTop3 extends StatelessWidget {
     const h2 = 85.0;
     const h3 = 70.0;
 
-  Widget step(LeaderboardEntry e, double height) {
-    final gradTop = isDark
-        ? theme.colorScheme.primary.withValues(alpha: .30)
-        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: .95);
-    final gradBottom = isDark
-        ? theme.colorScheme.primary.withValues(alpha: .10)
-        : theme.colorScheme.surface.withValues(alpha: .92);
+    Widget step(LeaderboardEntry e, double height) {
+      final gradTop = isDark
+          ? theme.colorScheme.primary.withValues(alpha: .30)
+          : theme.colorScheme.surfaceContainerHighest.withValues(alpha: .95);
+      final gradBottom = isDark
+          ? theme.colorScheme.primary.withValues(alpha: .10)
+          : theme.colorScheme.surface.withValues(alpha: .92);
 
-    final avatarUrl = e.avatarUrl;
-    final isSvg = avatarUrl != null &&
-        avatarUrl.isNotEmpty &&
-        (avatarUrl.endsWith('.svg') ||
-        avatarUrl.contains('/svg') ||
-        avatarUrl.contains('format=svg'));
+      final avatarUrl = e.avatarUrl;
+      final isSvg =
+          avatarUrl != null &&
+          avatarUrl.isNotEmpty &&
+          (avatarUrl.endsWith('.svg') ||
+              avatarUrl.contains('/svg') ||
+              avatarUrl.contains('format=svg'));
 
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              CircleAvatar(
-                radius: 30,
-                foregroundImage: (!isSvg &&
-                        avatarUrl != null &&
-                        avatarUrl.isNotEmpty)
-                    ? NetworkImage(avatarUrl)
-                    : null,
-                child: () {
-                  if (isSvg && avatarUrl.isNotEmpty) {
-                    return ClipOval(
-                      child: SvgPicture.network(
-                        avatarUrl,
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  }
-                  if (avatarUrl == null || avatarUrl.isEmpty) {
-                    return GeneratedAvatar(
-                      seed: e.displayName,
-                      size: 24,
-                    );
-                  }
-                  return null;
-                }(),
-              ),
-              Positioned(
-                right: -4,
-                bottom: -4,
-                child: CircleAvatar(
-                  radius: 12,
-                  backgroundColor: theme.scaffoldBackgroundColor,
-                  child: MedalIcon(e.rank, size: 22),
+      return Expanded(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  foregroundImage:
+                      (!isSvg && avatarUrl != null && avatarUrl.isNotEmpty)
+                      ? NetworkImage(avatarUrl)
+                      : null,
+                  child: () {
+                    if (isSvg && avatarUrl.isNotEmpty) {
+                      return ClipOval(
+                        child: SvgPicture.network(
+                          avatarUrl,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    }
+                    if (avatarUrl == null || avatarUrl.isEmpty) {
+                      return GeneratedAvatar(seed: e.displayName, size: 24);
+                    }
+                    return null;
+                  }(),
                 ),
-              ),
-            ],
-          ),
+                Positioned(
+                  right: -4,
+                  bottom: -4,
+                  child: CircleAvatar(
+                    radius: 12,
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    child: MedalIcon(e.rank, size: 22),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 6),
             Text(
               e.displayName,

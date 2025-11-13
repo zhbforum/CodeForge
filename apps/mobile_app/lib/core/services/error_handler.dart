@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ErrorHandler {
-
   void handle(Object error, StackTrace stackTrace) {
     if (kDebugMode) {
       debugPrint('[ErrorHandler] ${error.runtimeType}: $error');
@@ -44,7 +43,9 @@ class ErrorHandler {
   void _log(String type, String? message, [String? code]) {
     if (kDebugMode) {
       // ignore: lines_longer_than_80_chars
-      debugPrint('[ErrorHandler] $type ${code != null ? '($code)' : ''}: $message');
+      debugPrint(
+        '[ErrorHandler] $type ${code != null ? '($code)' : ''}: $message',
+      );
     }
   }
 }
