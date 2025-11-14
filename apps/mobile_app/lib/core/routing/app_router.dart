@@ -36,15 +36,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/auth/login',
         builder: (ctx, st) {
-          final from = st.uri.queryParameters['from'] ?? '/profile';
-          return LoginPage(returnTo: from);
+          final from = st.uri.queryParameters['from'];
+          final returnTo = _resolveReturnTo(from);
+          return LoginPage(returnTo: returnTo);
         },
       ),
       GoRoute(
         path: '/auth/signup',
         builder: (ctx, st) {
-          final from = st.uri.queryParameters['from'] ?? '/profile';
-          return SignUpPage(returnTo: from);
+          final from = st.uri.queryParameters['from'];
+          final returnTo = _resolveReturnTo(from);
+          return SignUpPage(returnTo: returnTo);
         },
       ),
       StatefulShellRoute.indexedStack(
@@ -143,7 +145,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             : SplashPage.routePath;
       }
 
-      final session = Supabase.instance.client.auth.currentSession;
+      final session = auth.valueOrNull;
       final isAuthed = session != null;
 
       final loc = state.matchedLocation;
@@ -209,6 +211,11 @@ String? _sanitizeReturn(String? from) {
     return '/profile';
   }
   return from;
+}
+
+String _resolveReturnTo(String? from) {
+  final safe = _sanitizeReturn(from);
+  return safe ?? '/profile';
 }
 
 class _CourseAutoRedirect extends ConsumerWidget {
