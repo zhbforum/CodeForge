@@ -4,12 +4,20 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/settings_bottom_sheet.dart';
 
 class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key, this.returnTo});
+  const WelcomePage({super.key, this.returnTo, this.onNavigate});
+
   static const routePath = '/profile/welcome';
+
   final String? returnTo;
+  final void Function(String location)? onNavigate;
 
   String get _fallbackReturn =>
       (returnTo?.isNotEmpty ?? false) ? returnTo! : '/profile';
+
+  void _go(BuildContext context, String location) {
+    final navigate = onNavigate ?? context.go;
+    navigate(location);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +88,8 @@ class WelcomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
                   FilledButton(
-                    onPressed: () => context.go(
+                    onPressed: () => _go(
+                      context,
                       '/auth/signup?from=${Uri.encodeComponent(_fallbackReturn)}',
                     ),
                     style: FilledButton.styleFrom(
@@ -91,7 +100,8 @@ class WelcomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(
-                    onPressed: () => context.go(
+                    onPressed: () => _go(
+                      context,
                       '/auth/login?from=${Uri.encodeComponent(_fallbackReturn)}',
                     ),
                     style: OutlinedButton.styleFrom(
