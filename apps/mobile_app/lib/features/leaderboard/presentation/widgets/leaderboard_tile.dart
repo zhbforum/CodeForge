@@ -5,6 +5,21 @@ import 'package:mobile_app/features/leaderboard/presentation/widgets/league_badg
 import 'package:mobile_app/features/leaderboard/presentation/widgets/medal_icon.dart';
 import 'package:mobile_app/shared/avatar/generated_avatar.dart';
 
+@visibleForTesting
+SvgPicture Function(String url)? svgAvatarBuilderOverride;
+
+SvgPicture _buildSvgAvatar(String url) {
+  final override = svgAvatarBuilderOverride;
+  if (override != null) {
+    return override(url);
+  }
+
+  return SvgPicture.network(url, width: 44, height: 44, fit: BoxFit.cover);
+}
+
+@visibleForTesting
+SvgPicture buildSvgAvatarForTest(String url) => _buildSvgAvatar(url);
+
 class LeaderboardTile extends StatelessWidget {
   const LeaderboardTile({required this.entry, super.key});
   final LeaderboardEntry entry;
@@ -15,9 +30,9 @@ class LeaderboardTile extends StatelessWidget {
     final onMed = theme.colorScheme.onSurface.withValues(alpha: .68);
 
     final avatarUrl = entry.avatarUrl;
+    final hasAvatar = avatarUrl != null && avatarUrl.isNotEmpty;
     final isSvg =
-        avatarUrl != null &&
-        avatarUrl.isNotEmpty &&
+        hasAvatar &&
         (avatarUrl.endsWith('.svg') ||
             avatarUrl.contains('/svg') ||
             avatarUrl.contains('format=svg'));
@@ -34,23 +49,15 @@ class LeaderboardTile extends StatelessWidget {
               CircleAvatar(
                 radius: 22,
                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                foregroundImage:
-                    (!isSvg && avatarUrl != null && avatarUrl.isNotEmpty)
+                foregroundImage: (!isSvg && hasAvatar)
                     ? NetworkImage(avatarUrl)
                     : null,
                 child: () {
-                  if (isSvg && avatarUrl.isNotEmpty) {
-                    return ClipOval(
-                      child: SvgPicture.network(
-                        avatarUrl,
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                      ),
-                    );
+                  if (isSvg && hasAvatar) {
+                    return ClipOval(child: _buildSvgAvatar(avatarUrl));
                   }
 
-                  if (avatarUrl == null || avatarUrl.isEmpty) {
+                  if (!hasAvatar) {
                     return GeneratedAvatar(seed: entry.displayName, size: 24);
                   }
 
