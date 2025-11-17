@@ -15,7 +15,7 @@ class _FakeLeaderboardEntry extends Mock implements LeaderboardEntry {}
 
 void main() {
   group('leaderboard_providers.dart', () {
-    test('userStatsProvider читает repo и возвращает UserStats', () async {
+    test('userStatsProvider reads repo and returns UserStats', () async {
       final repo = _MockLeaderboardRepository();
       final fakeStats = _FakeUserStats();
 
@@ -32,7 +32,7 @@ void main() {
       verify(repo.fetchUserStats).called(1);
     });
 
-    test('topLeaderboardProvider читает repo и возвращает список', () async {
+    test('topLeaderboardProvider reads repo and returns list', () async {
       final repo = _MockLeaderboardRepository();
       final e1 = _FakeLeaderboardEntry();
       final e2 = _FakeLeaderboardEntry();
@@ -52,7 +52,7 @@ void main() {
       verify(repo.fetchTop).called(1);
     });
 
-    test('userStatsProvider пробрасывает ошибку репозитория', () async {
+    test('userStatsProvider propagates repository error', () async {
       final repo = _MockLeaderboardRepository();
 
       when(repo.fetchUserStats).thenThrow(Exception('boom'));
@@ -69,7 +69,7 @@ void main() {
       verify(repo.fetchUserStats).called(1);
     });
 
-    test('topLeaderboardProvider пробрасывает ошибку репозитория', () async {
+    test('topLeaderboardProvider propagates repository error', () async {
       final repo = _MockLeaderboardRepository();
 
       when(repo.fetchTop).thenThrow(Exception('boom'));
@@ -86,7 +86,7 @@ void main() {
       verify(repo.fetchTop).called(1);
     });
 
-    test('autoDispose: повторное чтение вызывает repo ещё раз', () async {
+    test('autoDispose: second read calls repo again', () async {
       final repo = _MockLeaderboardRepository();
       final e = _FakeLeaderboardEntry();
 
