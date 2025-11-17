@@ -7,9 +7,88 @@ final authStateStreamProvider = Provider<Stream<AuthState>>((ref) {
   return AppSupabase.client.auth.onAuthStateChange;
 });
 
+abstract class AuthClient {
+  Stream<AuthState> get onAuthStateChange;
+
+  Session? get currentSession;
+  User? get currentUser;
+
+  Future<AuthResponse> signInWithPassword({
+    required String email,
+    required String password,
+  });
+
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+    required String? emailRedirectTo,
+  });
+
+  Future<void> signInWithOAuth(OAuthProvider provider, {String? redirectTo});
+
+  Future<void> signOut();
+
+  Future<void> signInWithOtp({required String email, String? emailRedirectTo});
+}
+
+class SupabaseAuthClient implements AuthClient {
+  SupabaseAuthClient(this._inner);
+
+  final GoTrueClient _inner;
+
+  @override
+  Stream<AuthState> get onAuthStateChange => _inner.onAuthStateChange;
+
+  @override
+  Session? get currentSession => _inner.currentSession;
+
+  @override
+  User? get currentUser => _inner.currentUser;
+
+  @override
+  Future<AuthResponse> signInWithPassword({
+    required String email,
+    required String password,
+  }) {
+    return _inner.signInWithPassword(email: email, password: password);
+  }
+
+  @override
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+    required String? emailRedirectTo,
+  }) {
+    return _inner.signUp(
+      email: email,
+      password: password,
+      emailRedirectTo: emailRedirectTo,
+    );
+  }
+
+  @override
+  Future<void> signInWithOAuth(OAuthProvider provider, {String? redirectTo}) {
+    return _inner.signInWithOAuth(provider, redirectTo: redirectTo);
+  }
+
+  @override
+  Future<void> signOut() {
+    return _inner.signOut();
+  }
+
+  @override
+  Future<void> signInWithOtp({required String email, String? emailRedirectTo}) {
+    return _inner.signInWithOtp(email: email, emailRedirectTo: emailRedirectTo);
+  }
+}
+
 class AuthService {
-  final GoTrueClient _auth = AppSupabase.client.auth;
-  final ErrorHandler _errorHandler = ErrorHandler();
+  AuthService({AuthClient? auth, ErrorHandler? errorHandler})
+    : _auth = auth ?? SupabaseAuthClient(AppSupabase.client.auth),
+      _errorHandler = errorHandler ?? ErrorHandler();
+
+  final AuthClient _auth;
+  final ErrorHandler _errorHandler;
 
   Stream<AuthState> get onAuthStateChange => _auth.onAuthStateChange;
 
@@ -60,10 +139,7 @@ class AuthService {
 
   Future<void> sendMagicLink(String email) async {
     try {
-      await _auth.signInWithOtp(
-        email: email,
-        emailRedirectTo: 'codeforge://auth-callback',
-      );
+      await _auth.signInWithOtp(email: email, emailRedirectTo: _redirect);
     } catch (e, st) {
       _errorHandler.handle(e, st);
       rethrow;
