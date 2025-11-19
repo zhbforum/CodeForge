@@ -1,10 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/models/module.dart';
 
+// We intentionally avoid `const` here so the constructor runs at runtime
+// and is visible in coverage. In a small test like this, the performance
+// impact is negligible.
+// ignore_for_file: prefer_const_constructors
+
 void main() {
   group('CourseModule', () {
     test('creates instance with all fields', () {
-      const module = CourseModule(
+      final module = CourseModule(
         id: 'module-1',
         title: 'Intro module',
         order: 1,
@@ -20,7 +25,7 @@ void main() {
     });
 
     test('progressPct returns 0 when totalLessons is 0', () {
-      const module = CourseModule(
+      final module = CourseModule(
         id: 'module-empty',
         title: 'Empty module',
         order: 0,
@@ -32,7 +37,7 @@ void main() {
     });
 
     test('progressPct returns rounded percentage', () {
-      const module = CourseModule(
+      final module = CourseModule(
         id: 'module-progress',
         title: 'Progress module',
         order: 2,
@@ -44,7 +49,7 @@ void main() {
     });
 
     test('progressPct can go over 100 when doneLessons > totalLessons', () {
-      const module = CourseModule(
+      final module = CourseModule(
         id: 'module-over',
         title: 'Over-completed module',
         order: 3,
