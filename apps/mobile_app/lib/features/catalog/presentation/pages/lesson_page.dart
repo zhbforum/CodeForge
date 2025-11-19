@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,7 +79,9 @@ class LessonPage extends ConsumerWidget {
     final currentOrder = ref.watch(currentOrderProvider(lessonId));
     final clamped = currentOrder.clamp(minOrder, maxOrder);
     if (clamped != currentOrder) {
-      ref.read(currentOrderProvider(lessonId).notifier).state = clamped;
+      Future.microtask(() {
+        ref.read(currentOrderProvider(lessonId).notifier).state = clamped;
+      });
     }
 
     final currentSlides = byOrder[clamped] ?? const <LessonSlide>[];
