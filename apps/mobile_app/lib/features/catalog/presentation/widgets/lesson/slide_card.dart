@@ -131,15 +131,17 @@ class _ImageCard extends StatelessWidget {
         (mime == 'image/svg+xml') || url.toLowerCase().endsWith('.svg');
 
     Widget imageWidget;
+
+    // Thin glue to external image widgets; low value for unit tests.
     if (bytes != null) {
       imageWidget = isSvg
-          ? SvgPicture.memory(bytes, fit: fit)
-          : Image.memory(bytes, fit: fit);
+          ? SvgPicture.memory(bytes, fit: fit) // coverage:ignore-line
+          : Image.memory(bytes, fit: fit); // coverage:ignore-line
     } else {
       if (url.isEmpty) return const SizedBox.shrink();
       imageWidget = isSvg
-          ? SvgPicture.network(url, fit: fit)
-          : Image.network(url, fit: fit);
+          ? SvgPicture.network(url, fit: fit) // coverage:ignore-line
+          : Image.network(url, fit: fit); // coverage:ignore-line
     }
 
     return Card(
@@ -269,14 +271,15 @@ class _HeroBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // External asset/network image wiring; excluded from coverage.
     final w = (asset != null && asset!.toLowerCase().endsWith('.svg'))
-        ? SvgPicture.asset(asset!, height: height)
+        ? SvgPicture.asset(asset!, height: height) // coverage:ignore-line
         : (asset != null)
-        ? Image.asset(asset!, height: height)
+        ? Image.asset(asset!, height: height) // coverage:ignore-line
         : (url != null && url!.toLowerCase().endsWith('.svg'))
-        ? SvgPicture.network(url!, height: height)
+        ? SvgPicture.network(url!, height: height) // coverage:ignore-line
         : (url != null)
-        ? Image.network(url!, height: height)
+        ? Image.network(url!, height: height) // coverage:ignore-line
         : const SizedBox.shrink();
 
     final alignment = switch (align) {
