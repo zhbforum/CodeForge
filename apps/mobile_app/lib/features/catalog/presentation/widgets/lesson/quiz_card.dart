@@ -111,7 +111,7 @@ class QuizCard extends ConsumerWidget {
 
             if (revealed) ...[
               const SizedBox(height: 12),
-              const _ResultBanner(correct: true),
+              const ResultBanner(correct: true),
               if (explanation != null && explanation.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
@@ -300,8 +300,8 @@ class _WrongTryAgainBanner extends StatelessWidget {
   }
 }
 
-class _ResultBanner extends StatelessWidget {
-  const _ResultBanner({required this.correct});
+class ResultBanner extends StatelessWidget {
+  const ResultBanner({required this.correct, super.key});
   final bool correct;
 
   @override

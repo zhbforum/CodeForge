@@ -1,10 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/core/models/track.dart';
 
+// We intentionally avoid `const` here so the constructor runs at runtime
+// and is visible in coverage. In a small test like this, the performance
+// impact is negligible.
+// ignore_for_file: prefer_const_constructors
+
 void main() {
   group('Track model', () {
     test('creates instance with all fields', () {
-      const track = Track(
+      final track = Track(
         id: TrackId.fullstack,
         title: 'Fullstack track',
         subtitle: 'From zero to hero',
@@ -22,7 +27,7 @@ void main() {
     });
 
     test('uses default values for optional fields', () {
-      const track = Track(
+      final track = Track(
         id: TrackId.python,
         title: 'Python track',
         subtitle: 'Intro to Python',
