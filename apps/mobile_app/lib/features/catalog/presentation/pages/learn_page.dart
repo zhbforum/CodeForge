@@ -14,11 +14,22 @@ class LearnPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Learn')),
-      body: asyncCourses.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Ошибка: $e')),
-        data: (courses) => _CoursesGrid(courses: courses),
-      ),
+      body: LearnBody(asyncCourses: asyncCourses),
+    );
+  }
+}
+
+class LearnBody extends StatelessWidget {
+  const LearnBody({required this.asyncCourses, super.key});
+
+  final AsyncValue<List<Course>> asyncCourses;
+
+  @override
+  Widget build(BuildContext context) {
+    return asyncCourses.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, st) => Center(child: Text('Error: $e')),
+      data: (courses) => _CoursesGrid(courses: courses),
     );
   }
 }
