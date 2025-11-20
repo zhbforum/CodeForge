@@ -36,7 +36,7 @@ class AccountActionsCard extends ConsumerWidget {
                 await ref.read(authViewModelProvider.notifier).signOut();
 
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  router.go('/welcome');
+                  router.go('/home');
                 });
               } catch (e) {
                 if (context.mounted) {

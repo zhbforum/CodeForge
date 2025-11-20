@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/app/supabase_init.dart';
 import 'package:mobile_app/core/services/error_handler.dart';
@@ -90,12 +91,15 @@ class AuthService {
   final AuthClient _auth;
   final ErrorHandler _errorHandler;
 
+  static const _mobileRedirect = 'codeforge://auth-callback';
+  static const _webRedirect = 'https://zhbforum.github.io/CodeForge/';
+
+  String get _redirect => kIsWeb ? _webRedirect : _mobileRedirect;
+
   Stream<AuthState> get onAuthStateChange => _auth.onAuthStateChange;
 
   Session? get currentSession => _auth.currentSession;
   User? get currentUser => _auth.currentUser;
-
-  static const _redirect = 'codeforge://auth-callback';
 
   Future<AuthResponse> signInWithPassword(String email, String password) async {
     try {
