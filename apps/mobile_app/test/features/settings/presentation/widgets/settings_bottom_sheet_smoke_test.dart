@@ -6,6 +6,8 @@ import 'package:mobile_app/features/auth/shared/auth_providers.dart';
 import 'package:mobile_app/features/settings/data/settings_repository.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
 import 'package:mobile_app/features/settings/presentation/viewmodels/settings_view_model.dart';
+import 'package:mobile_app/features/settings/presentation/widgets/cyclic_time_picker.dart';
+import 'package:mobile_app/features/settings/presentation/widgets/preview_option_tile.dart';
 import 'package:mobile_app/features/settings/presentation/widgets/settings_bottom_sheet.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -241,14 +243,20 @@ void main() {
     expect(find.text('Light'), findsOneWidget);
     expect(find.text('Dark'), findsOneWidget);
 
-    await tester.tap(find.text('Light'), warnIfMissed: false);
+    final tiles = find.byType(PreviewOptionTile);
+    expect(tiles, findsNWidgets(3));
+
+    await tester.tap(tiles.at(0));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Dark'), warnIfMissed: false);
+    await tester.tap(tiles.at(1));
+    await tester.pumpAndSettle();
+
+    await tester.tap(tiles.at(2));
     await tester.pumpAndSettle();
   });
 
-  testWidgets('open App icon view shows header', (tester) async {
+  testWidgets('open App icon view, tap icon options', (tester) async {
     await tester.pumpWidget(
       _buildApp(settings: initial, isAuthenticated: true),
     );
@@ -263,6 +271,12 @@ void main() {
 
     expect(find.text('App icon'), findsOneWidget);
     expect(find.text('Select App Icon'), findsOneWidget);
+
+    final iconTiles = find.byType(PreviewOptionTile);
+    expect(iconTiles, findsWidgets);
+
+    await tester.tap(iconTiles.first);
+    await tester.pumpAndSettle();
   });
 
   testWidgets('open Set goal view and select different goals', (tester) async {
@@ -294,10 +308,48 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('open time picker and press Save closes inner sheet', (
+  testWidgets(
+    'open time picker, change value via onChanged and press Save closes sheet',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(800, 1200));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        _buildApp(settings: initial, isAuthenticated: true),
+      );
+
+      await tester.tap(find.text('Open'));
+      final sheetFinder = find.byType(SettingsBottomSheet);
+      await pumpUntilVisible(tester, sheetFinder);
+      await tester.pumpAndSettle();
+
+      final changeButton = find.text('Change');
+
+      await tester.scrollUntilVisible(changeButton, 100);
+      await tester.pumpAndSettle();
+
+      await tester.tap(changeButton);
+      await tester.pumpAndSettle();
+
+      final timePickerFinder = find.byType(CyclicTimePicker);
+      expect(timePickerFinder, findsOneWidget);
+
+      final timePicker = tester.widget<CyclicTimePicker>(timePickerFinder);
+      timePicker.onChanged(9, 45);
+
+      final saveButton = find.widgetWithText(FilledButton, 'Save');
+      expect(saveButton, findsOneWidget);
+
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      expect(saveButton, findsNothing);
+    },
+  );
+
+  testWidgets('open time picker and press Cancel closes inner sheet', (
     tester,
   ) async {
-    // увеличиваем высоту тестового окна, чтобы "Change" реально был кликабельным
     await tester.binding.setSurfaceSize(const Size(800, 1200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -318,13 +370,12 @@ void main() {
     await tester.tap(changeButton);
     await tester.pumpAndSettle();
 
-    final saveButton = find.widgetWithText(FilledButton, 'Save');
-    expect(saveButton, findsOneWidget);
+    expect(find.text('Select time'), findsOneWidget);
 
-    await tester.tap(saveButton);
+    await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
-    expect(saveButton, findsNothing);
+    expect(find.text('Select time'), findsNothing);
   });
 
   testWidgets('header close button dismisses settings sheet', (tester) async {
