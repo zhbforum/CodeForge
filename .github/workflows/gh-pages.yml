@@ -3,6 +3,8 @@ name: Deploy Flutter Web to GitHub Pages
 on:
   push:
     branches: [ main, feat/gh-pages-deploy ]
+    
+  workflow_dispatch:
 
 jobs:
   build:
@@ -25,4 +27,5 @@ jobs:
         uses: bluefireteam/flutter-gh-pages@v9
         with:
           workingDir: apps/mobile_app
+          baseHref: /CodeForge/
           token: ${{ secrets.GITHUB_TOKEN }}
