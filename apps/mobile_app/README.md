@@ -32,7 +32,7 @@ The app is being developed with support for all major platforms:
 - Flutter Test (unit & widget tests)  
 
 ### 📌 Roadmap
-- [ ] Authentication & user profiles  
+- [x] Authentication & user profiles  
 - [ ] Practice section with advanced tasks  
 - [ ] Progress tracking (percentages) in Profile  
 - [ ] Ranking system with leagues: **Bronze → Silver → Gold → Diamond**  
@@ -67,7 +67,7 @@ The app is being developed with support for all major platforms:
 - Flutter Test (модульні та віджет-тести)  
 
 ### 📌 Roadmap
-- [ ] Авторизація та профілі користувачів  
+- [x] Авторизація та профілі користувачів  
 - [ ] Розділ **Practice** зі складнішими завданнями  
 - [ ] Відстеження прогресу (у відсотках) у профілі  
 - [ ] Рейтинги з лігами: **Бронза → Срібло → Золото → Діамант**  
