@@ -202,4 +202,35 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
-          path: ${{ steps.locate_apk.outputs.paths }}
+
+  deploy_web:
+    name: Deploy Flutter Web to GitHub Pages
+    needs: format_analyze_test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.35.4"
+          cache: true
+
+      - name: Enable web
+        run: flutter config --enable-web
+
+      - name: Build & deploy to GitHub Pages
+        uses: bluefireteam/flutter-gh-pages@v9
+        with:
+          workingDir: apps/mobile_app
+          token: ${{ secrets.GITHUB_TOKEN }}
