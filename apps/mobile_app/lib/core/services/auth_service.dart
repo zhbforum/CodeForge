@@ -46,10 +46,7 @@ class AuthService {
 
   Future<void> signInWithOAuth(OAuthProvider provider) async {
     try {
-      await _auth.signInWithOAuth(
-        provider,
-        redirectTo: _redirect,
-      );
+      await _auth.signInWithOAuth(provider, redirectTo: _redirect);
     } catch (e, st) {
       _errorHandler.handle(e, st);
       rethrow;
@@ -67,10 +64,7 @@ class AuthService {
 
   Future<void> sendMagicLink(String email) async {
     try {
-      await _auth.signInWithOtp(
-        email: email,
-        emailRedirectTo: _redirect,
-      );
+      await _auth.signInWithOtp(email: email, emailRedirectTo: _redirect);
     } catch (e, st) {
       _errorHandler.handle(e, st);
       rethrow;
