@@ -3,12 +3,11 @@
 // Suppressing warnings keeps the test output clean.
 
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:mobile_app/core/error/error_handler.dart';
 import 'package:mobile_app/core/models/course.dart';
 import 'package:mobile_app/core/models/lesson.dart';
 import 'package:mobile_app/core/models/track.dart';
 import 'package:mobile_app/core/services/api_service.dart';
-import 'package:mobile_app/core/services/error_handler.dart';
 import 'package:mobile_app/features/catalog/data/course_repository.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
