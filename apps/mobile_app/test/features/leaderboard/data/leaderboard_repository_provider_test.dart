@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile_app/core/error/error_handler.dart';
 import 'package:mobile_app/core/services/api_service.dart' as core;
 import 'package:mobile_app/core/services/api_service_provider.dart';
 import 'package:mobile_app/features/leaderboard/data/leaderboard_repository_provider.dart';
@@ -16,13 +17,14 @@ void main() {
           'https://example-project.supabase.co',
           'public-anon-key',
         );
-
         final container = ProviderContainer(
           overrides: [
             supabaseClientProvider.overrideWithValue(fakeClient),
-
             apiServiceProvider.overrideWith(
-              (ref) => core.ApiService(client: fakeClient),
+              (ref) => core.ApiService(
+                client: fakeClient,
+                errorHandler: ErrorHandler(showUiErrorCallback: (_) {}),
+              ),
             ),
           ],
         );

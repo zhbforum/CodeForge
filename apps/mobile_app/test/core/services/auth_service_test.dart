@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile_app/core/error/error_handler.dart';
 import 'package:mobile_app/core/services/auth_service.dart';
-import 'package:mobile_app/core/services/error_handler.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

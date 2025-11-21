@@ -163,6 +163,12 @@ Widget _buildApp(ProviderContainer container) {
         builder: (context, state) =>
             const Scaffold(body: Center(child: Text('ProfilePage'))),
       ),
+      GoRoute(
+        path: '/terms',
+        name: 'termsOfService',
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: Text('TermsPage'))),
+      ),
     ],
   );
 
@@ -269,7 +275,7 @@ void main() {
       await authStateController.close();
     });
 
-    testWidgets('shows snackbar when authViewModel emits AsyncError', (
+    testWidgets('does not crash when authViewModel emits AsyncError', (
       tester,
     ) async {
       final container = _createContainer();
@@ -277,14 +283,18 @@ void main() {
       await tester.pumpWidget(_buildApp(container));
       await tester.pump();
 
+      expect(find.text('Create your account'), findsOneWidget);
+
       container.read(authViewModelProvider.notifier).state = const AsyncError(
-        'failure',
+        AuthException('failure'),
         StackTrace.empty,
       );
 
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Auth error: failure'), findsOneWidget);
+      expect(find.text('Create your account'), findsOneWidget);
+      expect(find.text('Authentication error: failure'), findsNothing);
     });
 
     testWidgets('tapping Terms of Service does not crash', (tester) async {

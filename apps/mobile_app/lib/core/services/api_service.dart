@@ -1,10 +1,12 @@
-import 'package:mobile_app/core/services/error_handler.dart';
+import 'package:mobile_app/core/error/error_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApiService {
-  ApiService({SupabaseClient? client, ErrorHandler? errorHandler})
-    : _client = client ?? Supabase.instance.client,
-      _errorHandler = errorHandler ?? ErrorHandler();
+  ApiService({
+    required SupabaseClient client,
+    required ErrorHandler errorHandler,
+  }) : _client = client,
+       _errorHandler = errorHandler;
 
   final SupabaseClient _client;
   final ErrorHandler _errorHandler;

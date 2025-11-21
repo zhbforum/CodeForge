@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/app/supabase_init.dart';
 import 'package:mobile_app/core/routing/app_router.dart';
+import 'package:mobile_app/core/ui/widgets/global_error_overlay.dart';
 import 'package:mobile_app/features/settings/domain/app_settings.dart';
 import 'package:mobile_app/features/settings/presentation/viewmodels/settings_view_model.dart';
 
@@ -30,6 +31,9 @@ class App extends ConsumerWidget {
       theme: ThemeData(useMaterial3: true, brightness: Brightness.light),
       darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
       routerConfig: router,
+      builder: (context, child) {
+        return GlobalErrorOverlay(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }

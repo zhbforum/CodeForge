@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/core/error/error_handler.dart'
+    hide errorHandlerProvider;
 import 'package:mobile_app/core/models/module.dart';
 import 'package:mobile_app/core/routing/app_router.dart';
+import 'package:mobile_app/core/services/api_service_provider.dart'
+    show errorHandlerProvider;
 import 'package:mobile_app/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile_app/features/auth/presentation/pages/signup_page.dart';
 import 'package:mobile_app/features/auth/presentation/pages/welcome_page.dart';
@@ -47,6 +51,11 @@ Future<void> _pumpRouterApp(
     ProviderScope(
       overrides: [
         authSessionProvider.overrideWithValue(const AsyncData<Session?>(null)),
+
+        errorHandlerProvider.overrideWith(
+          (ref) => ErrorHandler(showUiErrorCallback: (_) {}),
+        ),
+
         ...extraOverrides,
       ],
       child: Consumer(

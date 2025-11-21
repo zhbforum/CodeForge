@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_app/core/services/error_handler.dart';
+import 'package:mobile_app/core/error/error_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+ErrorHandler _createHandler() => ErrorHandler(showUiErrorCallback: (_) {});
 
 void main() {
   group('ErrorHandler.message', () {
-    final handler = ErrorHandler();
+    final handler = _createHandler();
 
     test('returns auth message for AuthException', () {
       const error = AuthException('Invalid credentials');
@@ -42,7 +44,7 @@ void main() {
   });
 
   group('ErrorHandler.handle', () {
-    final handler = ErrorHandler();
+    final handler = _createHandler();
     final stackTrace = StackTrace.current;
 
     test('handles AuthException', () {

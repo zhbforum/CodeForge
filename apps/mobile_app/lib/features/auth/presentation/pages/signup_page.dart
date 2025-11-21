@@ -20,7 +20,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   late final ProviderSubscription<AsyncValue<AuthState>> _subAuth;
-  late final ProviderSubscription<AsyncValue<void>> _subVm;
 
   @override
   void initState() {
@@ -36,18 +35,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       },
       fireImmediately: false,
     );
-
-    _subVm = ref.listenManual<AsyncValue<void>>(authViewModelProvider, (
-      prev,
-      next,
-    ) {
-      if (next is AsyncError && mounted) {
-        final err = next.error;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Auth error: $err')));
-      }
-    });
   }
 
   @override
@@ -56,7 +43,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     _password.dispose();
     _confirm.dispose();
     _subAuth.close();
-    _subVm.close();
     super.dispose();
   }
 
@@ -174,9 +160,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 ),
                 const SizedBox(height: 6),
                 InkWell(
-                  onTap: () {
-                    // TODO(killursxlf): open Terms of Service
-                  },
+                  onTap: () => context.pushNamed('termsOfService'),
                   child: Text(
                     'Terms of Service',
                     textAlign: TextAlign.center,

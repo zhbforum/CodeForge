@@ -1,17 +1,19 @@
 import 'dart:math';
 
+import 'package:mobile_app/core/error/error_handler.dart';
 import 'package:mobile_app/core/models/course.dart';
 import 'package:mobile_app/core/models/lesson.dart';
 import 'package:mobile_app/core/models/track.dart';
 import 'package:mobile_app/core/services/api_service.dart';
-import 'package:mobile_app/core/services/error_handler.dart';
 import 'package:mobile_app/features/catalog/data/progress_store.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CourseRepository {
-  CourseRepository({ApiService? api, ErrorHandler? errorHandler})
-    : _api = api ?? ApiService(),
-      _errorHandler = errorHandler ?? ErrorHandler();
+  CourseRepository({
+    required ApiService api,
+    required ErrorHandler errorHandler,
+  }) : _api = api,
+       _errorHandler = errorHandler;
 
   final ApiService _api;
   final ErrorHandler _errorHandler;

@@ -2,11 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/models/course.dart';
 import 'package:mobile_app/core/models/course_node.dart';
 import 'package:mobile_app/core/models/lesson.dart';
+import 'package:mobile_app/core/services/api_service_provider.dart';
 import 'package:mobile_app/features/catalog/data/course_repository.dart';
 
-final courseRepositoryProvider = Provider<CourseRepository>(
-  (ref) => CourseRepository(),
-);
+final courseRepositoryProvider = Provider<CourseRepository>((ref) {
+  final api = ref.read(apiServiceProvider);
+  final errorHandler = ref.read(errorHandlerProvider);
+
+  return CourseRepository(api: api, errorHandler: errorHandler);
+});
 
 final courseProvider = FutureProvider.family.autoDispose<Course, String>((
   ref,

@@ -5,6 +5,7 @@ import 'package:mobile_app/features/leaderboard/domain/leaderboard_repository.da
 
 final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
   final api = ref.read(apiServiceProvider);
-  final sb = ref.read(supabaseClientProvider);
-  return SupabaseLeaderboardRepository(api, sb);
+  final client = ref.read(supabaseClientProvider);
+
+  return SupabaseLeaderboardRepository(api, client);
 });

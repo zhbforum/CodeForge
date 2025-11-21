@@ -20,7 +20,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   late final ProviderSubscription<AsyncValue<AuthState>> _subAuth;
-  late final ProviderSubscription<AsyncValue<void>> _subVm;
 
   @override
   void initState() {
@@ -36,18 +35,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       },
       fireImmediately: false,
     );
-
-    _subVm = ref.listenManual<AsyncValue<void>>(authViewModelProvider, (
-      prev,
-      next,
-    ) {
-      if (next is AsyncError && mounted) {
-        final err = next.error;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Auth error: $err')));
-      }
-    });
   }
 
   @override
@@ -55,7 +42,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     _email.dispose();
     _password.dispose();
     _subAuth.close();
-    _subVm.close();
     super.dispose();
   }
 
