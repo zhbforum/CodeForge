@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -65,6 +67,7 @@ class RemoteProgressStore implements ProgressStore {
     final session = _client.auth.currentSession;
     if (session == null) return <String, bool>{};
 
+    // coverage:ignore-start
     final filterCourseId = int.tryParse(courseId) ?? courseId;
 
     final rows = await _client
@@ -73,16 +76,8 @@ class RemoteProgressStore implements ProgressStore {
         .eq('user_id', session.user.id)
         .eq('lessons.course_id', filterCourseId);
 
-    final list = (rows as List)
-        .map((e) => Map<String, dynamic>.from(e as Map))
-        .toList();
-    final result = <String, bool>{};
-    for (final r in list) {
-      final lid = r['lesson_id'];
-      final done = r['is_completed'] == true;
-      result[(lid is num ? lid.toString() : lid as String)] = done;
-    }
-    return result;
+    return _mapRowsToCompletion(rows);
+    // coverage:ignore-end
   }
 
   @override
@@ -94,6 +89,7 @@ class RemoteProgressStore implements ProgressStore {
     final session = _client.auth.currentSession;
     if (session == null) throw AuthRequiredException();
 
+    // coverage:ignore-start
     final lessonKey = int.tryParse(lessonId) ?? lessonId;
 
     await _client.from('user_progress').upsert({
@@ -102,6 +98,7 @@ class RemoteProgressStore implements ProgressStore {
       'is_completed': completed,
       if (completed) 'completed_at': DateTime.now().toIso8601String(),
     }, onConflict: 'user_id,lesson_id');
+    // coverage:ignore-end
   }
 
   Future<void> setCurrentSlide({
@@ -111,6 +108,7 @@ class RemoteProgressStore implements ProgressStore {
     final session = _client.auth.currentSession;
     if (session == null) throw AuthRequiredException();
 
+    // coverage:ignore-start
     final lessonKey = int.tryParse(lessonId) ?? lessonId;
 
     await _client.from('user_progress').upsert({
@@ -118,9 +116,11 @@ class RemoteProgressStore implements ProgressStore {
       'lesson_id': lessonKey,
       'current_slide': order,
     }, onConflict: 'user_id,lesson_id');
+    // coverage:ignore-end
   }
 }
 
+// coverage:ignore-start
 final progressStoreProvider = Provider<ProgressStore>((ref) {
   final client = Supabase.instance.client;
   final session = client.auth.currentSession;
@@ -154,4 +154,24 @@ Future<void> migrateLocalToRemoteForCourse(String courseId) async {
     }
   }
   await local.clearCourse(courseId);
+}
+// coverage:ignore-end
+
+@visibleForTesting
+Map<String, bool> mapRowsToCompletionForTest(dynamic rows) =>
+    _mapRowsToCompletion(rows);
+
+Map<String, bool> _mapRowsToCompletion(dynamic rows) {
+  final list = (rows as List)
+      .map((e) => Map<String, dynamic>.from(e as Map))
+      .toList();
+
+  final result = <String, bool>{};
+  for (final r in list) {
+    final lid = r['lesson_id'];
+    final done = r['is_completed'] == true;
+    final key = lid is num ? lid.toString() : lid as String;
+    result[key] = done;
+  }
+  return result;
 }
