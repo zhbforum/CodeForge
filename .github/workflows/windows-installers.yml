@@ -4,7 +4,10 @@ on:
   push:
     tags:
       - 'mobile-v*'   
-  workflow_dispatch:   
+  workflow_dispatch: 
+
+permissions:
+  contents: read
 
 jobs:
   build-windows-installers:
