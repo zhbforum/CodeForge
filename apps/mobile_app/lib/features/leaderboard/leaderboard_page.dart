@@ -67,11 +67,7 @@ class LeaderboardPage extends ConsumerWidget {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   ref
                       .read(errors.errorHandlerProvider)
-                      .handle(
-                        e,
-                        st,
-                        showUiError: false,
-                      );
+                      .handle(e, st, showUiError: false);
                 });
                 return const SizedBox.shrink();
               },
