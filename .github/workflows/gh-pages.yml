@@ -28,4 +28,5 @@ jobs:
         with:
           workingDir: apps/mobile_app
           baseHref: /CodeForge/
+        env:
           token: ${{ secrets.GITHUB_TOKEN }}

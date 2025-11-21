@@ -202,6 +202,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
+          path: ${{ steps.locate_apk.outputs.paths }}
 
   deploy_web:
     name: Deploy Flutter Web to GitHub Pages
@@ -234,4 +235,5 @@ jobs:
         with:
           workingDir: apps/mobile_app
           baseHref: /CodeForge/
+        env:
           token: ${{ secrets.GITHUB_TOKEN }}
