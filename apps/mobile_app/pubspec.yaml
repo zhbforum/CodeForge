@@ -53,6 +53,8 @@ msix_config:
   logo_path: windows/runner/resources/app_icon.ico
 
   certificate_path: windows/certs/codeforge_dev.pfx
+  install_certificate: false   
 
   output_name: CodeForge
   capabilities: internetClient
+
