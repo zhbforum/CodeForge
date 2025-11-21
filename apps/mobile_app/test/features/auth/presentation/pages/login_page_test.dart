@@ -215,7 +215,7 @@ void main() {
   );
 
   testWidgets(
-    'LoginPage does not crash when Auth AsyncError is emitted from view model listener',
+    'LoginPage doesnt crash when AuthError is emitted from view model listener',
     (tester) async {
       late _ErrorLaterAuthViewModel vm;
 
