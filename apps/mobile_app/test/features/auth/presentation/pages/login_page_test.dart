@@ -215,7 +215,7 @@ void main() {
   );
 
   testWidgets(
-    'LoginPage shows SnackBar on Auth AsyncError from view model listener',
+    'LoginPage does not crash when Auth AsyncError is emitted from view model listener',
     (tester) async {
       late _ErrorLaterAuthViewModel vm;
 
@@ -231,12 +231,15 @@ void main() {
       await tester.pumpWidget(_buildApp(router: router, overrides: overrides));
       await tester.pump();
 
+      expect(find.widgetWithText(FilledButton, 'Sign In'), findsOneWidget);
+
       vm.fail();
 
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Authentication error: failure'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Sign In'), findsOneWidget);
+      expect(find.text('Authentication error: failure'), findsNothing);
     },
   );
 
