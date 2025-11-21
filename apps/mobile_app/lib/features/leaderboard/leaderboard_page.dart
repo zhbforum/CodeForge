@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/core/error/error_handler.dart' as errors;
 import 'package:mobile_app/features/leaderboard/presentation/viewmodels/leaderboard_providers.dart';
 import 'package:mobile_app/features/leaderboard/presentation/widgets/hero_stats_card.dart';
 import 'package:mobile_app/features/leaderboard/presentation/widgets/leaderboard_list.dart';
@@ -19,7 +20,6 @@ class LeaderboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userStats = ref.watch(userStatsProvider);
     final topList = ref.watch(topLeaderboardProvider);
-
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
@@ -41,11 +41,18 @@ class LeaderboardPage extends ConsumerWidget {
           children: [
             userStats.when(
               loading: () => const _LoadingCard(height: 160),
-              error: (e, _) =>
-                  _ErrorCard(message: 'Failed to load user stats: $e'),
+              error: (e, st) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  ref
+                      .read(errors.errorHandlerProvider)
+                      .handle(e, st, showUiError: false);
+                });
+                return const SizedBox.shrink();
+              },
               data: (data) => HeroStatsCard(stats: data),
             ),
             const SizedBox(height: 16),
+
             Text(
               'Top 20',
               style: Theme.of(
@@ -53,10 +60,21 @@ class LeaderboardPage extends ConsumerWidget {
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
+
             topList.when(
               loading: () => const _LoadingList(items: 6),
-              error: (e, _) =>
-                  _ErrorCard(message: 'Failed to load leaderboard: $e'),
+              error: (e, st) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  ref
+                      .read(errors.errorHandlerProvider)
+                      .handle(
+                        e,
+                        st,
+                        showUiError: false,
+                      );
+                });
+                return const SizedBox.shrink();
+              },
               data: (entries) {
                 final top3 = entries.take(3).toList();
                 final others = entries.skip(3).toList();
@@ -119,27 +137,6 @@ class _LoadingList extends StatelessWidget {
           ),
         );
       }),
-    );
-  }
-}
-
-class _ErrorCard extends StatelessWidget {
-  const _ErrorCard({required this.message});
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-      ),
     );
   }
 }

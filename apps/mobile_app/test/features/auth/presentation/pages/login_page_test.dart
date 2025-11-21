@@ -67,7 +67,7 @@ class _ErrorLaterAuthViewModel extends AuthViewModel {
   _ErrorLaterAuthViewModel() : super(_FakeAuthRepository());
 
   void fail() {
-    state = const AsyncError('Test auth error', StackTrace.empty);
+    state = const AsyncError(AuthException('failure'), StackTrace.empty);
   }
 }
 
@@ -232,9 +232,11 @@ void main() {
       await tester.pump();
 
       vm.fail();
-      await tester.pump();
 
-      expect(find.textContaining('Auth error:'), findsOneWidget);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Authentication error: failure'), findsOneWidget);
     },
   );
 

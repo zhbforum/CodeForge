@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/app/supabase_init.dart';
-import 'package:mobile_app/core/services/error_handler.dart';
+import 'package:mobile_app/core/error/error_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final authStateStreamProvider = Provider<Stream<AuthState>>((ref) {
@@ -84,9 +84,9 @@ class SupabaseAuthClient implements AuthClient {
 }
 
 class AuthService {
-  AuthService({AuthClient? auth, ErrorHandler? errorHandler})
-    : _auth = auth ?? SupabaseAuthClient(AppSupabase.client.auth),
-      _errorHandler = errorHandler ?? ErrorHandler();
+  AuthService({required AuthClient auth, required ErrorHandler errorHandler})
+    : _auth = auth,
+      _errorHandler = errorHandler;
 
   final AuthClient _auth;
   final ErrorHandler _errorHandler;

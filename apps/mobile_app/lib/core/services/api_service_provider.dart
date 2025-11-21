@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/core/error/error_handler.dart';
+import 'package:mobile_app/core/error/error_notifier.dart';
 import 'package:mobile_app/core/services/api_service.dart';
-import 'package:mobile_app/core/services/error_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
@@ -8,9 +9,13 @@ final supabaseClientProvider = Provider<SupabaseClient>((ref) {
 });
 
 final errorHandlerProvider = Provider<ErrorHandler>((ref) {
-  return ErrorHandler();
+  final errorNotifier = ref.read(appErrorProvider.notifier);
+  return ErrorHandler(showUiErrorCallback: errorNotifier.show);
 });
 
 final apiServiceProvider = Provider<ApiService>((ref) {
-  return ApiService();
+  final client = ref.read(supabaseClientProvider);
+  final errorHandler = ref.read(errorHandlerProvider);
+
+  return ApiService(client: client, errorHandler: errorHandler);
 });

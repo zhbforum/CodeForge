@@ -163,6 +163,12 @@ Widget _buildApp(ProviderContainer container) {
         builder: (context, state) =>
             const Scaffold(body: Center(child: Text('ProfilePage'))),
       ),
+      GoRoute(
+        path: '/terms',
+        name: 'termsOfService',
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: Text('TermsPage'))),
+      ),
     ],
   );
 
@@ -278,13 +284,14 @@ void main() {
       await tester.pump();
 
       container.read(authViewModelProvider.notifier).state = const AsyncError(
-        'failure',
+        AuthException('failure'),
         StackTrace.empty,
       );
 
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Auth error: failure'), findsOneWidget);
+      expect(find.text('Authentication error: failure'), findsOneWidget);
     });
 
     testWidgets('tapping Terms of Service does not crash', (tester) async {

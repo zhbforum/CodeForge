@@ -12,6 +12,7 @@ import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page
 import 'package:mobile_app/features/catalog/presentation/providers/module_providers.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
+import 'package:mobile_app/features/legal/terms_of_service_page.dart';
 import 'package:mobile_app/features/onboarding/onboarding_page.dart';
 import 'package:mobile_app/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile_app/ui/app_shell.dart';
@@ -48,6 +49,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final returnTo = _resolveReturnTo(from);
           return SignUpPage(returnTo: returnTo);
         },
+      ),
+      GoRoute(
+        path: '/terms',
+        name: 'termsOfService',
+        builder: (context, state) => const TermsOfServicePage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navShell) => AppShell(navShell: navShell),
