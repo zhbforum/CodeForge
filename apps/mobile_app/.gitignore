@@ -54,6 +54,7 @@ app.*.map.json
 certs/
 D:/certs/
 windows/certs/
+windows/certs/*.pfx
 
 # Local env/scripts
 .env*

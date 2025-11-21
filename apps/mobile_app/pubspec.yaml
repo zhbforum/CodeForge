@@ -50,4 +50,9 @@ msix_config:
   publisher: CN=CodeForgeDev
   msix_version: 1.0.0.0
   architecture: x64
-  logo_path: windows/runner/resources/app_icon.ico               
+  logo_path: windows/runner/resources/app_icon.ico
+
+  certificate_path: windows/certs/codeforge_dev.pfx
+
+  output_name: CodeForge
+  capabilities: internetClient
