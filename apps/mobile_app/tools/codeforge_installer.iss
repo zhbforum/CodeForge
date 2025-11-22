@@ -32,3 +32,11 @@ Name: "{commondesktop}\CodeForge"; Filename: "{app}\mobile_app.exe"; Tasks: desk
 
 [Run]
 Filename: "{app}\mobile_app.exe"; Description: "Launch CodeForge"; Flags: nowait postinstall skipifsilent
+
+[Registry]
+Root: HKCR; Subkey: "codeforge"; ValueType: string; ValueName: ""; ValueData: "URL:CodeForge Protocol"; Flags: uninsdeletekey
+Root: HKCR; Subkey: "codeforge"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""; Flags: uninsdeletekey
+
+Root: HKCR; Subkey: "codeforge\DefaultIcon"; ValueType: string; ValueData: """{app}\mobile_app.exe"",1"; Flags: uninsdeletekey
+
+Root: HKCR; Subkey: "codeforge\shell\open\command"; ValueType: string; ValueData: """{app}\mobile_app.exe"" ""%1"""; Flags: uninsdeletekey
