@@ -1,11 +1,11 @@
 {
-    "name": "mobile_app",
-    "short_name": "mobile_app",
+    "name": "CodeForge",
+    "short_name": "CodeForge",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "A cross-platform app for learning programming",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
