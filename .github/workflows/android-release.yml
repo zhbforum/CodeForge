@@ -16,7 +16,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: apps/mobile_app
+        working-directory: .
 
     steps:
       - name: Checkout
@@ -95,6 +95,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            apps/mobile_app/build/app/outputs/flutter-apk/*-release.apk
+            build/app/outputs/flutter-apk/*-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

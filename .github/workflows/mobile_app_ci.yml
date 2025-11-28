@@ -3,11 +3,25 @@ name: CodeForge CI
 on:
   push:
     paths:
-      - "apps/mobile_app/**"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+      - "analysis_options.yaml"
+      - "android/**"
+      - "ios/**"
+      - "web/**"
+      - "windows/**"
       - ".github/workflows/mobile_app_ci.yml"
   pull_request:
     paths:
-      - "apps/mobile_app/**"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+      - "analysis_options.yaml"
+      - "android/**"
+      - "ios/**"
+      - "web/**"
+      - "windows/**"
       - ".github/workflows/mobile_app_ci.yml"
 
 permissions:
@@ -24,7 +38,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: apps/mobile_app
+        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -129,7 +143,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: apps/mobile_app
+        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -233,7 +247,7 @@ jobs:
       - name: Build & deploy to GitHub Pages
         uses: bluefireteam/flutter-gh-pages@v9
         with:
-          workingDir: apps/mobile_app
+          workingDir: .
           baseHref: /CodeForge/
         env:
           token: ${{ secrets.GITHUB_TOKEN }}
