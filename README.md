@@ -43,8 +43,8 @@ The app is being developed with support for all major platforms:
   - **Lines:** 99.2% (3545 / 3575)
 
 ### 📦 Downloads & Web Version
-- **Windows installer (v1.0.5):**  
-  [Download from GitHub Releases](https://github.com/zhbforum/CodeForge/releases/tag/mobile-v1.0.5)
+- **Windows installer (v1.0.6):**  
+  [Download from GitHub Releases](https://github.com/zhbforum/CodeForge/releases/tag/mobile-v1.0.6)
 - **Web version:**  
   [Open CodeForge in browser](https://zhbforum.github.io/CodeForge/)
 
