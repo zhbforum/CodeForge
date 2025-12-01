@@ -1,7 +1,7 @@
-# CodeForge — Mobile App
+# CodeForge — CrossPlatform App
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
-[![Coverage](https://img.shields.io/badge/coverage-99.2%25-brightgreen)](#-tests--code-quality)
+[![Coverage](https://img.shields.io/badge/coverage-92.3%25-brightgreen)](#-tests--code-quality)
 
 
 **🌍 Languages:**  
@@ -40,12 +40,18 @@ The app is being developed with support for all major platforms:
 
 ### ✅ Tests & Code Quality
 - Test coverage (LCOV):
-  - **Lines:** 99.2% (3545 / 3575)
+  - **Lines:** 92.3% (3590 / 3890)
 
-### 📦 Downloads & Web Version
-- **Windows installer (v1.0.6):**  
-  [Download from GitHub Releases](https://github.com/zhbforum/CodeForge/releases/tag/mobile-v1.0.6)
-- **Web version:**  
+## 📦 Downloads & Web Version
+- **Windows installer (v1.0.9)**  
+  [Download from GitHub Releases](https://github.com/zhbforum/CodeForge/releases/tag/mobile-v1.0.9+9)
+
+- **Linux builds (v1.0.9)**  
+  - **AppImage** — portable, runs without installation  
+  - **tar.gz** — unpack & run  
+  [Download from GitHub Releases](https://github.com/zhbforum/CodeForge/releases/tag/mobile-v1.0.9+9)
+
+- **Web version**  
   [Open CodeForge in browser](https://zhbforum.github.io/CodeForge/)
 
 ### 📌 Roadmap
@@ -88,12 +94,18 @@ The app is being developed with support for all major platforms:
 
 ### ✅ Тести та якість коду
 - Покриття тестами (LCOV):
-  - **Рядки:** 99.2% (3545 / 3575)
+  - **Рядки:** 92.3% (3590 / 3890)
 
 ### 📦 Завантаження та веб-версія
-- **Інсталер для Windows (v1.0.5):**  
-  [Завантажити з GitHub Releases](https://github.com/zhbforum/CodeForge/releases/tag/mobile-v1.0.5)
-- **Веб-версія:**  
+- **Інсталер для Windows (v1.0.9)**  
+  [Завантажити з GitHub Releases](https://github.com/zhbforum/CodeForge/releases/tag/mobile-v1.0.9+9)
+
+- **Збірки для Linux (v1.0.9)**  
+  - **AppImage** — портативна збірка, працює без встановлення  
+  - **tar.gz** — розпакувати та запустити  
+  [Завантажити з GitHub Releases](https://github.com/zhbforum/CodeForge/releases/tag/mobile-v1.0.9+9)
+
+- **Веб-версія**  
   [Відкрити CodeForge у браузері](https://zhbforum.github.io/CodeForge/)
 
 ### 📌 Roadmap
@@ -108,7 +120,8 @@ The app is being developed with support for all major platforms:
 ## 📝 License
 
 This project is licensed under the **MIT License**.  
-See the `LICENSE` file in the repository for more details.  
+See the [`LICENSE`](https://github.com/zhbforum/CodeForge/blob/main/LICENSE) file for more details.
 
 Цей проєкт розповсюджується за ліцензією **MIT**.  
-Деталі — у файлі `LICENSE` в репозиторії.
+Деталі — у файлі [`LICENSE`](https://github.com/zhbforum/CodeForge/blob/main/LICENSE) в репозиторії.
+
