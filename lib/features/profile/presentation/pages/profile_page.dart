@@ -278,16 +278,22 @@ class _HelpSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(title: 'Help'),
-        SizedBox(height: 8),
+        const SectionHeader(title: 'Help'),
+        const SizedBox(height: 8),
         ListBlock(
           items: [
-            ListItem(title: 'Help Center'),
-            ListItem(title: 'Frequently Asked Questions'),
-            ListItem(title: 'Contact Support', isLast: true),
+            ListItem(
+              title: 'Help Center',
+              onTap: () => context.pushNamed('helpCenter'),
+            ),
+            ListItem(
+              title: 'Contact Support',
+              isLast: true,
+              onTap: () => context.pushNamed('contactUs'),
+            ),
           ],
         ),
       ],
