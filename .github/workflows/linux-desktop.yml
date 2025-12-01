@@ -1,0 +1,105 @@
+name: Linux desktop builds (tar.gz + AppImage)
+
+on:
+  push:
+    tags:
+      - 'mobile-v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux-desktop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.4'
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libgtk-3-dev \
+            liblzma-dev
+
+      - name: Enable Linux desktop & pub get
+        run: |
+          flutter config --enable-linux-desktop
+          flutter pub get
+
+      - name: Build Linux (release)
+        run: flutter build linux --release
+
+      - name: Create Linux tar.gz bundle
+        run: |
+          mkdir -p dist
+          tar -czf dist/CodeForge-linux-x64.tar.gz -C build/linux/x64/release/bundle .
+
+      - name: Prepare AppDir for AppImage
+        run: |
+          set -e
+          APPDIR="AppDir"
+          BINARY_NAME="mobile_app"
+          mkdir -p "$APPDIR/usr/bin"
+          mkdir -p "$APPDIR/usr/share/applications"
+          mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
+          cp -r build/linux/x64/release/bundle/* "$APPDIR/usr/bin/"
+          chmod +x "$APPDIR/usr/bin/$BINARY_NAME"
+          cat << 'EOF' > "$APPDIR/AppRun"
+          #!/bin/sh
+          HERE="$(dirname "$(readlink -f "$0")")"
+          export PATH="$HERE/usr/bin:$PATH"
+          exec "$HERE/usr/bin/mobile_app" "$@"
+          EOF
+          chmod +x "$APPDIR/AppRun"
+          cat << 'EOF' > "$APPDIR/usr/share/applications/codeforge.desktop"
+          [Desktop Entry]
+          Type=Application
+          Name=CodeForge
+          Comment=CodeForge – learning platform for developers
+          Exec=mobile_app
+          Icon=codeforge
+          Terminal=false
+          Categories=Development;Education;
+          EOF
+          if [ -f "tools/icons/codeforge.png" ]; then
+            cp "tools/icons/codeforge.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/codeforge.png"
+          fi
+
+      - name: Build AppImage
+        run: |
+          set -e
+          mkdir -p dist
+          curl -L -o appimagetool-x86_64.AppImage \
+            https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          ./appimagetool-x86_64.AppImage --appimage-extract-and-run AppDir dist/CodeForge-x86_64.AppImage
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeforge-linux-desktop
+          path: |
+            dist/CodeForge-linux-x64.tar.gz
+            dist/CodeForge-x86_64.AppImage
+
+      - name: Upload Linux artifacts to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/CodeForge-linux-x64.tar.gz
+            dist/CodeForge-x86_64.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
