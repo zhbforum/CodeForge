@@ -1,5 +1,5 @@
 name: mobile_app
-version: 1.0.6+6
+version: 1.0.9+9
 
 environment:
   sdk: ^3.9.0
@@ -50,7 +50,7 @@ msix_config:
   publisher_display_name: CodeForge Dev
   identity_name: com.codeforge.app
   publisher: CN=CodeForgeDev
-  msix_version: 1.0.6.6
+  msix_version: 1.0.9.9
   architecture: x64
   logo_path: windows/runner/resources/app_icon.ico
 
