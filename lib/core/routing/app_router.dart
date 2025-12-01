@@ -10,6 +10,8 @@ import 'package:mobile_app/features/catalog/presentation/pages/learn_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/lesson_page.dart';
 import 'package:mobile_app/features/catalog/presentation/pages/track_detail_page.dart';
 import 'package:mobile_app/features/catalog/presentation/providers/module_providers.dart';
+import 'package:mobile_app/features/help/presentation/pages/contact_us_page.dart';
+import 'package:mobile_app/features/help/presentation/pages/help_center_page.dart';
 import 'package:mobile_app/features/launch/splash_page.dart';
 import 'package:mobile_app/features/leaderboard/leaderboard_page.dart';
 import 'package:mobile_app/features/legal/terms_of_service_page.dart';
@@ -54,6 +56,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/terms',
         name: 'termsOfService',
         builder: (context, state) => const TermsOfServicePage(),
+      ),
+      GoRoute(
+        path: '/help-center',
+        name: 'helpCenter',
+        builder: (context, state) => const HelpCenterPage(),
+      ),
+      GoRoute(
+        path: '/contact-us',
+        name: 'contactUs',
+        builder: (context, state) => const ContactUsPage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navShell) => AppShell(navShell: navShell),
