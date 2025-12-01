@@ -51,19 +51,23 @@ jobs:
           set -e
           APPDIR="AppDir"
           BINARY_NAME="mobile_app"
+
           mkdir -p "$APPDIR/usr/bin"
           mkdir -p "$APPDIR/usr/share/applications"
           mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
+
           cp -r build/linux/x64/release/bundle/* "$APPDIR/usr/bin/"
           chmod +x "$APPDIR/usr/bin/$BINARY_NAME"
-          cat << 'EOF' > "$APPDIR/AppRun"
+
+          cat > "$APPDIR/AppRun" << 'EOF'
           #!/bin/sh
           HERE="$(dirname "$(readlink -f "$0")")"
           export PATH="$HERE/usr/bin:$PATH"
           exec "$HERE/usr/bin/mobile_app" "$@"
           EOF
           chmod +x "$APPDIR/AppRun"
-          cat << 'EOF' > "$APPDIR/usr/share/applications/codeforge.desktop"
+
+          cat > "$APPDIR/usr/share/applications/codeforge.desktop" << 'EOF'
           [Desktop Entry]
           Type=Application
           Name=CodeForge
@@ -73,9 +77,15 @@ jobs:
           Terminal=false
           Categories=Development;Education;
           EOF
+
           if [ -f "tools/icons/codeforge.png" ]; then
             cp "tools/icons/codeforge.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/codeforge.png"
           fi
+
+      - name: Debug AppDir tree
+        run: |
+          echo "AppDir structure"
+          find AppDir -maxdepth 5 -type f | sort
 
       - name: Build AppImage
         run: |
