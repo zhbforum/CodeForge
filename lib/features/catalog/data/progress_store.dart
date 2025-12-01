@@ -126,11 +126,14 @@ final progressStoreProvider = Provider<ProgressStore>((ref) {
   final session = client.auth.currentSession;
   final isAnon = session?.user.isAnonymous ?? true;
 
+  final ProgressStore inner;
   if (!isAnon && session != null) {
-    return RemoteProgressStore(client);
+    inner = RemoteProgressStore(client);
   } else {
-    return LocalProgressStore();
+    inner = LocalProgressStore();
   }
+
+  return NotifyingProgressStore(inner, ref);
 });
 
 Future<void> migrateLocalToRemoteForCourse(String courseId) async {
@@ -174,4 +177,33 @@ Map<String, bool> _mapRowsToCompletion(dynamic rows) {
     result[key] = done;
   }
   return result;
+}
+
+final progressVersionProvider = StateProvider<int>((ref) => 0);
+
+class NotifyingProgressStore implements ProgressStore {
+  NotifyingProgressStore(this._inner, this._ref);
+
+  final ProgressStore _inner;
+  final Ref _ref;
+
+  @override
+  Future<Map<String, bool>> getLessonCompletion(String courseId) {
+    return _inner.getLessonCompletion(courseId);
+  }
+
+  @override
+  Future<void> setLessonCompleted({
+    required String courseId,
+    required String lessonId,
+    required bool completed,
+  }) async {
+    await _inner.setLessonCompleted(
+      courseId: courseId,
+      lessonId: lessonId,
+      completed: completed,
+    );
+
+    _ref.read(progressVersionProvider.notifier).state++;
+  }
 }
