@@ -76,7 +76,10 @@ jobs:
             'Icon=codeforge' \
             'Terminal=false' \
             'Categories=Development;Education;' \
-            > "$APPDIR/usr/share/applications/codeforge.desktop"
+            > "$APPDIR/codeforge.desktop"
+
+          cp "$APPDIR/codeforge.desktop" \
+             "$APPDIR/usr/share/applications/codeforge.desktop"
 
           if [ -f "tools/icons/codeforge.png" ]; then
             cp "tools/icons/codeforge.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/codeforge.png"
