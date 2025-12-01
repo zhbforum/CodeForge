@@ -81,8 +81,9 @@ jobs:
           cp "$APPDIR/codeforge.desktop" \
              "$APPDIR/usr/share/applications/codeforge.desktop"
 
-          if [ -f "tools/icons/codeforge.png" ]; then
-            cp "tools/icons/codeforge.png" "$APPDIR/usr/share/icons/hicolor/256x256/apps/codeforge.png"
+          if [ -f "assets/icons/logo/classic.jpg" ]; then
+            cp "assets/icons/logo/classic.jpg" "$APPDIR/codeforge.png"
+            cp "assets/icons/logo/classic.jpg" "$APPDIR/usr/share/icons/hicolor/256x256/apps/codeforge.png"
           fi
 
       - name: Debug AppDir tree
