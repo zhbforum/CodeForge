@@ -34,15 +34,17 @@ class LearnBody extends StatelessWidget {
   }
 }
 
-class _CoursesGrid extends StatelessWidget {
+class _CoursesGrid extends ConsumerWidget {
   const _CoursesGrid({required this.courses});
+
   final List<Course> courses;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final w = constraints.maxWidth;
+
         final crossAxisCount = w < 420
             ? 1
             : w < 900
@@ -50,6 +52,7 @@ class _CoursesGrid extends StatelessWidget {
             : w < 1400
             ? 3
             : 4;
+
         final childAspectRatio = w < 420
             ? 2.6
             : w < 900
@@ -69,13 +72,35 @@ class _CoursesGrid extends StatelessWidget {
                 childAspectRatio: childAspectRatio,
               ),
               itemCount: courses.length,
-              itemBuilder: (_, i) {
-                final c = courses[i];
+              itemBuilder: (BuildContext context, int index) {
+                final c = courses[index];
                 final isDesktop = w >= 1200;
-                return CourseCard(
-                  course: c,
-                  dense: isDesktop,
-                  onTap: () => context.go('/home/course/${c.id}'),
+
+                final asyncProgress = ref.watch(
+                  courseProgressSummaryProvider(c.id.toString()),
+                );
+
+                return asyncProgress.when<Widget>(
+                  loading: () => CourseCard(
+                    course: c,
+                    dense: isDesktop,
+                    onTap: () => context.go('/home/course/${c.id}'),
+                  ),
+                  error: (Object error, StackTrace stack) => CourseCard(
+                    course: c,
+                    dense: isDesktop,
+                    onTap: () => context.go('/home/course/${c.id}'),
+                  ),
+                  data: (CourseProgressSummary summary) {
+                    return CourseCard(
+                      course: c,
+                      dense: isDesktop,
+                      progress: summary.progress,
+                      completedLessons: summary.completedLessons,
+                      totalLessons: summary.totalLessons,
+                      onTap: () => context.go('/home/course/${c.id}'),
+                    );
+                  },
                 );
               },
             ),

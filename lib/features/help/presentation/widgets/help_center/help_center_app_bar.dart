@@ -21,7 +21,7 @@ class HelpCenterAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       title: Text(
-        'Help Centre',
+        'Help Center',
         style: theme.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.w700,
           color: colors.onSurface,

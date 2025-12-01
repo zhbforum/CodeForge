@@ -74,3 +74,28 @@ final lessonCompletedProvider = FutureProvider.family
       final map = await store.getLessonCompletion(key.courseId);
       return map[key.lessonId] ?? false;
     });
+
+final lessonQuizzesCompletedProvider = Provider.family
+    .autoDispose<bool, String>((ref, String lessonId) {
+      final slidesAsync = ref.watch(lessonSlidesProvider(lessonId));
+
+      return slidesAsync.maybeWhen(
+        data: (List<LessonSlide> slides) {
+          final quizSlides = slides
+              .where((s) => s.contentType == 'quiz')
+              .toList();
+
+          if (quizSlides.isEmpty) return true;
+
+          for (final slide in quizSlides) {
+            final revealed = ref.watch(quizRevealedProvider(slide.id));
+            if (!revealed) {
+              return false;
+            }
+          }
+
+          return true;
+        },
+        orElse: () => false,
+      );
+    });

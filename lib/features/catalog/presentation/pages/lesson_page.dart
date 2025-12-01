@@ -91,6 +91,8 @@ class LessonPage extends ConsumerWidget {
       lessonCompletedProvider((courseId: courseId, lessonId: lessonId)),
     );
 
+    final canFinishLesson = ref.watch(lessonQuizzesCompletedProvider(lessonId));
+
     return CallbackShortcuts(
       bindings: <ShortcutActivator, VoidCallback>{
         const SingleActivator(LogicalKeyboardKey.arrowLeft): () {
@@ -164,7 +166,7 @@ class LessonPage extends ConsumerWidget {
                 ),
               ),
             ),
-            if (isLastStep)
+            if (isLastStep && canFinishLesson)
               completedAsync.when(
                 data: (isCompleted) => FinishBar(
                   isCompleted: isCompleted,

@@ -11,6 +11,8 @@ class CourseCard extends StatelessWidget {
     this.locked = false,
     this.highlighted = false,
     this.dense = false,
+    this.completedLessons,
+    this.totalLessons,
     super.key,
   });
 
@@ -21,12 +23,22 @@ class CourseCard extends StatelessWidget {
   final bool highlighted;
   final bool dense;
 
+  final int? completedLessons;
+  final int? totalLessons;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final progressPct = (progress * 100).round();
+    final total = totalLessons ?? 0;
+    final completed = completedLessons ?? 0;
+
+    final clampedProgress = progress.isNaN || !progress.isFinite
+        ? 0.0
+        : progress.clamp(0.0, 1.0);
+
+    final progressPct = (clampedProgress * 100).round();
     final techs = iconsForTrackId(_resolveTrackIdFromCourse(course));
 
     final pad = dense ? 10.0 : 12.0;
@@ -131,7 +143,7 @@ class CourseCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'SECTION',
+                    'LESSONS',
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: cs.onSurfaceVariant.withValues(alpha: 0.9),
                       letterSpacing: 1.1,
@@ -141,7 +153,7 @@ class CourseCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    '0/20',
+                    '$completed/$total',
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: cs.onSurfaceVariant.withValues(alpha: 0.9),
                       height: 1,
@@ -168,7 +180,7 @@ class CourseCard extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  '$progressPct% completed',
+                  total > 0 ? '$progressPct% completed' : 'Not started',
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: cs.onSurfaceVariant,
                     height: 1,

@@ -16,6 +16,12 @@ Course _makeTestCourse({int id = 1}) {
   );
 }
 
+Override _mockCourseProgressSummaryProvider() {
+  return courseProgressSummaryProvider.overrideWith(
+    (ref, courseId) => throw UnimplementedError(),
+  );
+}
+
 void main() {
   group('LearnBody', () {
     testWidgets('shows loading indicator when asyncCourses is loading', (
@@ -59,9 +65,12 @@ void main() {
       final courses = <Course>[_makeTestCourse(), _makeTestCourse(id: 2)];
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: LearnBody(asyncCourses: AsyncData<List<Course>>(courses)),
+        ProviderScope(
+          overrides: [_mockCourseProgressSummaryProvider()],
+          child: MaterialApp(
+            home: Scaffold(
+              body: LearnBody(asyncCourses: AsyncData<List<Course>>(courses)),
+            ),
           ),
         ),
       );
@@ -87,8 +96,11 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: LearnBody(asyncCourses: asyncData)),
+        ProviderScope(
+          overrides: [_mockCourseProgressSummaryProvider()],
+          child: MaterialApp(
+            home: Scaffold(body: LearnBody(asyncCourses: asyncData)),
+          ),
         ),
       );
 
@@ -158,6 +170,7 @@ void main() {
         ProviderScope(
           overrides: [
             coursesProvider.overrideWith((ref) => Future.value(courses)),
+            _mockCourseProgressSummaryProvider(),
           ],
           child: const MaterialApp(home: LearnPage()),
         ),
@@ -201,7 +214,12 @@ void main() {
         ],
       );
 
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [_mockCourseProgressSummaryProvider()],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
 
       await tester.pumpAndSettle();
 
