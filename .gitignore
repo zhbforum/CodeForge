@@ -43,6 +43,7 @@ app.*.map.json
 
 # We don`t need it rn 
 /macos/
+/ios/
 
 # FVM Version Cache
 .fvm/
@@ -69,3 +70,4 @@ certs/
 
 # Windows installers output
 dist/
+
